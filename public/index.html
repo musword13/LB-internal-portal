@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LINE Bank Internal Portal</title>
+<style>
+:root {
+  --line-green: #06C755;
+  --line-green-dark: #05a648;
+  --line-green-light: #e8faf0;
+  --primary: #1b2a4a;
+  --primary-light: #2d4a7a;
+  --accent: #06C755;
+  --accent-hover: #05a648;
+  --success: #06C755;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+  --purple: #8b5cf6;
+  --bg: #f4f6f9;
+  --bg-card: #ffffff;
+  --bg-sidebar: #1b2a4a;
+  --text: #1e293b;
+  --text-secondary: #64748b;
+  --text-sidebar: #94a3b8;
+  --border: #e2e8f0;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --sidebar-w: 260px;
+  --topbar-h: 60px;
+  --ease: all 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft JhengHei','Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow:hidden;height:100vh}
+a{color:var(--accent);text-decoration:none}
+button{cursor:pointer;font-family:inherit}
+input,select,textarea{font-family:inherit;font-size:inherit}
+
+/* ===== LOGIN ===== */
+.login-screen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity .6s,visibility .6s;overflow:hidden}
+.login-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1b2a4a 0%,#0f1f3d 40%,#162544 100%)}
+.login-bg::before{content:'';position:absolute;top:-50%;right:-30%;width:80%;height:150%;background:radial-gradient(ellipse,rgba(6,199,85,0.15) 0%,transparent 70%);animation:loginGlow 8s ease-in-out infinite alternate}
+.login-bg::after{content:'';position:absolute;bottom:-30%;left:-20%;width:70%;height:120%;background:radial-gradient(ellipse,rgba(6,199,85,0.08) 0%,transparent 70%);animation:loginGlow 12s ease-in-out infinite alternate-reverse}
+@keyframes loginGlow{0%{transform:translate(0,0) scale(1)}100%{transform:translate(30px,-20px) scale(1.1)}}
+.login-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.login-card{position:relative;background:rgba(255,255,255,0.97);backdrop-filter:blur(24px);border-radius:20px;padding:48px 44px;width:420px;box-shadow:0 30px 80px rgba(0,0,0,0.35);text-align:center;z-index:1}
+.login-brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px}
+.login-brand svg{width:40px;height:40px}
+.login-brand-text{font-size:1.6rem;font-weight:800;color:var(--primary)}
+.login-brand-text span{color:var(--line-green)}
+.login-subtitle{color:var(--text-secondary);font-size:0.88rem;margin-bottom:36px}
+.login-field{margin-bottom:18px;text-align:left}
+.login-field label{display:block;font-weight:600;margin-bottom:6px;font-size:0.82rem;color:var(--text-secondary);letter-spacing:0.3px}
+.login-field input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:0.95rem;transition:var(--ease);background:#f8fafc}
+.login-field input:focus{outline:none;border-color:var(--line-green);background:#fff;box-shadow:0 0 0 3px rgba(6,199,85,0.12)}
+.login-btn{width:100%;padding:14px;background:var(--line-green);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;margin-top:8px;transition:var(--ease);letter-spacing:0.5px}
+.login-btn:hover{background:var(--line-green-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(6,199,85,0.3)}
+.login-hint{margin-top:20px;font-size:0.78rem;color:var(--text-secondary)}
+
+/* ===== LAYOUT ===== */
+.app{display:flex;height:100vh;opacity:0;transition:opacity .5s}
+.app.visible{opacity:1}
+
+/* Sidebar */
+.sidebar{width:var(--sidebar-w);background:var(--bg-sidebar);color:var(--text-sidebar);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100}
+.sidebar-header{padding:18px 22px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px;min-height:var(--topbar-h)}
+.sidebar-logo{display:flex;align-items:center;gap:8px}
+.sidebar-logo svg{width:28px;height:28px}
+.sidebar-logo-text{font-size:1.15rem;font-weight:800;color:#fff}
+.sidebar-logo-text span{color:var(--line-green)}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 0}
+.sidebar-nav::-webkit-scrollbar{width:3px}
+.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+.nav-section{padding:16px 22px 6px;font-size:0.65rem;text-transform:uppercase;letter-spacing:1.8px;color:rgba(255,255,255,0.25);font-weight:700}
+.nav-item{display:flex;align-items:center;gap:12px;padding:9px 22px;cursor:pointer;transition:var(--ease);color:var(--text-sidebar);font-size:0.88rem;position:relative;border-radius:0}
+.nav-item:hover{background:rgba(255,255,255,0.05);color:#e2e8f0}
+.nav-item.active{background:rgba(6,199,85,0.12);color:#fff}
+.nav-item.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:var(--line-green);border-radius:0 3px 3px 0}
+.nav-icon{width:20px;text-align:center;font-size:1.05rem;flex-shrink:0;opacity:0.85}
+.nav-item.active .nav-icon{opacity:1}
+.nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:0.68rem;padding:1px 7px;border-radius:10px;font-weight:700;min-width:20px;text-align:center}
+.sidebar-user{padding:14px 18px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:12px}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:var(--line-green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem}
+.user-info{flex:1}
+.user-name{color:#fff;font-weight:600;font-size:0.82rem}
+.user-role{color:rgba(255,255,255,0.45);font-size:0.72rem}
+.user-status{display:flex;align-items:center;gap:4px;color:rgba(255,255,255,0.45);font-size:0.68rem;margin-top:1px}
+.user-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--line-green)}
+
+/* Main */
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;height:100vh}
+.topbar{height:var(--topbar-h);background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.topbar-title{font-size:1.1rem;font-weight:700}
+.topbar-breadcrumb{font-size:0.78rem;color:var(--text-secondary)}
+.topbar-right{display:flex;align-items:center;gap:6px}
+.topbar-btn{width:38px;height:38px;border-radius:10px;border:none;background:transparent;color:var(--text-secondary);font-size:1.05rem;display:flex;align-items:center;justify-content:center;transition:var(--ease);position:relative}
+.topbar-btn:hover{background:var(--bg);color:var(--text)}
+.topbar-btn .dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--danger);border-radius:50%;border:2px solid var(--bg-card)}
+.search-box{position:relative;width:240px}
+.search-box input{width:100%;padding:8px 14px 8px 36px;border:1.5px solid var(--border);border-radius:10px;font-size:0.84rem;background:var(--bg);transition:var(--ease)}
+.search-box input:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(6,199,85,0.08)}
+.search-box::before{content:'\1F50D';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:0.82rem}
+.content{flex:1;overflow-y:auto;padding:24px 28px}
+.content::-webkit-scrollbar{width:5px}
+.content::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+
+/* ===== PAGE ===== */
+.page{display:none}
+.page.active{display:block;animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== CARDS ===== */
+.card{background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);padding:24px;margin-bottom:20px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:1.02rem;font-weight:700}
+.card-subtitle{font-size:0.78rem;color:var(--text-secondary);margin-top:2px}
+
+/* Grids */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:20px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:20px}
+@media(max-width:1200px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:repeat(2,1fr)}}
+
+/* Hero stat cards */
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.hero-stat{background:var(--bg-card);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);border:1px solid var(--border);position:relative;overflow:hidden;transition:var(--ease)}
+.hero-stat:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.hero-stat::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.hero-stat:nth-child(1)::after{background:var(--line-green)}
+.hero-stat:nth-child(2)::after{background:var(--warning)}
+.hero-stat:nth-child(3)::after{background:var(--info)}
+.hero-stat:nth-child(4)::after{background:var(--danger)}
+.hero-stat-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:12px}
+.hero-stat:nth-child(1) .hero-stat-icon{background:#e8faf0;color:#06C755}
+.hero-stat:nth-child(2) .hero-stat-icon{background:#fef3c7;color:#d97706}
+.hero-stat:nth-child(3) .hero-stat-icon{background:#dbeafe;color:#2563eb}
+.hero-stat:nth-child(4) .hero-stat-icon{background:#fee2e2;color:#dc2626}
+.hero-stat-value{font-size:1.7rem;font-weight:800;line-height:1.2;letter-spacing:-0.5px}
+.hero-stat-label{font-size:0.78rem;color:var(--text-secondary);margin-top:2px}
+.hero-stat-trend{font-size:0.72rem;margin-top:6px;display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-weight:600}
+.hero-stat-trend.up{background:#e8faf0;color:#06C755}
+.hero-stat-trend.down{background:#fee2e2;color:#dc2626}
+.hero-stat-trend.neutral{background:#f1f5f9;color:#64748b}
+
+/* Stat card (reusable) */
+.stat-card{background:var(--bg-card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;align-items:flex-start;gap:14px}
+.stat-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.stat-icon.green{background:#e8faf0;color:#06C755}
+.stat-icon.blue{background:#dbeafe;color:#2563eb}
+.stat-icon.orange{background:#fef3c7;color:#d97706}
+.stat-icon.red{background:#fee2e2;color:#dc2626}
+.stat-icon.purple{background:#ede9fe;color:#7c3aed}
+
+/* Tables */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 12px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);border-bottom:2px solid var(--border);font-weight:700}
+td{padding:11px 12px;border-bottom:1px solid var(--border);font-size:0.88rem}
+tr:hover td{background:#f8fafc}
+
+/* Badges */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.73rem;font-weight:600}
+.badge-success{background:#e8faf0;color:#059669}
+.badge-warning{background:#fef3c7;color:#92400e}
+.badge-danger{background:#fee2e2;color:#dc2626}
+.badge-info{background:#dbeafe;color:#1e40af}
+.badge-gray{background:#f1f5f9;color:#64748b}
+.badge-purple{background:#ede9fe;color:#6d28d9}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:var(--radius-sm);font-weight:600;font-size:0.84rem;border:none;transition:var(--ease)}
+.btn-primary{background:var(--line-green);color:#fff}
+.btn-primary:hover{background:var(--line-green-dark);box-shadow:0 4px 12px rgba(6,199,85,0.25)}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{background:#dc2626}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-ghost{background:transparent;color:var(--text-secondary);padding:6px 12px}
+.btn-ghost:hover{background:var(--bg);color:var(--text)}
+.btn-sm{padding:5px 12px;font-size:0.78rem}
+.btn-icon{width:32px;height:32px;padding:0;justify-content:center;border-radius:8px}
+
+/* Forms */
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-weight:600;margin-bottom:6px;font-size:0.82rem;color:var(--text-secondary)}
+.form-input,.form-select,.form-textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:0.88rem;transition:var(--ease);background:#fff}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(6,199,85,0.08)}
+.form-textarea{resize:vertical;min-height:80px}
+
+/* Tabs */
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px}
+.tab{padding:10px 20px;font-weight:600;font-size:0.88rem;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:var(--ease)}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-content{display:none}
+.tab-content.active{display:block;animation:fadeUp .3s ease}
+
+/* Upload */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:40px;text-align:center;cursor:pointer;transition:var(--ease);background:#fafbfc}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--accent);background:var(--line-green-light)}
+.upload-icon{font-size:2.5rem;margin-bottom:12px}
+.upload-text{font-weight:600;margin-bottom:4px}
+.upload-hint{font-size:0.78rem;color:var(--text-secondary)}
+
+/* Progress */
+.progress-bar{height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .5s ease}
+
+/* Timeline */
+.timeline{position:relative;padding-left:28px}
+.timeline::before{content:'';position:absolute;left:8px;top:4px;bottom:4px;width:2px;background:var(--border)}
+.timeline-item{position:relative;margin-bottom:20px}
+.timeline-dot{position:absolute;left:-24px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid var(--accent);background:#fff}
+.timeline-dot.done{background:var(--success);border-color:var(--success)}
+.timeline-dot.active{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 4px rgba(6,199,85,0.15)}
+.timeline-time{font-size:0.73rem;color:var(--text-secondary)}
+.timeline-title{font-weight:600;font-size:0.88rem}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:var(--ease)}
+.modal-overlay.active{opacity:1;visibility:visible}
+.modal{background:var(--bg-card);border-radius:16px;width:90%;max-width:640px;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-lg);transform:translateY(20px);transition:var(--ease)}
+.modal-overlay.active .modal{transform:translateY(0)}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:1.08rem;font-weight:700}
+.modal-close{background:none;border:none;font-size:1.2rem;color:var(--text-secondary);padding:4px;border-radius:6px}
+.modal-close:hover{background:var(--bg)}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+
+/* Notif Panel */
+.notif-panel{position:fixed;top:var(--topbar-h);right:-400px;width:400px;height:calc(100vh - var(--topbar-h));background:var(--bg-card);box-shadow:-4px 0 24px rgba(0,0,0,0.1);z-index:200;transition:right .3s ease;overflow-y:auto}
+.notif-panel.open{right:0}
+.notif-header{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.notif-item{padding:16px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:var(--ease)}
+.notif-item:hover{background:#f8fafc}
+.notif-item.unread{border-left:3px solid var(--accent)}
+.notif-time{font-size:0.73rem;color:var(--text-secondary);margin-top:4px}
+.notif-title{font-weight:600;font-size:0.88rem}
+.notif-desc{font-size:0.8rem;color:var(--text-secondary);margin-top:2px}
+
+/* AI Chat */
+.ai-fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--line-green),#00b04f);color:#fff;border:none;font-size:1.4rem;box-shadow:0 4px 24px rgba(6,199,85,0.35);z-index:300;transition:var(--ease);display:flex;align-items:center;justify-content:center}
+.ai-fab:hover{transform:scale(1.08);box-shadow:0 6px 30px rgba(6,199,85,0.45)}
+.ai-chat{position:fixed;bottom:90px;right:24px;width:400px;height:530px;background:var(--bg-card);border-radius:20px;box-shadow:var(--shadow-lg);z-index:300;display:flex;flex-direction:column;opacity:0;visibility:hidden;transform:translateY(20px) scale(0.95);transition:var(--ease)}
+.ai-chat.open{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
+.ai-chat-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--line-green),#00b04f);border-radius:20px 20px 0 0;color:#fff}
+.ai-chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.ai-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:0.86rem;line-height:1.55}
+.ai-msg.bot{background:#f1f5f9;align-self:flex-start;border-bottom-left-radius:4px}
+.ai-msg.user{background:var(--line-green);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.ai-chat-input{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
+.ai-chat-input input{flex:1;padding:10px 16px;border:1.5px solid var(--border);border-radius:24px;font-size:0.86rem}
+.ai-chat-input input:focus{outline:none;border-color:var(--accent)}
+.ai-chat-input button{width:40px;height:40px;border-radius:50%;background:var(--line-green);color:#fff;border:none;font-size:1rem;transition:var(--ease)}
+.ai-chat-input button:hover{background:var(--line-green-dark)}
+
+/* Flow Steps */
+.flow-steps{display:flex;align-items:center;gap:0;margin:20px 0}
+.flow-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+.flow-step:not(:last-child)::after{content:'';position:absolute;top:18px;left:55%;right:-45%;height:2px;background:var(--border)}
+.flow-step.done:not(:last-child)::after{background:var(--success)}
+.flow-step.active:not(:last-child)::after{background:linear-gradient(90deg,var(--accent),var(--border))}
+.flow-dot{width:36px;height:36px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;background:#fff;font-size:0.82rem;font-weight:700;z-index:1}
+.flow-step.done .flow-dot{background:var(--success);color:#fff;border-color:var(--success)}
+.flow-step.active .flow-dot{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 0 0 4px rgba(6,199,85,0.15)}
+.flow-label{font-size:0.73rem;margin-top:8px;color:var(--text-secondary);text-align:center}
+.flow-step.done .flow-label{color:var(--success)}
+.flow-step.active .flow-label{color:var(--accent);font-weight:600}
+
+/* Quick Actions */
+.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.quick-action{display:flex;flex-direction:column;align-items:center;gap:10px;padding:22px 14px;background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:var(--ease);text-align:center}
+.quick-action:hover{border-color:var(--line-green);transform:translateY(-3px);box-shadow:0 8px 24px rgba(6,199,85,0.1)}
+.quick-action-icon{font-size:1.8rem;width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.quick-action:nth-child(1) .quick-action-icon{background:#e8faf0}
+.quick-action:nth-child(2) .quick-action-icon{background:#dbeafe}
+.quick-action:nth-child(3) .quick-action-icon{background:#fef3c7}
+.quick-action:nth-child(4) .quick-action-icon{background:#ede9fe}
+.quick-action:nth-child(5) .quick-action-icon{background:#fee2e2}
+.quick-action:nth-child(6) .quick-action-icon{background:#fce7f3}
+.quick-action:nth-child(7) .quick-action-icon{background:#e0f2fe}
+.quick-action:nth-child(8) .quick-action-icon{background:#f1f5f9}
+.quick-action-label{font-weight:700;font-size:0.84rem}
+.quick-action-desc{font-size:0.72rem;color:var(--text-secondary)}
+
+/* Kanban */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.kanban-col{background:var(--bg);border-radius:var(--radius);padding:14px}
+.kanban-col-header{font-weight:700;font-size:0.88rem;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.kanban-count{background:var(--border);padding:2px 8px;border-radius:10px;font-size:0.72rem}
+.kanban-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;transition:var(--ease)}
+.kanban-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.kanban-card-title{font-weight:600;font-size:0.86rem;margin-bottom:6px}
+.kanban-card-meta{font-size:0.73rem;color:var(--text-secondary);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kanban-card-tag{font-size:0.68rem;padding:2px 8px;border-radius:4px;font-weight:600}
+
+/* Employee */
+.emp-card{display:flex;align-items:center;gap:14px;padding:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);transition:var(--ease)}
+.emp-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.emp-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:0.95rem}
+.emp-info{flex:1}
+.emp-name{font-weight:700;font-size:0.92rem}
+.emp-dept{font-size:0.8rem;color:var(--text-secondary)}
+.emp-contact{font-size:0.75rem;color:var(--text-secondary);margin-top:2px}
+
+/* Calendar */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.cal-header{font-size:0.73rem;font-weight:700;color:var(--text-secondary);padding:6px}
+.cal-day{padding:6px;border-radius:8px;font-size:0.82rem;cursor:pointer;transition:var(--ease)}
+.cal-day:hover{background:#e8faf0}
+.cal-day.today{background:var(--line-green);color:#fff;font-weight:700}
+.cal-day.has-event{position:relative}
+.cal-day.has-event::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--danger)}
+
+/* Room */
+.room-slot{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)}
+.room-time{font-size:0.8rem;color:var(--text-secondary);width:100px;font-weight:500}
+.room-status{flex:1;padding:6px 12px;border-radius:8px;font-size:0.8rem;transition:var(--ease)}
+.room-status.free{background:#e8faf0;color:#059669;cursor:pointer}
+.room-status.free:hover{background:#d1fae5}
+.room-status.booked{background:#fee2e2;color:#991b1b}
+
+/* Leave */
+.leave-bar{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.leave-type{width:80px;font-size:0.84rem;font-weight:600}
+.leave-progress{flex:1}
+.leave-nums{width:80px;text-align:right;font-size:0.8rem;color:var(--text-secondary)}
+
+/* Parsed fields */
+.parsed-fields{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.parsed-field{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.parsed-field-label{font-size:0.72rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;font-weight:700}
+.parsed-field-value{font-size:0.95rem;font-weight:600;margin-top:4px}
+.parsed-field-value.editable{border:none;background:transparent;width:100%;padding:0;font-size:0.95rem;font-weight:600;border-bottom:1px dashed var(--accent);outline:none}
+
+/* Greeting banner */
+.greeting-banner{background:linear-gradient(135deg,#1b2a4a 0%,#2d4a7a 60%,#1b2a4a 100%);border-radius:16px;padding:28px 32px;margin-bottom:24px;color:#fff;position:relative;overflow:hidden}
+.greeting-banner::before{content:'';position:absolute;top:-40%;right:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(6,199,85,0.2) 0%,transparent 70%);border-radius:50%}
+.greeting-banner::after{content:'';position:absolute;bottom:-60%;left:20%;width:250px;height:250px;background:radial-gradient(circle,rgba(6,199,85,0.1) 0%,transparent 70%);border-radius:50%}
+.greeting-text{position:relative;z-index:1}
+.greeting-hello{font-size:1.5rem;font-weight:800;margin-bottom:4px}
+.greeting-hello span{color:var(--line-green)}
+.greeting-sub{font-size:0.88rem;opacity:0.75;margin-bottom:14px}
+.greeting-stats{display:flex;gap:24px;position:relative;z-index:1}
+.greeting-stat{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);padding:8px 16px;border-radius:10px;backdrop-filter:blur(8px)}
+.greeting-stat-num{font-size:1.2rem;font-weight:800;color:var(--line-green)}
+.greeting-stat-label{font-size:0.78rem;opacity:0.8}
+
+/* File item */
+.file-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);transition:var(--ease);cursor:pointer}
+.file-item:hover{background:#f8fafc;margin:0 -12px;padding:10px 12px;border-radius:8px}
+.file-item:last-child{border-bottom:none}
+.file-icon{font-size:1.3rem;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0}
+.file-info{flex:1;min-width:0}
+.file-name{font-weight:600;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-meta{font-size:0.76rem;color:var(--text-secondary);margin-top:1px}
+
+/* Toast */
+.toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{padding:12px 20px;border-radius:10px;color:#fff;font-weight:600;font-size:0.84rem;box-shadow:var(--shadow-lg);animation:slideInRight .3s ease,fadeOutRight .3s ease 2.7s forwards;display:flex;align-items:center;gap:8px}
+.toast.success{background:var(--line-green)}
+.toast.error{background:var(--danger)}
+.toast.info{background:var(--info)}
+@keyframes slideInRight{from{transform:translateX(100%);opacity:0}}
+@keyframes fadeOutRight{to{opacity:0;transform:translateX(100%)}}
+
+/* Typing */
+.typing-dots span{display:inline-block;width:6px;height:6px;background:#94a3b8;border-radius:50%;margin:0 2px;animation:bounce 1.4s infinite ease-in-out both}
+.typing-dots span:nth-child(1){animation-delay:-.32s}
+.typing-dots span:nth-child(2){animation-delay:-.16s}
+@keyframes bounce{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+
+/* Chart placeholder */
+.chart-area{height:180px;border-radius:var(--radius-sm);display:flex;align-items:flex-end;gap:6px;padding:12px}
+.chart-bar{flex:1;border-radius:6px 6px 0 0;transition:height .8s cubic-bezier(.4,0,.2,1);position:relative;cursor:pointer;min-width:0}
+.chart-bar:hover{opacity:0.85}
+.chart-bar::after{content:attr(data-val);position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:0.68rem;font-weight:700;color:var(--text-secondary);opacity:0;transition:opacity .2s}
+.chart-bar:hover::after{opacity:1}
+.chart-labels{display:flex;gap:6px;padding:0 12px}
+.chart-label{flex:1;text-align:center;font-size:0.68rem;color:var(--text-secondary)}
+
+/* Donut */
+.donut-chart{width:120px;height:120px;border-radius:50%;position:relative;margin:0 auto}
+.donut-center{position:absolute;inset:25px;border-radius:50%;background:var(--bg-card);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut-val{font-size:1.2rem;font-weight:800}
+.donut-label{font-size:0.65rem;color:var(--text-secondary)}
+
+/* Mini chart sparkline */
+.sparkline{display:flex;align-items:flex-end;gap:2px;height:32px}
+.spark-bar{width:4px;border-radius:2px;background:var(--line-green);opacity:0.6;transition:var(--ease)}
+.spark-bar:last-child{opacity:1}
+
+/* Empty state */
+.empty-state{text-align:center;padding:48px 24px;color:var(--text-secondary)}
+.empty-state-icon{font-size:3rem;margin-bottom:12px;opacity:0.5}
+.empty-state-title{font-weight:700;font-size:1rem;color:var(--text);margin-bottom:4px}
+.empty-state-desc{font-size:0.85rem}
+
+/* Switch toggle */
+.switch{position:relative;width:44px;height:24px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.switch-slider{position:absolute;inset:0;background:#cbd5e1;border-radius:24px;cursor:pointer;transition:var(--ease)}
+.switch-slider::before{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:var(--ease)}
+.switch input:checked+.switch-slider{background:var(--line-green)}
+.switch input:checked+.switch-slider::before{transform:translateX(20px)}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-bg"></div>
+  <div class="login-card">
+    <div class="login-brand">
+      <svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#06C755"/><path d="M20 8C13.4 8 8 12.5 8 18c0 4.9 4.4 9 10.1 9.8.4.1.9.2 1 .5.1.3.1.6 0 .9l-.2 1c-.1.3-.2.6.3.3.5-.2 2.6-1.5 3.6-2.6h.1C28 26.2 32 22.4 32 18c0-5.5-5.4-10-12-10z" fill="#fff"/></svg>
+      <div class="login-brand-text">LINE <span>Bank</span></div>
+    </div>
+    <div class="login-subtitle">Internal Portal — 員工內部整合平台</div>
+    <div class="login-field">
+      <label>員工編號 Employee ID</label>
+      <input type="text" id="loginUser" placeholder="e.g. LB12345" value="LB12345">
+    </div>
+    <div class="login-field">
+      <label>密碼 Password</label>
+      <input type="password" id="loginPass" placeholder="Enter password" value="••••••••">
+    </div>
+    <button class="login-btn" onclick="doLogin()">登入 Sign In</button>
+    <div class="login-hint">Demo 模式 — 點擊登入即可體驗完整功能</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="7" fill="#06C755"/><path d="M14 5.5C9.4 5.5 5.6 8.7 5.6 12.6c0 3.4 3.1 6.3 7.1 6.9.3.1.6.1.7.4.1.2 0 .4 0 .6l-.1.7c0 .2-.1.4.2.2s1.8-1.1 2.5-1.8C20 18.3 22.4 15.7 22.4 12.6 22.4 8.7 18.6 5.5 14 5.5z" fill="#fff"/></svg>
+        <div class="sidebar-logo-text">LINE <span>Bank</span></div>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">主要功能</div>
+      <div class="nav-item active" data-page="dashboard"><span class="nav-icon">&#x1F3E0;</span>儀表板</div>
+      <div class="nav-item" data-page="contracts"><span class="nav-icon">&#x1F4C4;</span>合約管理<span class="nav-badge">3</span></div>
+      <div class="nav-item" data-page="payments"><span class="nav-icon">&#x1F4B0;</span>付款申請<span class="nav-badge">2</span></div>
+      <div class="nav-item" data-page="approvals"><span class="nav-icon">&#x2705;</span>簽核中心<span class="nav-badge">5</span></div>
+      <div class="nav-item" data-page="it-requests"><span class="nav-icon">&#x1F4BB;</span>IT 需求申請<span class="nav-badge">4</span></div>
+      <div class="nav-section">企業服務</div>
+      <div class="nav-item" data-page="announcements"><span class="nav-icon">&#x1F4E2;</span>公告欄</div>
+      <div class="nav-item" data-page="directory"><span class="nav-icon">&#x1F465;</span>員工通訊錄</div>
+      <div class="nav-item" data-page="leave"><span class="nav-icon">&#x1F334;</span>請假管理</div>
+      <div class="nav-item" data-page="meeting-rooms"><span class="nav-icon">&#x1F3E2;</span>會議室預約</div>
+      <div class="nav-item" data-page="expenses"><span class="nav-icon">&#x1F4B3;</span>費用報銷</div>
+      <div class="nav-section">系統</div>
+      <div class="nav-item" data-page="settings"><span class="nav-icon">&#x2699;</span>系統設定</div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-avatar">陳</div>
+      <div class="user-info">
+        <div class="user-name">陳建宏</div>
+        <div class="user-role">資訊部 / 副理</div>
+        <div class="user-status">線上</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div>
+          <div class="topbar-title" id="pageTitle">儀表板</div>
+          <div class="topbar-breadcrumb" id="pageBreadcrumb">首頁</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="search-box"><input type="text" placeholder="搜尋功能、合約、人員..." id="globalSearch" onkeypress="if(event.key==='Enter')doGlobalSearch()"></div>
+        <button class="topbar-btn" onclick="toggleNotifPanel()" title="通知">&#x1F514;<span class="dot"></span></button>
+        <button class="topbar-btn" onclick="navigateTo('settings')" title="設定">&#x2699;</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="page active" id="page-dashboard">
+        <!-- Greeting Banner -->
+        <div class="greeting-banner">
+          <div class="greeting-text">
+            <div class="greeting-hello" id="greetingText">早安，<span>陳建宏</span></div>
+            <div class="greeting-sub" id="greetingDate">2026 年 3 月 26 日 星期四 — 今天有 5 項待處理事項</div>
+          </div>
+          <div class="greeting-stats">
+            <div class="greeting-stat"><div class="greeting-stat-num">5</div><div class="greeting-stat-label">待簽核</div></div>
+            <div class="greeting-stat"><div class="greeting-stat-num">3</div><div class="greeting-stat-label">到期合約</div></div>
+            <div class="greeting-stat"><div class="greeting-stat-num">2</div><div class="greeting-stat-label">付款待核</div></div>
+            <div class="greeting-stat"><div class="greeting-stat-num">4</div><div class="greeting-stat-label">IT 需求</div></div>
+          </div>
+        </div>
+
+        <!-- Hero Stats -->
+        <div class="hero-stats">
+          <div class="hero-stat" onclick="navigateTo('contracts')">
+            <div class="hero-stat-icon">&#x1F4C4;</div>
+            <div class="hero-stat-value">127</div>
+            <div class="hero-stat-label">有效合約</div>
+            <div class="hero-stat-trend up">&#x2191; +12 本月</div>
+          </div>
+          <div class="hero-stat" onclick="navigateTo('approvals')">
+            <div class="hero-stat-icon">&#x23F3;</div>
+            <div class="hero-stat-value">5</div>
+            <div class="hero-stat-label">待簽核項目</div>
+            <div class="hero-stat-trend down">&#x26A0; 需要處理</div>
+          </div>
+          <div class="hero-stat" onclick="navigateTo('payments')">
+            <div class="hero-stat-icon">&#x1F4B0;</div>
+            <div class="hero-stat-value">$2.4M</div>
+            <div class="hero-stat-label">本月付款金額</div>
+            <div class="hero-stat-trend up">&#x2191; 8.3%</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-icon">&#x26A0;</div>
+            <div class="hero-stat-value">3</div>
+            <div class="hero-stat-label">即將到期合約</div>
+            <div class="hero-stat-trend down">30 天內</div>
+          </div>
+        </div>
+
+        <!-- Quick Actions (8 items) -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">快速操作</div></div>
+          <div class="quick-actions" style="grid-template-columns:repeat(8,1fr)">
+            <div class="quick-action" onclick="navigateTo('contracts')"><div class="quick-action-icon">&#x1F4E4;</div><div class="quick-action-label">上傳合約</div></div>
+            <div class="quick-action" onclick="navigateTo('payments')"><div class="quick-action-icon">&#x1F4B3;</div><div class="quick-action-label">付款申請</div></div>
+            <div class="quick-action" onclick="navigateTo('it-requests')"><div class="quick-action-icon">&#x1F6E0;</div><div class="quick-action-label">IT 需求</div></div>
+            <div class="quick-action" onclick="navigateTo('leave')"><div class="quick-action-icon">&#x1F4DD;</div><div class="quick-action-label">請假申請</div></div>
+            <div class="quick-action" onclick="navigateTo('expenses')"><div class="quick-action-icon">&#x1F9FE;</div><div class="quick-action-label">費用報銷</div></div>
+            <div class="quick-action" onclick="navigateTo('meeting-rooms')"><div class="quick-action-icon">&#x1F3E2;</div><div class="quick-action-label">會議室</div></div>
+            <div class="quick-action" onclick="navigateTo('directory')"><div class="quick-action-icon">&#x1F4DE;</div><div class="quick-action-label">通訊錄</div></div>
+            <div class="quick-action" onclick="toggleAIChat()"><div class="quick-action-icon">&#x1F916;</div><div class="quick-action-label">AI 助手</div></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Pending Approvals -->
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">待辦簽核</div><div class="card-subtitle">需要您處理的項目</div></div>
+              <button class="btn btn-outline btn-sm" onclick="navigateTo('approvals')">查看全部</button>
+            </div>
+            <div class="file-item" onclick="navigateTo('approvals')">
+              <div class="file-icon" style="background:#fef3c7">&#x1F4B0;</div>
+              <div class="file-info"><div class="file-name">廠商付款 — 技術顧問費 (鼎新電腦)</div><div class="file-meta">NT$ 450,000 | 林佩珊 | 2026-03-24</div></div>
+              <span class="badge badge-warning">待簽核</span>
+            </div>
+            <div class="file-item" onclick="navigateTo('approvals')">
+              <div class="file-icon" style="background:#fee2e2">&#x1F4BB;</div>
+              <div class="file-info"><div class="file-name">IT 開發需求 — 信用卡系統升級</div><div class="file-meta">優先級：高 | 王志明 | 2026-03-23</div></div>
+              <span class="badge badge-danger">急件</span>
+            </div>
+            <div class="file-item" onclick="navigateTo('approvals')">
+              <div class="file-icon" style="background:#e8faf0">&#x1F334;</div>
+              <div class="file-info"><div class="file-name">請假申請 — 特休 3/28-3/30</div><div class="file-meta">張雅琪 | 代理人：李建安</div></div>
+              <span class="badge badge-info">待審</span>
+            </div>
+            <div class="file-item" onclick="navigateTo('approvals')">
+              <div class="file-icon" style="background:#dbeafe">&#x1F4C4;</div>
+              <div class="file-info"><div class="file-name">合約續約審核 — IBM 主機維護合約</div><div class="file-meta">NT$ 3,200,000 / 年 | 到期日：2026-04-15</div></div>
+              <span class="badge badge-warning">待簽核</span>
+            </div>
+            <div class="file-item" onclick="navigateTo('approvals')">
+              <div class="file-icon" style="background:#fef3c7">&#x1F4B3;</div>
+              <div class="file-info"><div class="file-name">廠商付款 — 雲端服務月費 (AWS)</div><div class="file-meta">USD 12,500 | 陳宏志 | 2026-03-22</div></div>
+              <span class="badge badge-warning">待簽核</span>
+            </div>
+          </div>
+
+          <!-- Activity + Chart -->
+          <div>
+            <!-- Mini Chart -->
+            <div class="card">
+              <div class="card-header"><div class="card-title">月度付款趨勢</div><div class="card-subtitle" style="margin:0">單位：百萬 NTD</div></div>
+              <div class="chart-area" id="monthlyChart"></div>
+              <div class="chart-labels" id="monthlyLabels"></div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+              <div class="card-header"><div><div class="card-title">近期動態</div></div></div>
+              <div class="timeline">
+                <div class="timeline-item"><div class="timeline-dot done"></div><div class="timeline-time">今天 14:32</div><div class="timeline-title">合約 C-2026-0089 已完成 AI 解析歸檔</div></div>
+                <div class="timeline-item"><div class="timeline-dot active"></div><div class="timeline-time">今天 11:20</div><div class="timeline-title">付款單 PAY-20260325-003 已送出簽核</div></div>
+                <div class="timeline-item"><div class="timeline-dot done"></div><div class="timeline-time">昨天 16:45</div><div class="timeline-title">IT 需求 REQ-2026-042 已建立 JIRA Ticket</div></div>
+                <div class="timeline-item"><div class="timeline-dot done"></div><div class="timeline-time">昨天 10:10</div><div class="timeline-title">林佩珊 簽核通過付款單 PAY-20260324-001</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expiring Contracts -->
+        <div class="card" style="border-left:4px solid var(--warning)">
+          <div class="card-header"><div><div class="card-title">&#x26A0; 即將到期合約提醒</div><div class="card-subtitle">以下合約將在 30 天內到期</div></div></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>合約編號</th><th>簽約對象</th><th>合約名稱</th><th>到期日</th><th>金額</th><th>狀態</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>C-2026-0045</td><td>IBM Taiwan</td><td>主機維護服務合約</td><td><strong style="color:var(--danger)">2026-04-15</strong></td><td>NT$ 3,200,000</td><td><span class="badge badge-danger">20天</span></td><td><button class="btn btn-primary btn-sm" onclick="showToast('info','已開啟續約流程')">續約</button></td></tr>
+              <tr><td>C-2026-0051</td><td>Microsoft</td><td>M365 企業授權</td><td><strong style="color:var(--warning)">2026-04-22</strong></td><td>NT$ 1,850,000</td><td><span class="badge badge-warning">27天</span></td><td><button class="btn btn-primary btn-sm" onclick="showToast('info','已開啟續約流程')">續約</button></td></tr>
+              <tr><td>C-2026-0063</td><td>中華電信</td><td>專線租賃合約</td><td><strong style="color:var(--warning)">2026-04-25</strong></td><td>NT$ 960,000</td><td><span class="badge badge-warning">30天</span></td><td><button class="btn btn-primary btn-sm" onclick="showToast('info','已開啟續約流程')">續約</button></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- ===== CONTRACTS ===== -->
+      <div class="page" id="page-contracts">
+        <div class="tabs">
+          <div class="tab active" data-tab="contract-upload">AI 合約上傳</div>
+          <div class="tab" data-tab="contract-list">合約總覽</div>
+          <div class="tab" data-tab="contract-archive">歸檔查詢</div>
+        </div>
+        <div class="tab-content active" id="tab-contract-upload">
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">&#x1F916; AI 智慧合約上傳</div><div class="card-subtitle">上傳合約 PDF，系統將自動解析關鍵欄位並建立歸檔記錄與付款草稿</div></div></div>
+            <div class="upload-zone" id="contractUploadZone" onclick="simulateUpload()">
+              <div class="upload-icon">&#x1F4C1;</div>
+              <div class="upload-text">拖曳合約 PDF 至此處，或點擊選擇檔案</div>
+              <div class="upload-hint">支援 PDF 格式，單檔上限 50MB</div>
+            </div>
+          </div>
+          <div id="contractParseResult" style="display:none">
+            <div class="card" style="border-left:4px solid var(--accent)">
+              <div class="card-header"><div><div class="card-title">&#x2728; AI 解析結果</div><div class="card-subtitle">以下欄位由 AI 自動識別，可直接編輯修正</div></div><span class="badge badge-success">信心度 96.8%</span></div>
+              <div class="parsed-fields">
+                <div class="parsed-field"><div class="parsed-field-label">合約編號</div><input class="parsed-field-value editable" value="C-2026-0090"></div>
+                <div class="parsed-field"><div class="parsed-field-label">簽約對象</div><input class="parsed-field-value editable" value="鼎新電腦股份有限公司"></div>
+                <div class="parsed-field"><div class="parsed-field-label">合約名稱</div><input class="parsed-field-value editable" value="ERP系統維護暨技術支援服務合約"></div>
+                <div class="parsed-field"><div class="parsed-field-label">簽約金額</div><input class="parsed-field-value editable" value="NT$ 1,680,000"></div>
+                <div class="parsed-field"><div class="parsed-field-label">合約期間</div><input class="parsed-field-value editable" value="2026/04/01 - 2027/03/31"></div>
+                <div class="parsed-field"><div class="parsed-field-label">簽約日期</div><input class="parsed-field-value editable" value="2026/03/25"></div>
+                <div class="parsed-field"><div class="parsed-field-label">付款條件</div><input class="parsed-field-value editable" value="按季支付，每季 NT$ 420,000"></div>
+                <div class="parsed-field"><div class="parsed-field-label">首期付款日</div><input class="parsed-field-value editable" value="2026/04/15"></div>
+                <div class="parsed-field"><div class="parsed-field-label">聯絡人</div><input class="parsed-field-value editable" value="張經理 (02-8911-1688 #512)"></div>
+                <div class="parsed-field"><div class="parsed-field-label">合約分類</div><input class="parsed-field-value editable" value="IT 軟體維護"></div>
+              </div>
+              <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn btn-primary" onclick="confirmContractAndCreatePayment()">&#x2705; 確認歸檔並建立付款草稿</button>
+                <button class="btn btn-outline">&#x1F4BE; 僅儲存歸檔</button>
+                <button class="btn btn-outline">&#x1F4C4; 查看原始 PDF</button>
+              </div>
+            </div>
+            <div id="autoPaymentDraft" style="display:none">
+              <div class="card" style="border-left:4px solid var(--success)">
+                <div class="card-header"><div><div class="card-title">&#x1F4B0; 自動建立付款草稿</div><div class="card-subtitle">系統已根據合約內容自動產生付款計劃</div></div><span class="badge badge-info">草稿</span></div>
+                <div class="table-wrap"><table>
+                  <thead><tr><th>期別</th><th>付款日期</th><th>金額</th><th>付款對象</th><th>摘要</th><th>狀態</th></tr></thead>
+                  <tbody>
+                    <tr><td>第1期</td><td>2026/04/15</td><td>NT$ 420,000</td><td>鼎新電腦</td><td>Q1 ERP維護費</td><td><span class="badge badge-info">草稿</span></td></tr>
+                    <tr><td>第2期</td><td>2026/07/15</td><td>NT$ 420,000</td><td>鼎新電腦</td><td>Q2 ERP維護費</td><td><span class="badge badge-gray">排程</span></td></tr>
+                    <tr><td>第3期</td><td>2026/10/15</td><td>NT$ 420,000</td><td>鼎新電腦</td><td>Q3 ERP維護費</td><td><span class="badge badge-gray">排程</span></td></tr>
+                    <tr><td>第4期</td><td>2027/01/15</td><td>NT$ 420,000</td><td>鼎新電腦</td><td>Q4 ERP維護費</td><td><span class="badge badge-gray">排程</span></td></tr>
+                  </tbody>
+                </table></div>
+                <div style="margin-top:16px;display:flex;gap:10px">
+                  <button class="btn btn-primary" onclick="showToast('success','付款草稿已送出簽核，已通知簽核人')">&#x1F4E8; 送出第1期付款簽核</button>
+                  <button class="btn btn-outline">&#x270F; 編輯付款計劃</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-content" id="tab-contract-list">
+          <div class="card">
+            <div class="card-header"><div class="card-title">合約總覽</div><div style="display:flex;gap:8px"><select class="form-select" style="width:140px;padding:6px 10px"><option>全部狀態</option><option>有效</option><option>即將到期</option><option>已終止</option></select><select class="form-select" style="width:140px;padding:6px 10px"><option>全部部門</option><option>資訊部</option><option>總務部</option><option>風管部</option></select><button class="btn btn-primary btn-sm">+ 新增</button></div></div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>合約編號</th><th>簽約對象</th><th>合約名稱</th><th>金額</th><th>期間</th><th>負責人</th><th>狀態</th><th>操作</th></tr></thead>
+              <tbody>
+                <tr><td>C-2026-0089</td><td>遠傳電信</td><td>企業行動通訊合約</td><td>NT$ 720,000</td><td>2026/03-2027/02</td><td>李建安</td><td><span class="badge badge-success">有效</span></td><td><button class="btn btn-outline btn-sm" onclick="openContractDetail('C-2026-0089')">檢視</button></td></tr>
+                <tr><td>C-2026-0088</td><td>趨勢科技</td><td>資安防護軟體授權</td><td>NT$ 2,100,000</td><td>2026/02-2027/01</td><td>劉大衛</td><td><span class="badge badge-success">有效</span></td><td><button class="btn btn-outline btn-sm" onclick="openContractDetail('C-2026-0088')">檢視</button></td></tr>
+                <tr><td>C-2026-0085</td><td>Amazon</td><td>AWS 雲端服務合約</td><td>USD 150,000</td><td>2026/01-2026/12</td><td>陳宏志</td><td><span class="badge badge-success">有效</span></td><td><button class="btn btn-outline btn-sm" onclick="openContractDetail('C-2026-0085')">檢視</button></td></tr>
+                <tr><td>C-2026-0045</td><td>IBM Taiwan</td><td>主機維護服務合約</td><td>NT$ 3,200,000</td><td>2025/04-2026/04</td><td>王志明</td><td><span class="badge badge-danger">即將到期</span></td><td><button class="btn btn-outline btn-sm" onclick="openContractDetail('C-2026-0045')">檢視</button></td></tr>
+                <tr><td>C-2026-0051</td><td>Microsoft</td><td>M365 企業授權</td><td>NT$ 1,850,000</td><td>2025/04-2026/04</td><td>陳建宏</td><td><span class="badge badge-danger">即將到期</span></td><td><button class="btn btn-outline btn-sm" onclick="openContractDetail('C-2026-0051')">檢視</button></td></tr>
+                <tr><td>C-2025-0112</td><td>甲骨文</td><td>Oracle DB 授權</td><td>NT$ 4,500,000</td><td>2025/01-2025/12</td><td>王志明</td><td><span class="badge badge-gray">已終止</span></td><td><button class="btn btn-outline btn-sm" onclick="openContractDetail('C-2025-0112')">檢視</button></td></tr>
+                <tr><td>C-2025-0098</td><td>中華電信</td><td>機房託管合約</td><td>NT$ 1,440,000</td><td>2025/06-2026/05</td><td>李建安</td><td><span class="badge badge-success">有效</span></td><td><button class="btn btn-outline btn-sm" onclick="openContractDetail('C-2025-0098')">檢視</button></td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+        <div class="tab-content" id="tab-contract-archive">
+          <div class="card">
+            <div class="card-header"><div class="card-title">歸檔查詢</div></div>
+            <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+              <input class="form-input" style="width:200px" placeholder="合約編號或對象" id="archiveSearch">
+              <select class="form-select" style="width:130px"><option>全部年度</option><option>2026</option><option>2025</option><option>2024</option></select>
+              <select class="form-select" style="width:130px"><option>全部部門</option><option>資訊部</option><option>總務部</option><option>風管部</option></select>
+              <select class="form-select" style="width:130px"><option>全部分類</option><option>IT 軟體</option><option>硬體維護</option><option>通訊網路</option><option>顧問服務</option></select>
+              <button class="btn btn-primary btn-sm" onclick="doArchiveSearch()">搜尋</button>
+            </div>
+            <div id="archiveResults">
+              <div class="empty-state"><div class="empty-state-icon">&#x1F50D;</div><div class="empty-state-title">請輸入搜尋條件</div><div class="empty-state-desc">可依合約編號、簽約對象、年度、部門等條件查詢歸檔合約</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PAYMENTS ===== -->
+      <div class="page" id="page-payments">
+        <div class="tabs">
+          <div class="tab active" data-tab="payment-list">付款總覽</div>
+          <div class="tab" data-tab="payment-new">新增付款單</div>
+          <div class="tab" data-tab="payment-schedule">付款排程</div>
+        </div>
+        <div class="tab-content active" id="tab-payment-list">
+          <div class="grid-4">
+            <div class="stat-card"><div class="stat-icon blue">&#x1F4CB;</div><div><div style="font-size:1.5rem;font-weight:800">18</div><div style="font-size:.78rem;color:var(--text-secondary)">本月付款單</div></div></div>
+            <div class="stat-card"><div class="stat-icon orange">&#x23F3;</div><div><div style="font-size:1.5rem;font-weight:800">5</div><div style="font-size:.78rem;color:var(--text-secondary)">待簽核</div></div></div>
+            <div class="stat-card"><div class="stat-icon green">&#x2705;</div><div><div style="font-size:1.5rem;font-weight:800">11</div><div style="font-size:.78rem;color:var(--text-secondary)">已核准</div></div></div>
+            <div class="stat-card"><div class="stat-icon purple">&#x1F4B8;</div><div><div style="font-size:1.5rem;font-weight:800">$2.4M</div><div style="font-size:.78rem;color:var(--text-secondary)">本月總額</div></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">付款申請記錄</div><button class="btn btn-primary btn-sm" onclick="switchToTab('payment-new')">+ 新增付款單</button></div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>單號</th><th>付款對象</th><th>摘要</th><th>金額</th><th>申請人</th><th>日期</th><th>狀態</th><th>簽核</th></tr></thead>
+              <tbody>
+                <tr><td>PAY-0325-003</td><td>鼎新電腦</td><td>技術顧問費Q1</td><td>NT$ 450,000</td><td>林佩珊</td><td>03/25</td><td><span class="badge badge-warning">簽核中</span></td><td>2/4</td></tr>
+                <tr><td>PAY-0325-002</td><td>AWS</td><td>雲端服務 3月</td><td>USD 12,500</td><td>陳宏志</td><td>03/25</td><td><span class="badge badge-warning">簽核中</span></td><td>1/3</td></tr>
+                <tr><td>PAY-0324-001</td><td>趨勢科技</td><td>資安軟體授權</td><td>NT$ 2,100,000</td><td>王志明</td><td>03/24</td><td><span class="badge badge-success">已核准</span></td><td>3/3 &#x2713;</td></tr>
+                <tr><td>PAY-0322-005</td><td>中華電信</td><td>專線租賃 3月</td><td>NT$ 80,000</td><td>張雅琪</td><td>03/22</td><td><span class="badge badge-success">已付款</span></td><td>4/4 &#x2713;</td></tr>
+                <tr><td>PAY-0320-002</td><td>遠傳電信</td><td>行動通訊 3月</td><td>NT$ 35,000</td><td>李建安</td><td>03/20</td><td><span class="badge badge-success">已付款</span></td><td>4/4 &#x2713;</td></tr>
+                <tr><td>PAY-0318-001</td><td>鼎新電腦</td><td>ERP 客製開發</td><td>NT$ 280,000</td><td>林佩珊</td><td>03/18</td><td><span class="badge badge-success">已付款</span></td><td>4/4 &#x2713;</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+        <div class="tab-content" id="tab-payment-new">
+          <div class="card">
+            <div class="card-header"><div class="card-title">新增付款申請單</div></div>
+            <div class="grid-2">
+              <div class="form-group"><label class="form-label">付款對象</label><input class="form-input" placeholder="請輸入廠商名稱"></div>
+              <div class="form-group"><label class="form-label">關聯合約</label><select class="form-select"><option>請選擇合約</option><option>C-2026-0089 遠傳電信</option><option>C-2026-0088 趨勢科技</option><option>C-2026-0085 AWS</option><option>C-2026-0045 IBM</option></select></div>
+              <div class="form-group"><label class="form-label">付款金額</label><input class="form-input" placeholder="NT$"></div>
+              <div class="form-group"><label class="form-label">幣別</label><select class="form-select"><option>NTD 新台幣</option><option>USD 美元</option><option>JPY 日圓</option></select></div>
+              <div class="form-group"><label class="form-label">預計付款日期</label><input class="form-input" type="date"></div>
+              <div class="form-group"><label class="form-label">付款方式</label><select class="form-select"><option>匯款</option><option>支票</option><option>現金</option></select></div>
+              <div class="form-group" style="grid-column:span 2"><label class="form-label">付款摘要</label><textarea class="form-textarea" placeholder="請說明付款事由"></textarea></div>
+              <div class="form-group" style="grid-column:span 2"><label class="form-label">附件 (發票/請購單)</label><div class="upload-zone" style="padding:20px"><div class="upload-text" style="font-size:.88rem">拖曳檔案或點擊上傳</div></div></div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:8px"><button class="btn btn-primary" onclick="showToast('success','付款單已建立並送出簽核，Teams 通知已發送')">送出簽核</button><button class="btn btn-outline">儲存草稿</button></div>
+          </div>
+        </div>
+        <div class="tab-content" id="tab-payment-schedule">
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">付款排程</div><div class="card-subtitle">自動排程提醒，確保不遺漏任何付款</div></div></div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>預計日期</th><th>付款對象</th><th>摘要</th><th>金額</th><th>關聯合約</th><th>狀態</th><th>操作</th></tr></thead>
+              <tbody>
+                <tr><td><strong>2026/04/01</strong></td><td>中華電信</td><td>專線租賃 4月</td><td>NT$ 80,000</td><td>C-2026-0063</td><td><span class="badge badge-info">待建單</span></td><td><button class="btn btn-primary btn-sm" onclick="showToast('success','已自動建立付款單')">建立付款單</button></td></tr>
+                <tr><td><strong>2026/04/05</strong></td><td>遠傳電信</td><td>行動通訊 4月</td><td>NT$ 35,000</td><td>C-2026-0089</td><td><span class="badge badge-info">待建單</span></td><td><button class="btn btn-primary btn-sm" onclick="showToast('success','已自動建立付款單')">建立付款單</button></td></tr>
+                <tr><td><strong>2026/04/10</strong></td><td>AWS</td><td>雲端服務 4月</td><td>USD 12,500</td><td>C-2026-0085</td><td><span class="badge badge-info">待建單</span></td><td><button class="btn btn-primary btn-sm" onclick="showToast('success','已自動建立付款單')">建立付款單</button></td></tr>
+                <tr><td><strong>2026/04/15</strong></td><td>鼎新電腦</td><td>Q2 ERP維護費</td><td>NT$ 420,000</td><td>C-2026-0090</td><td><span class="badge badge-gray">排程中</span></td><td><button class="btn btn-outline btn-sm">編輯</button></td></tr>
+                <tr><td><strong>2026/05/01</strong></td><td>中華電信</td><td>專線租賃 5月</td><td>NT$ 80,000</td><td>C-2026-0063</td><td><span class="badge badge-gray">排程中</span></td><td><button class="btn btn-outline btn-sm">編輯</button></td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== APPROVALS ===== -->
+      <div class="page" id="page-approvals">
+        <div class="tabs">
+          <div class="tab active" data-tab="approval-pending">待我簽核 <span class="badge badge-danger" style="margin-left:4px">5</span></div>
+          <div class="tab" data-tab="approval-sent">我送出的</div>
+          <div class="tab" data-tab="approval-done">已完成</div>
+        </div>
+        <div class="tab-content active" id="tab-approval-pending">
+          <!-- Item 1 -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">廠商付款 — 技術顧問費 (鼎新電腦)</div><span class="badge badge-warning">待簽核</span></div>
+            <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px">
+              <div><span style="color:var(--text-secondary);font-size:.8rem">申請人：</span><strong>林佩珊</strong></div>
+              <div><span style="color:var(--text-secondary);font-size:.8rem">部門：</span><strong>總務部</strong></div>
+              <div><span style="color:var(--text-secondary);font-size:.8rem">金額：</span><strong style="color:var(--accent)">NT$ 450,000</strong></div>
+              <div><span style="color:var(--text-secondary);font-size:.8rem">申請日期：</span><strong>2026-03-24</strong></div>
+            </div>
+            <div style="font-weight:600;font-size:.82rem;margin-bottom:8px">簽核流程</div>
+            <div class="flow-steps">
+              <div class="flow-step done"><div class="flow-dot">&#x2713;</div><div class="flow-label">林佩珊<br><span style="font-size:.63rem">申請人</span></div></div>
+              <div class="flow-step done"><div class="flow-dot">&#x2713;</div><div class="flow-label">張文宏<br><span style="font-size:.63rem">部門主管</span></div></div>
+              <div class="flow-step active"><div class="flow-dot">3</div><div class="flow-label">陳建宏<br><span style="font-size:.63rem">副理（您）</span></div></div>
+              <div class="flow-step"><div class="flow-dot">4</div><div class="flow-label">李副總<br><span style="font-size:.63rem">最終核准</span></div></div>
+            </div>
+            <div style="display:flex;gap:10px"><button class="btn btn-primary" onclick="approveItem(this)">&#x2705; 核准</button><button class="btn btn-danger" onclick="rejectItem(this)">&#x274C; 退回</button><button class="btn btn-outline">&#x1F4AC; 加註意見</button><button class="btn btn-outline">&#x1F4C4; 附件</button></div>
+          </div>
+          <!-- Item 2 -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">IT 開發需求 — 信用卡系統升級</div><span class="badge badge-danger">急件</span></div>
+            <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px">
+              <div><span style="color:var(--text-secondary);font-size:.8rem">申請人：</span><strong>王志明</strong></div>
+              <div><span style="color:var(--text-secondary);font-size:.8rem">優先級：</span><strong style="color:var(--danger)">高</strong></div>
+              <div><span style="color:var(--text-secondary);font-size:.8rem">預估工時：</span><strong>320 hr</strong></div>
+              <div><span style="color:var(--text-secondary);font-size:.8rem">影響系統：</span><strong>信用卡系統</strong></div>
+            </div>
+            <div style="display:flex;gap:10px"><button class="btn btn-primary btn-sm" onclick="approveAndCreateJira(this)">&#x2705; 核准並建立 JIRA</button><button class="btn btn-danger btn-sm" onclick="rejectItem(this)">&#x274C; 退回</button><button class="btn btn-outline btn-sm">&#x1F4AC; 加註</button></div>
+          </div>
+          <!-- Item 3 -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">請假申請 — 張雅琪 特休 3/28-3/30</div><span class="badge badge-info">待審</span></div>
+            <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px">
+              <div><span style="color:var(--text-secondary);font-size:.8rem">假別：</span><strong>特別休假</strong></div>
+              <div><span style="color:var(--text-secondary);font-size:.8rem">天數：</span><strong>3 天</strong></div>
+              <div><span style="color:var(--text-secondary);font-size:.8rem">代理人：</span><strong>李建安</strong></div>
+              <div><span style="color:var(--text-secondary);font-size:.8rem">剩餘特休：</span><strong>5 天</strong></div>
+            </div>
+            <div style="display:flex;gap:10px"><button class="btn btn-primary btn-sm" onclick="approveItem(this)">&#x2705; 核准</button><button class="btn btn-danger btn-sm" onclick="rejectItem(this)">&#x274C; 退回</button></div>
+          </div>
+          <!-- Item 4 -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">合約續約審核 — IBM 主機維護合約</div><span class="badge badge-warning">待簽核</span></div>
+            <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px">
+              <div><span style="color:var(--text-secondary);font-size:.8rem">金額：</span><strong>NT$ 3,200,000/年</strong></div>
+              <div><span style="color:var(--text-secondary);font-size:.8rem">到期日：</span><strong style="color:var(--danger)">2026-04-15</strong></div>
+              <div><span style="color:var(--text-secondary);font-size:.8rem">漲幅：</span><strong>+3.2%</strong></div>
+            </div>
+            <div style="display:flex;gap:10px"><button class="btn btn-primary btn-sm" onclick="approveItem(this)">&#x2705; 核准</button><button class="btn btn-danger btn-sm" onclick="rejectItem(this)">&#x274C; 退回</button><button class="btn btn-outline btn-sm">&#x1F4AC; 查看比價</button></div>
+          </div>
+          <!-- Item 5 -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">廠商付款 — 雲端服務月費 (AWS)</div><span class="badge badge-warning">待簽核</span></div>
+            <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px">
+              <div><span style="color:var(--text-secondary);font-size:.8rem">申請人：</span><strong>陳宏志</strong></div>
+              <div><span style="color:var(--text-secondary);font-size:.8rem">金額：</span><strong>USD 12,500</strong></div>
+              <div><span style="color:var(--text-secondary);font-size:.8rem">合約：</span><strong>C-2026-0085</strong></div>
+            </div>
+            <div style="display:flex;gap:10px"><button class="btn btn-primary btn-sm" onclick="approveItem(this)">&#x2705; 核准</button><button class="btn btn-danger btn-sm" onclick="rejectItem(this)">&#x274C; 退回</button></div>
+          </div>
+        </div>
+        <div class="tab-content" id="tab-approval-sent">
+          <div class="card">
+            <div class="card-header"><div class="card-title">我送出的簽核</div></div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>類型</th><th>標題</th><th>送出日期</th><th>目前關卡</th><th>進度</th><th>狀態</th></tr></thead>
+              <tbody>
+                <tr><td>&#x1F4B0; 付款</td><td>Microsoft M365 授權年費</td><td>03/20</td><td>李副總</td><td>3/4</td><td><span class="badge badge-warning">簽核中</span></td></tr>
+                <tr><td>&#x1F4BB; IT需求</td><td>內網SSO整合Azure AD</td><td>03/18</td><td>—</td><td>4/4</td><td><span class="badge badge-success">已核准</span></td></tr>
+                <tr><td>&#x1F4B0; 付款</td><td>Fortinet 防火牆維護</td><td>03/15</td><td>—</td><td>3/3</td><td><span class="badge badge-success">已核准</span></td></tr>
+                <tr><td>&#x1F334; 請假</td><td>特休 3/10</td><td>03/07</td><td>—</td><td>2/2</td><td><span class="badge badge-success">已核准</span></td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+        <div class="tab-content" id="tab-approval-done">
+          <div class="card">
+            <div class="card-header"><div class="card-title">已完成簽核歷史</div><div style="display:flex;gap:8px"><select class="form-select" style="width:130px;padding:6px 10px"><option>全部類型</option><option>付款</option><option>IT需求</option><option>請假</option><option>合約</option></select><input class="form-input" type="month" style="width:160px;padding:6px 10px" value="2026-03"></div></div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>類型</th><th>標題</th><th>申請人</th><th>完成日期</th><th>我的決定</th><th>結果</th></tr></thead>
+              <tbody>
+                <tr><td>&#x1F4B0;</td><td>趨勢科技 資安軟體授權</td><td>王志明</td><td>03/23</td><td><span class="badge badge-success">核准</span></td><td>已付款</td></tr>
+                <tr><td>&#x1F4B0;</td><td>中華電信 專線租賃 3月</td><td>張雅琪</td><td>03/21</td><td><span class="badge badge-success">核准</span></td><td>已付款</td></tr>
+                <tr><td>&#x1F4BB;</td><td>OTP 驗證機制強化</td><td>李建安</td><td>03/18</td><td><span class="badge badge-success">核准</span></td><td>已上線</td></tr>
+                <tr><td>&#x1F334;</td><td>李建安 特休 3/14</td><td>李建安</td><td>03/12</td><td><span class="badge badge-success">核准</span></td><td>—</td></tr>
+                <tr><td>&#x1F4B0;</td><td>鼎新電腦 ERP客製開發</td><td>林佩珊</td><td>03/10</td><td><span class="badge badge-success">核准</span></td><td>已付款</td></tr>
+                <tr><td>&#x1F4BB;</td><td>報表匯出效能優化</td><td>陳宏志</td><td>03/05</td><td><span class="badge badge-success">核准</span></td><td>已上線</td></tr>
+                <tr><td>&#x1F4B0;</td><td>AWS 雲端服務 2月</td><td>陳宏志</td><td>02/28</td><td><span class="badge badge-success">核准</span></td><td>已付款</td></tr>
+                <tr><td>&#x1F4C4;</td><td>趨勢科技 合約續約</td><td>劉大衛</td><td>02/15</td><td><span class="badge badge-success">核准</span></td><td>已簽約</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== IT REQUESTS ===== -->
+      <div class="page" id="page-it-requests">
+        <div class="tabs">
+          <div class="tab active" data-tab="it-board">看板</div>
+          <div class="tab" data-tab="it-new">新增申請</div>
+          <div class="tab" data-tab="it-list">申請記錄</div>
+        </div>
+        <div class="tab-content active" id="tab-it-board">
+          <div class="kanban">
+            <div class="kanban-col">
+              <div class="kanban-col-header">待審核 <span class="kanban-count">2</span></div>
+              <div class="kanban-card" onclick="showToast('info','REQ-2026-045 詳細資訊')"><div class="kanban-card-title">客戶管理系統新增報表</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#dbeafe;color:#1e40af">功能需求</span><span>李建安</span><span>03/25</span></div></div>
+              <div class="kanban-card" onclick="showToast('info','REQ-2026-046 詳細資訊')"><div class="kanban-card-title">VPN 連線異常排查</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#fee2e2;color:#991b1b">障礙排除</span><span>張雅琪</span><span>03/25</span></div></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-col-header">進行中 <span class="kanban-count">3</span></div>
+              <div class="kanban-card" style="border-left:3px solid var(--danger)"><div class="kanban-card-title">信用卡系統升級</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#fee2e2;color:#991b1b">高優先</span><span>JIRA-042</span><span>Sprint 12</span></div></div>
+              <div class="kanban-card"><div class="kanban-card-title">行動銀行 App 改版</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#fef3c7;color:#92400e">中優先</span><span>JIRA-039</span><span>Sprint 12</span></div></div>
+              <div class="kanban-card"><div class="kanban-card-title">內網郵件系統升級</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#dbeafe;color:#1e40af">基礎建設</span><span>JIRA-037</span><span>Sprint 11</span></div></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-col-header">測試中 <span class="kanban-count">2</span></div>
+              <div class="kanban-card"><div class="kanban-card-title">存款利率自動更新模組</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#ede9fe;color:#6d28d9">UAT</span><span>JIRA-031</span></div></div>
+              <div class="kanban-card"><div class="kanban-card-title">內網SSO整合Azure AD</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#ede9fe;color:#6d28d9">SIT</span><span>JIRA-035</span></div></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-col-header">已完成 <span class="kanban-count">3</span></div>
+              <div class="kanban-card" style="opacity:.65"><div class="kanban-card-title">OTP 驗證機制強化</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#e8faf0;color:#059669">已上線</span><span>JIRA-028</span></div></div>
+              <div class="kanban-card" style="opacity:.65"><div class="kanban-card-title">報表匯出效能優化</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#e8faf0;color:#059669">已上線</span><span>JIRA-025</span></div></div>
+              <div class="kanban-card" style="opacity:.65"><div class="kanban-card-title">ATM 交易通知推播</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#e8faf0;color:#059669">已上線</span><span>JIRA-022</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-content" id="tab-it-new">
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">新增 IT 需求申請單</div><div class="card-subtitle">核准後自動建立 JIRA Ticket 並通知團隊</div></div></div>
+            <div class="grid-2">
+              <div class="form-group"><label class="form-label">申請類型</label><select class="form-select"><option>功能開發需求</option><option>系統障礙排除</option><option>基礎建設維護</option><option>資安相關</option><option>帳號/權限申請</option></select></div>
+              <div class="form-group"><label class="form-label">優先級</label><select class="form-select"><option>低</option><option selected>中</option><option>高</option><option>緊急</option></select></div>
+              <div class="form-group" style="grid-column:span 2"><label class="form-label">需求標題</label><input class="form-input" placeholder="請簡述需求"></div>
+              <div class="form-group" style="grid-column:span 2"><label class="form-label">詳細說明</label><textarea class="form-textarea" rows="5" placeholder="請描述需求內容、預期效果、影響範圍..."></textarea></div>
+              <div class="form-group"><label class="form-label">影響系統</label><select class="form-select"><option>核心銀行系統</option><option>信用卡系統</option><option>網路銀行</option><option>行動銀行 App</option><option>內部作業系統</option><option>其他</option></select></div>
+              <div class="form-group"><label class="form-label">期望完成日</label><input class="form-input" type="date"></div>
+              <div class="form-group"><label class="form-label">JIRA 專案</label><select class="form-select"><option>BANK-IT (一般開發)</option><option>BANK-SEC (資安)</option><option>BANK-INFRA (基礎建設)</option></select></div>
+              <div class="form-group"><label class="form-label">指派團隊</label><select class="form-select"><option>自動分派</option><option>前端組</option><option>後端組</option><option>DBA 組</option><option>資安組</option><option>DevOps 組</option></select></div>
+              <div class="form-group" style="grid-column:span 2"><label class="form-label">附件</label><div class="upload-zone" style="padding:20px"><div class="upload-text" style="font-size:.88rem">上傳需求文件、截圖等</div></div></div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:8px"><button class="btn btn-primary" onclick="submitITRequest()">&#x1F4E8; 送出申請</button><button class="btn btn-outline">儲存草稿</button></div>
+          </div>
+        </div>
+        <div class="tab-content" id="tab-it-list">
+          <div class="card">
+            <div class="card-header"><div class="card-title">申請記錄</div><div style="display:flex;gap:8px"><select class="form-select" style="width:120px;padding:6px 10px"><option>全部狀態</option><option>待審核</option><option>進行中</option><option>測試中</option><option>已完成</option></select></div></div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>申請編號</th><th>標題</th><th>類型</th><th>優先級</th><th>JIRA</th><th>指派</th><th>狀態</th><th>日期</th></tr></thead>
+              <tbody>
+                <tr><td>REQ-046</td><td>VPN 連線異常排查</td><td>障礙排除</td><td><span class="badge badge-danger">高</span></td><td>—</td><td>—</td><td><span class="badge badge-warning">待審核</span></td><td>03/25</td></tr>
+                <tr><td>REQ-045</td><td>客戶管理系統新增報表</td><td>功能需求</td><td><span class="badge badge-info">中</span></td><td>—</td><td>—</td><td><span class="badge badge-warning">待審核</span></td><td>03/25</td></tr>
+                <tr><td>REQ-042</td><td>信用卡系統升級</td><td>功能需求</td><td><span class="badge badge-danger">高</span></td><td>JIRA-042</td><td>後端組</td><td><span class="badge badge-info">進行中</span></td><td>03/23</td></tr>
+                <tr><td>REQ-039</td><td>行動銀行 App 改版</td><td>功能需求</td><td><span class="badge badge-warning">中</span></td><td>JIRA-039</td><td>前端組</td><td><span class="badge badge-info">進行中</span></td><td>03/20</td></tr>
+                <tr><td>REQ-037</td><td>內網郵件系統升級</td><td>基礎建設</td><td><span class="badge badge-info">中</span></td><td>JIRA-037</td><td>DevOps</td><td><span class="badge badge-info">進行中</span></td><td>03/18</td></tr>
+                <tr><td>REQ-035</td><td>內網SSO整合Azure AD</td><td>資安相關</td><td><span class="badge badge-warning">中</span></td><td>JIRA-035</td><td>資安組</td><td><span class="badge badge-purple">測試中</span></td><td>03/15</td></tr>
+                <tr><td>REQ-031</td><td>存款利率自動更新</td><td>功能需求</td><td><span class="badge badge-info">中</span></td><td>JIRA-031</td><td>後端組</td><td><span class="badge badge-purple">測試中</span></td><td>03/10</td></tr>
+                <tr><td>REQ-028</td><td>OTP 驗證機制強化</td><td>資安相關</td><td><span class="badge badge-danger">高</span></td><td>JIRA-028</td><td>資安組</td><td><span class="badge badge-success">已上線</span></td><td>03/01</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ANNOUNCEMENTS ===== -->
+      <div class="page" id="page-announcements">
+        <div class="card">
+          <div class="card-header"><div class="card-title">企業公告欄</div><button class="btn btn-primary btn-sm" onclick="showModal('newAnnouncement')">+ 發布公告</button></div>
+
+          <div style="border-left:4px solid var(--danger);background:#fff5f5;padding:16px;border-radius:0 10px 10px 0;margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="badge badge-danger">緊急</span><strong>系統維護公告 — 核心系統 3/29 (六) 02:00-06:00 維護</strong></div>
+            <div style="font-size:.8rem;color:var(--text-secondary)">資訊部 | 2026-03-25 09:00 | 閱讀 152 人</div>
+            <p style="margin-top:8px;font-size:.88rem">維護期間核心銀行系統、網路銀行暫停服務。請各單位提前做好準備。IT Helpdesk 分機 9999。</p>
+          </div>
+          <div style="border-left:4px solid var(--info);padding:16px;background:#f0f7ff;border-radius:0 10px 10px 0;margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="badge badge-info">全行</span><strong>2026 年第一季營運會議紀要已公布</strong></div>
+            <div style="font-size:.8rem;color:var(--text-secondary)">總經理室 | 2026-03-24 14:30 | 閱讀 89 人</div>
+            <p style="margin-top:8px;font-size:.88rem">Q1 營運會議紀要已上傳文件庫，請各部門主管於本週五前完成檢閱。</p>
+          </div>
+          <div style="border-left:4px solid var(--line-green);padding:16px;background:var(--line-green-light);border-radius:0 10px 10px 0;margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="badge badge-success">人事</span><strong>2026 年員工旅遊活動報名開始</strong></div>
+            <div style="font-size:.8rem;color:var(--text-secondary)">人力資源部 | 2026-03-22 10:00 | 閱讀 203 人</div>
+            <p style="margin-top:8px;font-size:.88rem">今年員工旅遊 5/16-5/18，花蓮三日遊。請於 4/10 前完成報名。</p>
+          </div>
+          <div style="border-left:4px solid var(--purple);padding:16px;background:#faf5ff;border-radius:0 10px 10px 0;margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="badge badge-purple">教育訓練</span><strong>資訊安全意識培訓 — 4/2 (三) 14:00 必修</strong></div>
+            <div style="font-size:.8rem;color:var(--text-secondary)">風管部 | 2026-03-21 11:00 | 閱讀 134 人</div>
+            <p style="margin-top:8px;font-size:.88rem">依金管會規定，全行同仁需完成年度資安意識培訓。線上課程連結將於 4/1 開放。</p>
+          </div>
+          <div style="border-left:4px solid #cbd5e1;padding:16px;border-radius:0 10px 10px 0;margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="badge badge-gray">行政</span><strong>B1 停車場 4/1 起調整車位編號</strong></div>
+            <div style="font-size:.8rem;color:var(--text-secondary)">總務部 | 2026-03-20 16:00 | 閱讀 67 人</div>
+          </div>
+          <div style="border-left:4px solid #cbd5e1;padding:16px;border-radius:0 10px 10px 0;margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="badge badge-gray">行政</span><strong>4 月份慶生會：4/11 (五) 15:00 交誼廳</strong></div>
+            <div style="font-size:.8rem;color:var(--text-secondary)">人力資源部 | 2026-03-19 09:00 | 閱讀 45 人</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== DIRECTORY ===== -->
+      <div class="page" id="page-directory">
+        <div class="card">
+          <div class="card-header"><div class="card-title">員工通訊錄</div><div style="display:flex;gap:8px"><input class="form-input" style="width:220px" placeholder="搜尋姓名、部門、分機..." id="empSearch" oninput="filterEmployees()"><select class="form-select" style="width:140px" id="deptFilter" onchange="filterEmployees()"><option value="">全部部門</option><option>資訊部</option><option>總務部</option><option>風管部</option><option>業務部</option><option>人力資源部</option><option>總經理室</option></select></div></div>
+          <div class="grid-3" id="empGrid"></div>
+        </div>
+      </div>
+
+      <!-- ===== LEAVE ===== -->
+      <div class="page" id="page-leave">
+        <div class="tabs">
+          <div class="tab active" data-tab="leave-apply">請假申請</div>
+          <div class="tab" data-tab="leave-records">請假紀錄</div>
+          <div class="tab" data-tab="leave-balance">假別餘額</div>
+        </div>
+        <div class="tab-content active" id="tab-leave-apply">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><div class="card-title">新增請假單</div></div>
+              <div class="form-group"><label class="form-label">假別</label><select class="form-select"><option>特別休假</option><option>事假</option><option>病假</option><option>婚假</option><option>喪假</option><option>公假</option><option>補休</option></select></div>
+              <div class="form-group"><label class="form-label">起始日期</label><input class="form-input" type="date"></div>
+              <div class="form-group"><label class="form-label">結束日期</label><input class="form-input" type="date"></div>
+              <div class="form-group"><label class="form-label">時段</label><select class="form-select"><option>全天</option><option>上午</option><option>下午</option></select></div>
+              <div class="form-group"><label class="form-label">職務代理人</label><select class="form-select"><option>李建安</option><option>張雅琪</option><option>王志明</option><option>陳宏志</option></select></div>
+              <div class="form-group"><label class="form-label">請假事由</label><textarea class="form-textarea" rows="3"></textarea></div>
+              <div class="form-group"><label class="form-label">附件 (病假需附診斷證明)</label><div class="upload-zone" style="padding:16px"><div class="upload-text" style="font-size:.85rem">上傳附件</div></div></div>
+              <button class="btn btn-primary" onclick="showToast('success','請假單已送出，等待主管核准。已透過 Teams 通知主管')">送出申請</button>
+            </div>
+            <div>
+              <div class="card">
+                <div class="card-header"><div class="card-title">假別餘額總覽</div></div>
+                <div class="leave-bar"><div class="leave-type">特休</div><div class="leave-progress"><div class="progress-bar"><div class="progress-fill" style="width:47%;background:var(--line-green)"></div></div></div><div class="leave-nums">7 / 15 天</div></div>
+                <div class="leave-bar"><div class="leave-type">事假</div><div class="leave-progress"><div class="progress-bar"><div class="progress-fill" style="width:14%;background:var(--warning)"></div></div></div><div class="leave-nums">2 / 14 天</div></div>
+                <div class="leave-bar"><div class="leave-type">病假</div><div class="leave-progress"><div class="progress-bar"><div class="progress-fill" style="width:3%;background:var(--danger)"></div></div></div><div class="leave-nums">1 / 30 天</div></div>
+                <div class="leave-bar"><div class="leave-type">補休</div><div class="leave-progress"><div class="progress-bar"><div class="progress-fill" style="width:25%;background:var(--info)"></div></div></div><div class="leave-nums">2 / 8 小時</div></div>
+              </div>
+              <div class="card">
+                <div class="card-header"><div class="card-title">部門請假日曆 — 3月</div></div>
+                <div class="cal-grid">
+                  <div class="cal-header">一</div><div class="cal-header">二</div><div class="cal-header">三</div><div class="cal-header">四</div><div class="cal-header">五</div><div class="cal-header">六</div><div class="cal-header">日</div>
+                  <div class="cal-day" style="opacity:.3">23</div><div class="cal-day" style="opacity:.3">24</div><div class="cal-day" style="opacity:.3">25</div><div class="cal-day" style="opacity:.3">26</div><div class="cal-day" style="opacity:.3">27</div><div class="cal-day" style="opacity:.3">28</div><div class="cal-day">1</div>
+                  <div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div>
+                  <div class="cal-day">9</div><div class="cal-day has-event">10</div><div class="cal-day">11</div><div class="cal-day">12</div><div class="cal-day">13</div><div class="cal-day">14</div><div class="cal-day">15</div>
+                  <div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day">21</div><div class="cal-day">22</div>
+                  <div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day today has-event">26</div><div class="cal-day has-event">27</div><div class="cal-day has-event">28</div><div class="cal-day">29</div>
+                  <div class="cal-day has-event">30</div><div class="cal-day">31</div>
+                </div>
+                <div style="margin-top:12px;font-size:.78rem;color:var(--text-secondary)">
+                  <div style="margin-bottom:4px">&#x1F534; 3/26-28 張雅琪（特休）— 待審</div>
+                  <div style="margin-bottom:4px">&#x1F7E0; 3/27 王志明（事假半天）</div>
+                  <div>&#x1F7E2; 3/10 陳建宏（特休）— 已核准</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-content" id="tab-leave-records">
+          <div class="card">
+            <div class="card-header"><div class="card-title">請假紀錄</div><div style="display:flex;gap:8px"><select class="form-select" style="width:120px;padding:6px 10px"><option>2026 年</option><option>2025 年</option></select><select class="form-select" style="width:120px;padding:6px 10px"><option>全部假別</option><option>特休</option><option>事假</option><option>病假</option></select></div></div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>假別</th><th>日期</th><th>天數</th><th>代理人</th><th>事由</th><th>狀態</th></tr></thead>
+              <tbody>
+                <tr><td>特休</td><td>2026/03/10</td><td>1 天</td><td>李建安</td><td>個人事務</td><td><span class="badge badge-success">已核准</span></td></tr>
+                <tr><td>事假</td><td>2026/02/20</td><td>0.5 天</td><td>張雅琪</td><td>家庭事務</td><td><span class="badge badge-success">已核准</span></td></tr>
+                <tr><td>特休</td><td>2026/02/05-02/07</td><td>3 天</td><td>李建安</td><td>出遊</td><td><span class="badge badge-success">已核准</span></td></tr>
+                <tr><td>病假</td><td>2026/01/15</td><td>1 天</td><td>王志明</td><td>感冒</td><td><span class="badge badge-success">已核准</span></td></tr>
+                <tr><td>特休</td><td>2026/01/02-01/03</td><td>2 天</td><td>李建安</td><td>元旦連假</td><td><span class="badge badge-success">已核准</span></td></tr>
+                <tr><td>事假</td><td>2025/12/20</td><td>0.5 天</td><td>張雅琪</td><td>搬家</td><td><span class="badge badge-success">已核准</span></td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+        <div class="tab-content" id="tab-leave-balance">
+          <div class="card">
+            <div class="card-header"><div class="card-title">假別餘額明細</div></div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>假別</th><th>年度額度</th><th>已使用</th><th>剩餘</th><th>到期日</th><th>狀態</th></tr></thead>
+              <tbody>
+                <tr><td><strong>特別休假</strong></td><td>15 天</td><td>7 天</td><td><strong style="color:var(--accent)">8 天</strong></td><td>2026/12/31</td><td><span class="badge badge-success">正常</span></td></tr>
+                <tr><td><strong>事假</strong></td><td>14 天</td><td>2 天</td><td><strong>12 天</strong></td><td>2026/12/31</td><td><span class="badge badge-success">正常</span></td></tr>
+                <tr><td><strong>病假</strong></td><td>30 天</td><td>1 天</td><td><strong>29 天</strong></td><td>2026/12/31</td><td><span class="badge badge-success">正常</span></td></tr>
+                <tr><td><strong>補休</strong></td><td>8 小時</td><td>2 小時</td><td><strong>6 小時</strong></td><td>2026/06/30</td><td><span class="badge badge-warning">6月到期</span></td></tr>
+                <tr><td><strong>婚假</strong></td><td>8 天</td><td>0 天</td><td><strong>8 天</strong></td><td>—</td><td><span class="badge badge-gray">未使用</span></td></tr>
+                <tr><td><strong>喪假</strong></td><td>依規定</td><td>0 天</td><td><strong>—</strong></td><td>—</td><td><span class="badge badge-gray">—</span></td></tr>
+                <tr><td><strong>公假</strong></td><td>不限</td><td>1 天</td><td><strong>—</strong></td><td>—</td><td><span class="badge badge-gray">—</span></td></tr>
+              </tbody>
+            </table></div>
+            <div style="margin-top:16px;padding:14px;background:#fef3c7;border-radius:8px;font-size:.85rem">&#x26A0; 提醒：您有 <strong>6 小時</strong>補休將於 2026/06/30 到期，請儘早安排使用。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MEETING ROOMS ===== -->
+      <div class="page" id="page-meeting-rooms">
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">會議室預約系統</div><div class="card-subtitle" id="meetingDate">2026 年 3 月 26 日 (四)</div></div>
+            <div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" onclick="changeDate(-1)">&#x2B05;</button><button class="btn btn-primary btn-sm">今天</button><button class="btn btn-outline btn-sm" onclick="changeDate(1)">&#x27A1;</button></div>
+          </div>
+          <div class="grid-3">
+            <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">12F-A 大會議室 <span style="font-size:.75rem;color:var(--text-secondary)">(20人 | 投影機+視訊)</span></div>
+              <div class="room-slot"><div class="room-time">09:00-10:00</div><div class="room-status booked">Q1 營運會議 — 李副總</div></div>
+              <div class="room-slot"><div class="room-time">10:00-11:00</div><div class="room-status booked">Q1 營運會議 — 李副總</div></div>
+              <div class="room-slot"><div class="room-time">11:00-12:00</div><div class="room-status free" onclick="quickBook('12F-A','11:00-12:00')">&#x2705; 可預約</div></div>
+              <div class="room-slot"><div class="room-time">13:00-14:00</div><div class="room-status booked">部門周會 — 資訊部</div></div>
+              <div class="room-slot"><div class="room-time">14:00-15:00</div><div class="room-status free" onclick="quickBook('12F-A','14:00-15:00')">&#x2705; 可預約</div></div>
+              <div class="room-slot"><div class="room-time">15:00-16:00</div><div class="room-status free" onclick="quickBook('12F-A','15:00-16:00')">&#x2705; 可預約</div></div>
+              <div class="room-slot"><div class="room-time">16:00-17:00</div><div class="room-status booked">專案檢討 — 王志明</div></div>
+            </div>
+            <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">12F-B 中會議室 <span style="font-size:.75rem;color:var(--text-secondary)">(10人 | 投影機)</span></div>
+              <div class="room-slot"><div class="room-time">09:00-10:00</div><div class="room-status free" onclick="quickBook('12F-B','09:00-10:00')">&#x2705; 可預約</div></div>
+              <div class="room-slot"><div class="room-time">10:00-11:00</div><div class="room-status booked">廠商拜訪 — 鼎新電腦</div></div>
+              <div class="room-slot"><div class="room-time">11:00-12:00</div><div class="room-status free" onclick="quickBook('12F-B','11:00-12:00')">&#x2705; 可預約</div></div>
+              <div class="room-slot"><div class="room-time">13:00-14:00</div><div class="room-status free" onclick="quickBook('12F-B','13:00-14:00')">&#x2705; 可預約</div></div>
+              <div class="room-slot"><div class="room-time">14:00-15:00</div><div class="room-status booked">資安演練 — 風管部</div></div>
+              <div class="room-slot"><div class="room-time">15:00-16:00</div><div class="room-status booked">資安演練 — 風管部</div></div>
+              <div class="room-slot"><div class="room-time">16:00-17:00</div><div class="room-status free" onclick="quickBook('12F-B','16:00-17:00')">&#x2705; 可預約</div></div>
+            </div>
+            <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">12F-C 小會議室 <span style="font-size:.75rem;color:var(--text-secondary)">(6人 | 白板)</span></div>
+              <div class="room-slot"><div class="room-time">09:00-10:00</div><div class="room-status booked">1-on-1 — 陳建宏</div></div>
+              <div class="room-slot"><div class="room-time">10:00-11:00</div><div class="room-status free" onclick="quickBook('12F-C','10:00-11:00')">&#x2705; 可預約</div></div>
+              <div class="room-slot"><div class="room-time">11:00-12:00</div><div class="room-status free" onclick="quickBook('12F-C','11:00-12:00')">&#x2705; 可預約</div></div>
+              <div class="room-slot"><div class="room-time">13:00-14:00</div><div class="room-status booked">面試 — HR</div></div>
+              <div class="room-slot"><div class="room-time">14:00-15:00</div><div class="room-status free" onclick="quickBook('12F-C','14:00-15:00')">&#x2705; 可預約</div></div>
+              <div class="room-slot"><div class="room-time">15:00-16:00</div><div class="room-status free" onclick="quickBook('12F-C','15:00-16:00')">&#x2705; 可預約</div></div>
+              <div class="room-slot"><div class="room-time">16:00-17:00</div><div class="room-status free" onclick="quickBook('12F-C','16:00-17:00')">&#x2705; 可預約</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">快速預約</div></div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+            <div class="form-group" style="margin:0"><label class="form-label">會議室</label><select class="form-select" style="width:180px" id="bookRoom"><option>12F-A 大會議室</option><option>12F-B 中會議室</option><option>12F-C 小會議室</option></select></div>
+            <div class="form-group" style="margin:0"><label class="form-label">日期</label><input class="form-input" type="date" style="width:160px" value="2026-03-26"></div>
+            <div class="form-group" style="margin:0"><label class="form-label">時段</label><select class="form-select" style="width:180px" id="bookTime"><option>11:00-12:00</option><option>14:00-15:00</option><option>15:00-16:00</option></select></div>
+            <div class="form-group" style="margin:0"><label class="form-label">會議主題</label><input class="form-input" style="width:200px" placeholder="輸入主題" id="bookSubject"></div>
+            <div class="form-group" style="margin:0"><label class="form-label">與會人員</label><input class="form-input" style="width:200px" placeholder="搜尋姓名加入"></div>
+            <button class="btn btn-primary" onclick="bookMeetingRoom()">預約</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== EXPENSES ===== -->
+      <div class="page" id="page-expenses">
+        <div class="tabs">
+          <div class="tab active" data-tab="expense-new">新增報銷</div>
+          <div class="tab" data-tab="expense-list">報銷紀錄</div>
+        </div>
+        <div class="tab-content active" id="tab-expense-new">
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">費用報銷申請</div><div class="card-subtitle">上傳收據後 AI 將自動辨識金額與類別</div></div></div>
+            <div class="grid-2">
+              <div class="form-group"><label class="form-label">報銷類別</label><select class="form-select"><option>交通費</option><option>餐費</option><option>住宿費</option><option>辦公用品</option><option>業務招待</option><option>教育訓練</option><option>其他</option></select></div>
+              <div class="form-group"><label class="form-label">金額</label><input class="form-input" placeholder="NT$"></div>
+              <div class="form-group"><label class="form-label">發生日期</label><input class="form-input" type="date"></div>
+              <div class="form-group"><label class="form-label">歸屬部門</label><select class="form-select"><option>資訊部</option><option>總務部</option><option>業務部</option></select></div>
+              <div class="form-group" style="grid-column:span 2"><label class="form-label">說明</label><textarea class="form-textarea" rows="3" placeholder="請描述費用事由"></textarea></div>
+              <div class="form-group" style="grid-column:span 2"><label class="form-label">收據/發票上傳 (AI 自動辨識)</label><div class="upload-zone" style="padding:24px" onclick="simulateReceiptUpload()"><div class="upload-icon" style="font-size:2rem">&#x1F9FE;</div><div class="upload-text">拖曳收據圖片或 PDF</div><div class="upload-hint">支援 JPG、PNG、PDF</div></div></div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:8px"><button class="btn btn-primary" onclick="showToast('success','報銷單已送出簽核')">送出申請</button><button class="btn btn-outline">儲存草稿</button></div>
+          </div>
+        </div>
+        <div class="tab-content" id="tab-expense-list">
+          <div class="card">
+            <div class="card-header"><div class="card-title">報銷紀錄</div></div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>單號</th><th>類別</th><th>說明</th><th>金額</th><th>日期</th><th>狀態</th></tr></thead>
+              <tbody>
+                <tr><td>EXP-0325-001</td><td>交通費</td><td>客戶拜訪計程車</td><td>NT$ 650</td><td>03/25</td><td><span class="badge badge-warning">簽核中</span></td></tr>
+                <tr><td>EXP-0320-002</td><td>餐費</td><td>部門聚餐</td><td>NT$ 3,200</td><td>03/20</td><td><span class="badge badge-success">已核准</span></td></tr>
+                <tr><td>EXP-0315-001</td><td>辦公用品</td><td>文具採購</td><td>NT$ 890</td><td>03/15</td><td><span class="badge badge-success">已撥款</span></td></tr>
+                <tr><td>EXP-0310-003</td><td>教育訓練</td><td>AWS 認證考試費</td><td>NT$ 4,500</td><td>03/10</td><td><span class="badge badge-success">已撥款</span></td></tr>
+                <tr><td>EXP-0305-001</td><td>交通費</td><td>高鐵來回台中</td><td>NT$ 1,490</td><td>03/05</td><td><span class="badge badge-success">已撥款</span></td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS ===== -->
+      <div class="page" id="page-settings">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">通知偏好設定</div></div>
+            <div style="display:flex;flex-direction:column;gap:18px">
+              <label style="display:flex;align-items:center;justify-content:space-between"><div><strong>簽核通知 — Microsoft Teams</strong><div style="font-size:.75rem;color:var(--text-secondary)">有新簽核案件時透過 Teams 發送私訊</div></div><div class="switch"><input type="checkbox" checked><span class="switch-slider"></span></div></label>
+              <label style="display:flex;align-items:center;justify-content:space-between"><div><strong>簽核通知 — Slack</strong><div style="font-size:.75rem;color:var(--text-secondary)">有新簽核案件時透過 Slack 發送私訊</div></div><div class="switch"><input type="checkbox"><span class="switch-slider"></span></div></label>
+              <label style="display:flex;align-items:center;justify-content:space-between"><div><strong>合約到期提醒</strong><div style="font-size:.75rem;color:var(--text-secondary)">30/14/7 天前發送提醒</div></div><div class="switch"><input type="checkbox" checked><span class="switch-slider"></span></div></label>
+              <label style="display:flex;align-items:center;justify-content:space-between"><div><strong>付款排程提醒</strong><div style="font-size:.75rem;color:var(--text-secondary)">付款日前 3 天提醒</div></div><div class="switch"><input type="checkbox" checked><span class="switch-slider"></span></div></label>
+              <label style="display:flex;align-items:center;justify-content:space-between"><div><strong>Email 通知副本</strong><div style="font-size:.75rem;color:var(--text-secondary)">所有通知同時寄送 Email</div></div><div class="switch"><input type="checkbox"><span class="switch-slider"></span></div></label>
+              <label style="display:flex;align-items:center;justify-content:space-between"><div><strong>JIRA Ticket 建立通知</strong><div style="font-size:.75rem;color:var(--text-secondary)">IT 需求核准後通知 JIRA ticket 建立</div></div><div class="switch"><input type="checkbox" checked><span class="switch-slider"></span></div></label>
+            </div>
+            <div style="margin-top:20px"><button class="btn btn-primary" onclick="showToast('success','通知設定已儲存')">儲存設定</button></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">整合服務連線狀態</div></div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg);border-radius:10px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:1.3rem">&#x1F4AC;</span><div><strong>Microsoft Teams</strong><div style="font-size:.75rem;color:var(--text-secondary)">workspace: LINE Bank HQ</div></div></div><span class="badge badge-success">已連線</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg);border-radius:10px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:1.3rem">&#x1F4CB;</span><div><strong>JIRA</strong><div style="font-size:.75rem;color:var(--text-secondary)">project: BANK-IT, BANK-SEC, BANK-INFRA</div></div></div><span class="badge badge-success">已連線</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg);border-radius:10px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:1.3rem">&#x1F4AC;</span><div><strong>Slack</strong><div style="font-size:.75rem;color:var(--text-secondary)">workspace: linebank-internal</div></div></div><span class="badge badge-success">已連線</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg);border-radius:10px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:1.3rem">&#x1F916;</span><div><strong>AI 文件解析引擎</strong><div style="font-size:.75rem;color:var(--text-secondary)">Claude API — 運行中</div></div></div><span class="badge badge-success">啟用</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg);border-radius:10px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:1.3rem">&#x1F4E7;</span><div><strong>Email (SMTP)</strong><div style="font-size:.75rem;color:var(--text-secondary)">mail.linebank.com.tw</div></div></div><span class="badge badge-success">已連線</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg);border-radius:10px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:1.3rem">&#x1F4C5;</span><div><strong>Google Calendar</strong><div style="font-size:.75rem;color:var(--text-secondary)">會議室預約同步</div></div></div><span class="badge badge-success">已連線</span></div>
+            </div>
+          </div>
+          <div class="card" style="grid-column:span 2">
+            <div class="card-header"><div class="card-title">個人資訊</div></div>
+            <div class="grid-2">
+              <div class="form-group"><label class="form-label">姓名</label><input class="form-input" value="陳建宏" disabled></div>
+              <div class="form-group"><label class="form-label">員工編號</label><input class="form-input" value="LB12345" disabled></div>
+              <div class="form-group"><label class="form-label">部門</label><input class="form-input" value="資訊部" disabled></div>
+              <div class="form-group"><label class="form-label">職稱</label><input class="form-input" value="副理" disabled></div>
+              <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="ch.chen@linebank.com.tw"></div>
+              <div class="form-group"><label class="form-label">分機</label><input class="form-input" value="5501"></div>
+            </div>
+            <button class="btn btn-primary" onclick="showToast('success','個人資訊已更新')">更新資訊</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION PANEL -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-header"><strong>通知中心</strong><button class="btn btn-outline btn-sm" onclick="toggleNotifPanel()">&#x2716;</button></div>
+  <div class="notif-item unread" onclick="navigateTo('approvals');toggleNotifPanel()"><div class="notif-title">&#x1F514; 新簽核案件待處理</div><div class="notif-desc">林佩珊提交廠商付款申請 NT$450,000</div><div class="notif-time">5 分鐘前</div></div>
+  <div class="notif-item unread" onclick="navigateTo('it-requests');toggleNotifPanel()"><div class="notif-title">&#x1F6A8; 急件：IT需求等待簽核</div><div class="notif-desc">信用卡系統升級 — 高優先級</div><div class="notif-time">30 分鐘前</div></div>
+  <div class="notif-item unread" onclick="navigateTo('approvals');toggleNotifPanel()"><div class="notif-title">&#x1F334; 請假申請待核</div><div class="notif-desc">張雅琪申請特休 3/28-3/30</div><div class="notif-time">1 小時前</div></div>
+  <div class="notif-item" onclick="navigateTo('contracts');toggleNotifPanel()"><div class="notif-title">&#x2705; 合約解析完成</div><div class="notif-desc">C-2026-0089（遠傳電信）AI 歸檔完成</div><div class="notif-time">2 小時前</div></div>
+  <div class="notif-item"><div class="notif-title">&#x1F4B0; 付款已執行</div><div class="notif-desc">PAY-0322-005 中華電信專線租賃費已付款</div><div class="notif-time">昨天 16:30</div></div>
+  <div class="notif-item"><div class="notif-title">&#x1F4AC; Teams 通知已發送</div><div class="notif-desc">系統已向 3 位簽核人發送通知</div><div class="notif-time">昨天 10:15</div></div>
+  <div class="notif-item"><div class="notif-title">&#x1F4CB; JIRA Ticket 已建立</div><div class="notif-desc">JIRA-2026-042 信用卡系統升級</div><div class="notif-time">03/23 15:30</div></div>
+</div>
+
+<!-- AI CHAT -->
+<button class="ai-fab" id="aiFab" onclick="toggleAIChat()">&#x1F916;</button>
+<div class="ai-chat" id="aiChat">
+  <div class="ai-chat-header">
+    <div><strong>LINE Bank AI 助手</strong><div style="font-size:.73rem;opacity:.8">智慧查詢 | 表單輔助 | 文件摘要</div></div>
+    <button style="background:none;border:none;color:#fff;font-size:1.1rem" onclick="toggleAIChat()">&#x2716;</button>
+  </div>
+  <div class="ai-chat-messages" id="aiMessages">
+    <div class="ai-msg bot">嗨！我是 LINE Bank AI 助手 &#x1F44B;<br><br>我可以幫您：<br>&#x1F4C4; 查詢合約資訊<br>&#x1F4B0; 追蹤付款狀態<br>&#x1F4CB; 輔助填寫表單<br>&#x1F4CA; 產生數據報告<br>&#x2753; 查詢行內規章<br>&#x1F4DD; 摘要會議紀錄<br><br>請問需要什麼協助？</div>
+  </div>
+  <div class="ai-chat-input">
+    <input type="text" id="aiInput" placeholder="輸入問題..." onkeypress="if(event.key==='Enter')sendAIMessage()">
+    <button onclick="sendAIMessage()">&#x27A4;</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="modalTitle">Modal</div><button class="modal-close" onclick="closeModal()">&#x2716;</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ===== STATE =====
+const state = { currentPage:'dashboard', user:{ name:'陳建宏', id:'LB12345', dept:'資訊部', role:'副理' }};
+
+// ===== LOGIN =====
+function doLogin(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('app').classList.add('visible');
+  showToast('info',`歡迎回來，${state.user.name}！您有 5 筆待辦事項`);
+}
+
+// ===== NAVIGATION =====
+const pageTitles = {
+  'dashboard':['儀表板','首頁'],'contracts':['合約管理','首頁 / 合約管理'],'payments':['付款申請','首頁 / 付款申請'],
+  'approvals':['簽核中心','首頁 / 簽核中心'],'it-requests':['IT 需求申請','首頁 / IT 需求申請'],
+  'announcements':['公告欄','首頁 / 企業公告欄'],'directory':['員工通訊錄','首頁 / 員工通訊錄'],
+  'leave':['請假管理','首頁 / 請假管理'],'meeting-rooms':['會議室預約','首頁 / 會議室預約'],
+  'expenses':['費用報銷','首頁 / 費用報銷'],'settings':['系統設定','首頁 / 系統設定']
+};
+function navigateTo(page){
+  state.currentPage=page;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page)?.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
+  const t=pageTitles[page]||[page,page];
+  document.getElementById('pageTitle').textContent=t[0];
+  document.getElementById('pageBreadcrumb').textContent=t[1];
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('.nav-item[data-page]').forEach(i=>{i.addEventListener('click',()=>navigateTo(i.dataset.page))});
+
+// Tab handlers
+document.querySelectorAll('.tab[data-tab]').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    const p=tab.closest('.page');
+    p.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    p.querySelectorAll('.tab-content').forEach(tc=>tc.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab)?.classList.add('active');
+  });
+});
+function switchToTab(name){
+  const tab=document.querySelector(`.tab[data-tab="${name}"]`);
+  if(tab) tab.click();
+}
+
+// ===== CONTRACT UPLOAD =====
+function simulateUpload(){
+  const z=document.getElementById('contractUploadZone');
+  z.innerHTML=`<div style="display:flex;align-items:center;gap:12px"><div style="font-size:1.5rem">&#x1F4C4;</div><div style="flex:1;text-align:left"><div style="font-weight:600">鼎新電腦_ERP維護合約_2026.pdf</div><div style="font-size:.78rem;color:var(--text-secondary)">2.4 MB — 上傳中...</div><div class="progress-bar" style="margin-top:6px"><div class="progress-fill" id="uploadProgress" style="width:0%;background:var(--line-green)"></div></div></div></div>`;
+  let p=0;const iv=setInterval(()=>{p+=Math.random()*18;if(p>=100){p=100;clearInterval(iv);document.getElementById('uploadProgress').style.width='100%';setTimeout(()=>{z.innerHTML=`<div style="display:flex;align-items:center;gap:12px"><div style="font-size:1.5rem">&#x1F4C4;</div><div style="flex:1;text-align:left"><div style="font-weight:600">鼎新電腦_ERP維護合約_2026.pdf</div><div style="font-size:.78rem;color:var(--success)">&#x2714; 上傳完成 — AI 解析完成</div></div><span class="badge badge-success">完成</span></div>`;document.getElementById('contractParseResult').style.display='block';showToast('success','AI 已完成合約解析，請確認欄位');},600);}document.getElementById('uploadProgress').style.width=p+'%';},180);
+}
+function confirmContractAndCreatePayment(){
+  document.getElementById('autoPaymentDraft').style.display='block';
+  showToast('success','合約已歸檔，付款草稿已自動建立');
+  document.getElementById('autoPaymentDraft').scrollIntoView({behavior:'smooth'});
+}
+
+// ===== APPROVALS =====
+function approveItem(btn){
+  const card=btn.closest('.card');
+  card.style.opacity='0.5';card.style.pointerEvents='none';
+  showToast('success','已核准！已透過 Teams 通知下一位簽核人');
+  setTimeout(()=>{card.style.display='none';updateApprovalCount(-1);},800);
+}
+function rejectItem(btn){
+  const card=btn.closest('.card');
+  card.style.opacity='0.5';card.style.pointerEvents='none';
+  showToast('error','已退回，已透過 Teams 通知申請人');
+  setTimeout(()=>{card.style.display='none';updateApprovalCount(-1);},800);
+}
+function approveAndCreateJira(btn){
+  const card=btn.closest('.card');
+  card.style.opacity='0.5';card.style.pointerEvents='none';
+  showToast('success','已核准！JIRA BANK-IT-046 已建立，Teams 已通知開發團隊');
+  setTimeout(()=>{card.style.display='none';updateApprovalCount(-1);},800);
+}
+function updateApprovalCount(delta){
+  const badge=document.querySelector('.nav-item[data-page="approvals"] .nav-badge');
+  if(badge){let n=parseInt(badge.textContent)+delta;badge.textContent=Math.max(0,n);if(n<=0)badge.style.display='none';}
+}
+
+// ===== IT REQUEST =====
+function submitITRequest(){showToast('success','IT 需求已送出！等待簽核後自動建立 JIRA Ticket 並通知團隊');}
+
+// ===== MEETING ROOM =====
+function quickBook(room,time){
+  document.getElementById('bookRoom').value=room.includes('A')?'12F-A 大會議室':room.includes('B')?'12F-B 中會議室':'12F-C 小會議室';
+  document.getElementById('bookTime').value=time;
+  document.getElementById('bookSubject').focus();
+  showToast('info',`已選擇 ${room} ${time}，請輸入會議主題後點擊預約`);
+}
+function bookMeetingRoom(){showToast('success','會議室已預約成功！已發送 Teams 日曆邀請給與會人員');}
+function changeDate(d){showToast('info','已切換日期（Demo 模式顯示相同資料）');}
+
+// ===== EXPENSES =====
+function simulateReceiptUpload(){showToast('info','AI 正在辨識收據...（Demo 模式）');}
+
+// ===== ARCHIVE SEARCH =====
+function doArchiveSearch(){
+  const q=document.getElementById('archiveSearch').value;
+  document.getElementById('archiveResults').innerHTML=`
+    <div class="table-wrap"><table><thead><tr><th>合約編號</th><th>簽約對象</th><th>合約名稱</th><th>金額</th><th>歸檔日期</th><th>操作</th></tr></thead><tbody>
+    <tr><td>C-2025-0112</td><td>甲骨文</td><td>Oracle DB 授權</td><td>NT$ 4,500,000</td><td>2025/01/15</td><td><button class="btn btn-outline btn-sm">下載PDF</button></td></tr>
+    <tr><td>C-2025-0098</td><td>中華電信</td><td>機房託管合約</td><td>NT$ 1,440,000</td><td>2025/06/01</td><td><button class="btn btn-outline btn-sm">下載PDF</button></td></tr>
+    <tr><td>C-2024-0076</td><td>鼎新電腦</td><td>ERP 導入專案</td><td>NT$ 5,600,000</td><td>2024/03/20</td><td><button class="btn btn-outline btn-sm">下載PDF</button></td></tr>
+    <tr><td>C-2024-0058</td><td>趨勢科技</td><td>APT 防護方案</td><td>NT$ 1,200,000</td><td>2024/02/10</td><td><button class="btn btn-outline btn-sm">下載PDF</button></td></tr>
+    </tbody></table></div>`;
+  showToast('info',`找到 4 筆歸檔合約${q?' (含 '+q+')':''}`);
+}
+
+// ===== CONTRACT DETAIL MODAL =====
+function openContractDetail(id){
+  showModal('contractDetail');
+  document.getElementById('modalTitle').textContent='合約詳情 — '+id;
+  document.getElementById('modalBody').innerHTML=`
+    <div class="parsed-fields">
+      <div class="parsed-field"><div class="parsed-field-label">合約編號</div><div class="parsed-field-value">${id}</div></div>
+      <div class="parsed-field"><div class="parsed-field-label">狀態</div><div class="parsed-field-value"><span class="badge badge-success">有效</span></div></div>
+      <div class="parsed-field"><div class="parsed-field-label">簽約金額</div><div class="parsed-field-value">NT$ 720,000</div></div>
+      <div class="parsed-field"><div class="parsed-field-label">合約期間</div><div class="parsed-field-value">2026/03 - 2027/02</div></div>
+      <div class="parsed-field"><div class="parsed-field-label">負責人</div><div class="parsed-field-value">李建安</div></div>
+      <div class="parsed-field"><div class="parsed-field-label">付款進度</div><div class="parsed-field-value">2/12 期已付</div></div>
+    </div>
+    <div style="margin-top:16px"><strong style="font-size:.85rem">付款歷史</strong></div>
+    <table style="margin-top:8px"><thead><tr><th>期別</th><th>日期</th><th>金額</th><th>狀態</th></tr></thead><tbody>
+    <tr><td>第1期</td><td>2026/03/05</td><td>NT$ 60,000</td><td><span class="badge badge-success">已付款</span></td></tr>
+    <tr><td>第2期</td><td>2026/04/05</td><td>NT$ 60,000</td><td><span class="badge badge-info">待建單</span></td></tr>
+    </tbody></table>`;
+  document.getElementById('modalFooter').innerHTML=`<button class="btn btn-outline" onclick="closeModal()">關閉</button><button class="btn btn-outline">&#x1F4C4; 下載 PDF</button><button class="btn btn-primary">&#x1F4B0; 建立付款單</button>`;
+}
+
+// ===== GLOBAL SEARCH =====
+function doGlobalSearch(){
+  const q=document.getElementById('globalSearch').value;
+  if(!q)return;
+  showToast('info',`搜尋 "${q}"... 找到 3 筆結果`);
+}
+
+// ===== NOTIFICATIONS =====
+function toggleNotifPanel(){document.getElementById('notifPanel').classList.toggle('open')}
+
+// ===== AI CHAT =====
+function toggleAIChat(){document.getElementById('aiChat').classList.toggle('open')}
+const aiR={
+  '合約':'目前系統中有 <strong>127</strong> 份有效合約。3 份將在 30 天內到期：<br><br>1. IBM 主機維護（4/15）<br>2. Microsoft M365（4/22）<br>3. 中華電信專線（4/25）<br><br>建議儘快處理續約。需要查詢特定合約嗎？',
+  '付款':'本月付款概覽：<br><br>&#x1F4CB; 18 筆付款單<br>&#x23F3; 5 筆簽核中<br>&#x2705; 11 筆已核准<br>&#x1F4B0; 累計 NT$2,400,000<br><br>最近待處理：鼎新電腦 NT$450,000',
+  'jira':'JIRA 看板狀態：<br><br>&#x1F7E1; 待審核：2 件<br>&#x1F535; 進行中：3 件<br>&#x1F7E3; 測試中：2 件<br>&#x1F7E2; 已完成：3 件<br><br>高優先：信用卡系統升級 (JIRA-042)',
+  '請假':'您的假別餘額：<br><br>&#x1F334; 特休：8 天（已用 7 天）<br>&#x1F4DD; 事假：12 天（已用 2 天）<br>&#x1F3E5; 病假：29 天<br>&#x23F0; 補休：6 小時（6/30 到期）<br><br>提醒：補休即將到期，請儘早安排！',
+  '規章':'可查詢以下行內規章：<br><br>1. 員工請假辦法<br>2. 差旅費報支要點<br>3. 資訊安全管理規範<br>4. 採購作業流程<br>5. 印鑑管理辦法<br>6. 個資保護規範<br><br>請問要查詢哪一項？',
+  '你好':'您好！很高興為您服務 &#x1F60A;<br>今天有 <strong>5 筆待簽核</strong>需要處理，要我幫您摘要嗎？',
+  'hello':'Hi! 今天有 5 筆待辦事項。需要我幫您整理嗎？',
+  '簽核':'您目前有 <strong>5 筆</strong>待簽核：<br><br>1. &#x1F4B0; 鼎新電腦付款 NT$450K<br>2. &#x1F4BB; 信用卡系統升級（急件）<br>3. &#x1F334; 張雅琪特休申請<br>4. &#x1F4C4; IBM 合約續約<br>5. &#x1F4B0; AWS 雲端月費<br><br>要前往簽核中心處理嗎？',
+  '會議':'今天的會議：<br><br>&#x1F4CD; 13:00-14:00 部門周會（12F-A）<br>&#x1F4CD; 09:00 1-on-1（12F-C）<br><br>下一個空閒會議室：12F-A 11:00-12:00',
+};
+function sendAIMessage(){
+  const input=document.getElementById('aiInput');const text=input.value.trim();if(!text)return;input.value='';
+  const msgs=document.getElementById('aiMessages');
+  msgs.innerHTML+=`<div class="ai-msg user">${escapeHtml(text)}</div>`;
+  msgs.innerHTML+=`<div class="ai-msg bot" id="aiTyping"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  msgs.scrollTop=msgs.scrollHeight;
+  setTimeout(()=>{
+    document.getElementById('aiTyping')?.remove();
+    let r='我理解您的問題。讓我查詢系統資料...<br><br>在正式版本中，我可以直接存取行內所有系統即時資料。目前 Demo 模式支援查詢：合約、付款、JIRA、請假、規章、簽核、會議等關鍵字。';
+    for(const[k,v]of Object.entries(aiR)){if(text.toLowerCase().includes(k)){r=v;break;}}
+    msgs.innerHTML+=`<div class="ai-msg bot">${r}</div>`;msgs.scrollTop=msgs.scrollHeight;
+  },1000+Math.random()*500);
+}
+function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+
+// ===== EMPLOYEES =====
+const employees=[
+  {name:'陳建宏',dept:'資訊部',title:'副理',ext:'5501',email:'ch.chen@linebank.com.tw',color:'#06C755'},
+  {name:'林佩珊',dept:'總務部',title:'專員',ext:'3201',email:'ps.lin@linebank.com.tw',color:'#8b5cf6'},
+  {name:'王志明',dept:'資訊部',title:'工程師',ext:'5510',email:'cm.wang@linebank.com.tw',color:'#3b82f6'},
+  {name:'張雅琪',dept:'資訊部',title:'工程師',ext:'5508',email:'yc.chang@linebank.com.tw',color:'#ef4444'},
+  {name:'李建安',dept:'資訊部',title:'資深工程師',ext:'5503',email:'ca.li@linebank.com.tw',color:'#f59e0b'},
+  {name:'張文宏',dept:'總務部',title:'科長',ext:'3200',email:'wh.chang@linebank.com.tw',color:'#06C755'},
+  {name:'李副總',dept:'總經理室',title:'副總經理',ext:'1001',email:'vp.li@linebank.com.tw',color:'#1b2a4a'},
+  {name:'陳宏志',dept:'資訊部',title:'工程師',ext:'5512',email:'hc.chen@linebank.com.tw',color:'#3b82f6'},
+  {name:'黃美玲',dept:'人力資源部',title:'科長',ext:'2100',email:'ml.huang@linebank.com.tw',color:'#ec4899'},
+  {name:'劉大衛',dept:'風管部',title:'副理',ext:'4200',email:'dw.liu@linebank.com.tw',color:'#f59e0b'},
+  {name:'吳佳蓉',dept:'業務部',title:'經理',ext:'6100',email:'jr.wu@linebank.com.tw',color:'#8b5cf6'},
+  {name:'周建國',dept:'業務部',title:'專員',ext:'6108',email:'jg.zhou@linebank.com.tw',color:'#3b82f6'},
+];
+function renderEmployees(list){
+  document.getElementById('empGrid').innerHTML=list.map(e=>`
+    <div class="emp-card">
+      <div class="emp-avatar" style="background:${e.color}">${e.name[0]}</div>
+      <div class="emp-info"><div class="emp-name">${e.name}</div><div class="emp-dept">${e.dept} / ${e.title}</div><div class="emp-contact">&#x1F4DE; ${e.ext} &nbsp;|&nbsp; &#x2709; ${e.email}</div></div>
+      <button class="btn btn-outline btn-sm btn-icon" title="Teams 訊息" onclick="showToast('info','已開啟 Teams 對話：${e.name}')">&#x1F4AC;</button>
+    </div>`).join('');
+}
+function filterEmployees(){
+  const s=document.getElementById('empSearch').value.toLowerCase(),d=document.getElementById('deptFilter').value;
+  renderEmployees(employees.filter(e=>(!s||e.name.includes(s)||e.dept.includes(s)||e.ext.includes(s)||e.email.includes(s))&&(!d||e.dept===d)));
+}
+
+// ===== MODAL =====
+function showModal(type){document.getElementById('modalOverlay').classList.add('active');}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('active');}
+
+// ===== TOAST =====
+function showToast(type,msg){
+  const c=document.getElementById('toastContainer');
+  const icons={success:'&#x2705;',error:'&#x274C;',info:'&#x1F514;'};
+  const t=document.createElement('div');t.className=`toast ${type}`;t.innerHTML=`${icons[type]||''} ${msg}`;
+  c.appendChild(t);setTimeout(()=>t.remove(),3200);
+}
+
+// ===== CHARTS =====
+function renderMonthlyChart(){
+  const data=[1.2,1.8,1.5,2.1,1.9,2.4,1.7,2.0,2.3,1.6,1.9,2.4];
+  const months=['4月','5月','6月','7月','8月','9月','10月','11月','12月','1月','2月','3月'];
+  const max=Math.max(...data);
+  const chart=document.getElementById('monthlyChart');
+  const labels=document.getElementById('monthlyLabels');
+  chart.innerHTML=data.map((v,i)=>{
+    const h=(v/max)*140;
+    const color=i===data.length-1?'var(--line-green)':i>=data.length-3?'rgba(6,199,85,0.5)':'#e2e8f0';
+    return `<div class="chart-bar" data-val="${v}M" style="height:${h}px;background:${color}"></div>`;
+  }).join('');
+  labels.innerHTML=months.map(m=>`<div class="chart-label">${m}</div>`).join('');
+}
+
+// ===== GREETING =====
+function updateGreeting(){
+  const h=new Date().getHours();
+  const g=h<12?'早安':h<18?'午安':'晚安';
+  document.getElementById('greetingText').innerHTML=`${g}，<span>${state.user.name}</span>`;
+}
+
+// ===== DRAG & DROP =====
+const uz=document.getElementById('contractUploadZone');
+if(uz){
+  ['dragenter','dragover'].forEach(e=>uz.addEventListener(e,ev=>{ev.preventDefault();uz.classList.add('dragover')}));
+  ['dragleave','drop'].forEach(e=>uz.addEventListener(e,ev=>{ev.preventDefault();uz.classList.remove('dragover')}));
+  uz.addEventListener('drop',()=>simulateUpload());
+}
+
+// ===== INIT =====
+renderEmployees(employees);
+renderMonthlyChart();
+updateGreeting();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "linebank-internal-portal",
+  "version": "1.0.0",
+  "description": "LINE Bank Internal Portal",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

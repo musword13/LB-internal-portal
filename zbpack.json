@@ -1,0 +1,6 @@
+{
+  "build_type": "node",
+  "node": {
+    "entry": "server.js"
+  }
+}
