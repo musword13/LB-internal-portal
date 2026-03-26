@@ -9,6 +9,9 @@
   --line-green: #06C755;
   --line-green-dark: #05a648;
   --line-green-light: #e8faf0;
+  --line-blue: #2E8BFF;
+  --line-blue-dark: #1a6fdd;
+  --line-blue-light: #e6f2ff;
   --primary: #1b2a4a;
   --primary-light: #2d4a7a;
   --accent: #06C755;
@@ -43,9 +46,9 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 
 /* ===== LOGIN ===== */
 .login-screen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity .6s,visibility .6s;overflow:hidden}
-.login-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1b2a4a 0%,#0f1f3d 40%,#162544 100%)}
-.login-bg::before{content:'';position:absolute;top:-50%;right:-30%;width:80%;height:150%;background:radial-gradient(ellipse,rgba(6,199,85,0.15) 0%,transparent 70%);animation:loginGlow 8s ease-in-out infinite alternate}
-.login-bg::after{content:'';position:absolute;bottom:-30%;left:-20%;width:70%;height:120%;background:radial-gradient(ellipse,rgba(6,199,85,0.08) 0%,transparent 70%);animation:loginGlow 12s ease-in-out infinite alternate-reverse}
+.login-bg{position:absolute;inset:0;background:linear-gradient(135deg,#0a1628 0%,#122040 30%,#1a2f5a 100%)}
+.login-bg::before{content:'';position:absolute;top:-50%;right:-20%;width:80%;height:150%;background:radial-gradient(ellipse,rgba(6,199,85,0.18) 0%,transparent 65%);animation:loginGlow 8s ease-in-out infinite alternate}
+.login-bg::after{content:'';position:absolute;bottom:-30%;left:-10%;width:70%;height:120%;background:radial-gradient(ellipse,rgba(46,139,255,0.15) 0%,transparent 65%);animation:loginGlow 12s ease-in-out infinite alternate-reverse}
 @keyframes loginGlow{0%{transform:translate(0,0) scale(1)}100%{transform:translate(30px,-20px) scale(1.1)}}
 .login-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
 .login-card{position:relative;background:rgba(255,255,255,0.97);backdrop-filter:blur(24px);border-radius:20px;padding:48px 44px;width:420px;box-shadow:0 30px 80px rgba(0,0,0,0.35);text-align:center;z-index:1}
@@ -58,8 +61,8 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .login-field label{display:block;font-weight:600;margin-bottom:6px;font-size:0.82rem;color:var(--text-secondary);letter-spacing:0.3px}
 .login-field input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:0.95rem;transition:var(--ease);background:#f8fafc}
 .login-field input:focus{outline:none;border-color:var(--line-green);background:#fff;box-shadow:0 0 0 3px rgba(6,199,85,0.12)}
-.login-btn{width:100%;padding:14px;background:var(--line-green);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;margin-top:8px;transition:var(--ease);letter-spacing:0.5px}
-.login-btn:hover{background:var(--line-green-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(6,199,85,0.3)}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#06C755 0%,#2E8BFF 100%);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;margin-top:8px;transition:var(--ease);letter-spacing:0.5px}
+.login-btn:hover{background:linear-gradient(135deg,#05a648 0%,#1a6fdd 100%);transform:translateY(-1px);box-shadow:0 6px 20px rgba(6,199,85,0.3)}
 .login-hint{margin-top:20px;font-size:0.78rem;color:var(--text-secondary)}
 
 /* ===== LAYOUT ===== */
@@ -247,11 +250,11 @@ tr:hover td{background:#f8fafc}
 .notif-desc{font-size:0.8rem;color:var(--text-secondary);margin-top:2px}
 
 /* AI Chat */
-.ai-fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--line-green),#00b04f);color:#fff;border:none;font-size:1.4rem;box-shadow:0 4px 24px rgba(6,199,85,0.35);z-index:300;transition:var(--ease);display:flex;align-items:center;justify-content:center}
-.ai-fab:hover{transform:scale(1.08);box-shadow:0 6px 30px rgba(6,199,85,0.45)}
+.ai-fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--line-green),var(--line-blue));color:#fff;border:none;font-size:1.4rem;box-shadow:0 4px 24px rgba(46,139,255,0.35);z-index:300;transition:var(--ease);display:flex;align-items:center;justify-content:center}
+.ai-fab:hover{transform:scale(1.08);box-shadow:0 6px 30px rgba(46,139,255,0.45)}
 .ai-chat{position:fixed;bottom:90px;right:24px;width:400px;height:530px;background:var(--bg-card);border-radius:20px;box-shadow:var(--shadow-lg);z-index:300;display:flex;flex-direction:column;opacity:0;visibility:hidden;transform:translateY(20px) scale(0.95);transition:var(--ease)}
 .ai-chat.open{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
-.ai-chat-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--line-green),#00b04f);border-radius:20px 20px 0 0;color:#fff}
+.ai-chat-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--line-green),var(--line-blue));border-radius:20px 20px 0 0;color:#fff}
 .ai-chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
 .ai-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:0.86rem;line-height:1.55}
 .ai-msg.bot{background:#f1f5f9;align-self:flex-start;border-bottom-left-radius:4px}
@@ -342,9 +345,9 @@ tr:hover td{background:#f8fafc}
 .parsed-field-value.editable{border:none;background:transparent;width:100%;padding:0;font-size:0.95rem;font-weight:600;border-bottom:1px dashed var(--accent);outline:none}
 
 /* Greeting banner */
-.greeting-banner{background:linear-gradient(135deg,#1b2a4a 0%,#2d4a7a 60%,#1b2a4a 100%);border-radius:16px;padding:28px 32px;margin-bottom:24px;color:#fff;position:relative;overflow:hidden}
-.greeting-banner::before{content:'';position:absolute;top:-40%;right:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(6,199,85,0.2) 0%,transparent 70%);border-radius:50%}
-.greeting-banner::after{content:'';position:absolute;bottom:-60%;left:20%;width:250px;height:250px;background:radial-gradient(circle,rgba(6,199,85,0.1) 0%,transparent 70%);border-radius:50%}
+.greeting-banner{background:linear-gradient(135deg,#0a1628 0%,#1b2a4a 40%,#1a3a6a 100%);border-radius:16px;padding:28px 32px;margin-bottom:24px;color:#fff;position:relative;overflow:hidden}
+.greeting-banner::before{content:'';position:absolute;top:-40%;right:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(6,199,85,0.22) 0%,transparent 65%);border-radius:50%}
+.greeting-banner::after{content:'';position:absolute;bottom:-60%;left:10%;width:280px;height:280px;background:radial-gradient(circle,rgba(46,139,255,0.18) 0%,transparent 65%);border-radius:50%}
 .greeting-text{position:relative;z-index:1}
 .greeting-hello{font-size:1.5rem;font-weight:800;margin-bottom:4px}
 .greeting-hello span{color:var(--line-green)}
@@ -451,6 +454,36 @@ tr:hover td{background:#f8fafc}
 
 /* Receipt Parse Result */
 .receipt-result{display:none;margin-top:16px;border:1px solid var(--border);border-left:4px solid var(--line-green);border-radius:0 var(--radius) var(--radius) 0;padding:20px;background:#fff}
+
+/* Smart Request */
+.smart-input-wrap{position:relative;max-width:800px;margin:0 auto}
+.smart-textarea{width:100%;min-height:120px;padding:20px 24px;border:2px solid var(--border);border-radius:16px;font-size:1rem;line-height:1.7;resize:vertical;transition:var(--ease);background:#fff;font-family:inherit}
+.smart-textarea:focus{outline:none;border-color:var(--line-blue);box-shadow:0 0 0 4px rgba(46,139,255,0.1)}
+.smart-textarea::placeholder{color:#94a3b8}
+.smart-submit-row{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:14px}
+.smart-examples{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.smart-example{padding:8px 16px;background:#fff;border:1.5px solid var(--border);border-radius:24px;font-size:.82rem;cursor:pointer;transition:var(--ease);color:var(--text-secondary)}
+.smart-example:hover{border-color:var(--line-blue);color:var(--line-blue);background:var(--line-blue-light)}
+.intent-card{background:var(--bg-card);border:2px solid var(--border);border-radius:16px;overflow:hidden;transition:var(--ease);margin-bottom:20px}
+.intent-card.analyzing{border-color:var(--line-blue);box-shadow:0 0 0 4px rgba(46,139,255,0.08)}
+.intent-header{padding:20px 24px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);background:#fafbfc}
+.intent-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.intent-body{padding:20px 24px}
+.intent-steps{display:flex;gap:12px;margin:16px 0;flex-wrap:wrap}
+.intent-step{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--bg);border-radius:10px;font-size:.82rem;font-weight:600;transition:var(--ease)}
+.intent-step.done{background:#e8faf0;color:#059669}
+.intent-step.active{background:var(--line-blue-light);color:var(--line-blue);box-shadow:0 0 0 2px rgba(46,139,255,0.2)}
+.intent-step.pending{color:var(--text-secondary)}
+.approval-chain{display:flex;align-items:center;gap:0;margin:12px 0;flex-wrap:wrap}
+.approval-node{display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;padding:0 18px}
+.approval-node:not(:last-child)::after{content:'→';position:absolute;right:-6px;top:14px;color:var(--text-secondary);font-size:.9rem}
+.approval-node-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:.78rem;margin-bottom:4px}
+.approval-node-name{font-size:.75rem;font-weight:600}
+.approval-node-role{font-size:.65rem;color:var(--text-secondary)}
+
+/* Blue accent buttons */
+.btn-blue{background:var(--line-blue);color:#fff}
+.btn-blue:hover{background:var(--line-blue-dark);box-shadow:0 4px 12px rgba(46,139,255,0.25)}
 </style>
 </head>
 <body>
@@ -460,7 +493,7 @@ tr:hover td{background:#f8fafc}
   <div class="login-bg"></div>
   <div class="login-card">
     <div class="login-brand">
-      <svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#06C755"/><path d="M20 8C13.4 8 8 12.5 8 18c0 4.9 4.4 9 10.1 9.8.4.1.9.2 1 .5.1.3.1.6 0 .9l-.2 1c-.1.3-.2.6.3.3.5-.2 2.6-1.5 3.6-2.6h.1C28 26.2 32 22.4 32 18c0-5.5-5.4-10-12-10z" fill="#fff"/></svg>
+      <svg viewBox="0 0 44 44" fill="none"><path d="M26 2C26 2 34 4 38 12C42 20 36 28 36 28C36 28 40 18 34 10C28 2 26 2 26 2Z" fill="#06C755"/><path d="M18 42C18 42 10 40 6 32C2 24 8 16 8 16C8 16 4 26 10 34C16 42 18 42 18 42Z" fill="#2E8BFF"/><ellipse cx="24" cy="16" rx="12" ry="11" fill="#06C755" opacity="0.9"/><ellipse cx="20" cy="28" rx="12" ry="11" fill="#2E8BFF" opacity="0.9"/><ellipse cx="22" cy="22" rx="8" ry="6" fill="#1a6fdd" opacity="0.7"/></svg>
       <div class="login-brand-text">LINE <span>Bank</span></div>
     </div>
     <div class="login-subtitle">Internal Portal — 員工內部整合平台</div>
@@ -483,7 +516,7 @@ tr:hover td{background:#f8fafc}
   <nav class="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo">
-        <svg viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="7" fill="#06C755"/><path d="M14 5.5C9.4 5.5 5.6 8.7 5.6 12.6c0 3.4 3.1 6.3 7.1 6.9.3.1.6.1.7.4.1.2 0 .4 0 .6l-.1.7c0 .2-.1.4.2.2s1.8-1.1 2.5-1.8C20 18.3 22.4 15.7 22.4 12.6 22.4 8.7 18.6 5.5 14 5.5z" fill="#fff"/></svg>
+        <svg viewBox="0 0 32 32" fill="none"><ellipse cx="18" cy="11" rx="9" ry="8.5" fill="#06C755"/><ellipse cx="14" cy="21" rx="9" ry="8.5" fill="#2E8BFF"/><ellipse cx="16" cy="16" rx="5.5" ry="4" fill="#1a6fdd" opacity="0.7"/></svg>
         <div class="sidebar-logo-text">LINE <span>Bank</span></div>
       </div>
     </div>
@@ -494,6 +527,7 @@ tr:hover td{background:#f8fafc}
       <div class="nav-item" data-page="payments"><span class="nav-icon">&#x1F4B0;</span>付款申請<span class="nav-badge">2</span></div>
       <div class="nav-item" data-page="approvals"><span class="nav-icon">&#x2705;</span>簽核中心<span class="nav-badge">5</span></div>
       <div class="nav-item" data-page="it-requests"><span class="nav-icon">&#x1F4BB;</span>IT 需求申請<span class="nav-badge">4</span></div>
+      <div class="nav-item" data-page="smart-request"><span class="nav-icon">&#x2728;</span>智慧工單<span class="nav-badge" style="background:var(--line-blue)">AI</span></div>
       <div class="nav-section">企業服務</div>
       <div class="nav-item" data-page="announcements"><span class="nav-icon">&#x1F4E2;</span>公告欄</div>
       <div class="nav-item" data-page="directory"><span class="nav-icon">&#x1F465;</span>員工通訊錄</div>
@@ -577,18 +611,20 @@ tr:hover td{background:#f8fafc}
           </div>
         </div>
 
-        <!-- Quick Actions (8 items) -->
+        <!-- Quick Actions (10 items) -->
         <div class="card">
           <div class="card-header"><div class="card-title">快速操作</div></div>
-          <div class="quick-actions" style="grid-template-columns:repeat(8,1fr)">
-            <div class="quick-action" onclick="navigateTo('contracts')"><div class="quick-action-icon">&#x1F4E4;</div><div class="quick-action-label">上傳合約</div></div>
-            <div class="quick-action" onclick="navigateTo('payments')"><div class="quick-action-icon">&#x1F4B3;</div><div class="quick-action-label">付款申請</div></div>
-            <div class="quick-action" onclick="navigateTo('it-requests')"><div class="quick-action-icon">&#x1F6E0;</div><div class="quick-action-label">IT 需求</div></div>
-            <div class="quick-action" onclick="navigateTo('leave')"><div class="quick-action-icon">&#x1F4DD;</div><div class="quick-action-label">請假申請</div></div>
-            <div class="quick-action" onclick="navigateTo('expenses')"><div class="quick-action-icon">&#x1F9FE;</div><div class="quick-action-label">費用報銷</div></div>
-            <div class="quick-action" onclick="navigateTo('meeting-rooms')"><div class="quick-action-icon">&#x1F3E2;</div><div class="quick-action-label">會議室</div></div>
-            <div class="quick-action" onclick="navigateTo('regulations')"><div class="quick-action-icon">&#x1F4D6;</div><div class="quick-action-label">內規查詢</div></div>
-            <div class="quick-action" onclick="navigateTo('ai-tools')"><div class="quick-action-icon">&#x1F9E0;</div><div class="quick-action-label">AI 工具箱</div></div>
+          <div class="quick-actions" style="grid-template-columns:repeat(5,1fr)">
+            <div class="quick-action" onclick="navigateTo('smart-request')" style="border-color:var(--line-blue);background:linear-gradient(135deg,#f8fbff,#e6f2ff)"><div class="quick-action-icon" style="background:linear-gradient(135deg,#e6f2ff,#e8faf0)">&#x2728;</div><div class="quick-action-label" style="color:var(--line-blue)">智慧工單</div><div class="quick-action-desc">AI 自動派單</div></div>
+            <div class="quick-action" onclick="navigateTo('contracts')"><div class="quick-action-icon">&#x1F4E4;</div><div class="quick-action-label">上傳合約</div><div class="quick-action-desc">AI 自動解析</div></div>
+            <div class="quick-action" onclick="navigateTo('payments')"><div class="quick-action-icon">&#x1F4B3;</div><div class="quick-action-label">付款申請</div><div class="quick-action-desc">廠商付款</div></div>
+            <div class="quick-action" onclick="navigateTo('it-requests')"><div class="quick-action-icon">&#x1F6E0;</div><div class="quick-action-label">IT 需求</div><div class="quick-action-desc">JIRA 整合</div></div>
+            <div class="quick-action" onclick="navigateTo('leave')"><div class="quick-action-icon">&#x1F4DD;</div><div class="quick-action-label">請假申請</div><div class="quick-action-desc">假別查詢</div></div>
+            <div class="quick-action" onclick="navigateTo('expenses')"><div class="quick-action-icon">&#x1F9FE;</div><div class="quick-action-label">費用報銷</div><div class="quick-action-desc">收據辨識</div></div>
+            <div class="quick-action" onclick="navigateTo('meeting-rooms')"><div class="quick-action-icon">&#x1F3E2;</div><div class="quick-action-label">會議室</div><div class="quick-action-desc">即時預約</div></div>
+            <div class="quick-action" onclick="navigateTo('regulations')"><div class="quick-action-icon">&#x1F4D6;</div><div class="quick-action-label">內規管理</div><div class="quick-action-desc">AI 法規搜尋</div></div>
+            <div class="quick-action" onclick="navigateTo('directory')"><div class="quick-action-icon">&#x1F4DE;</div><div class="quick-action-label">通訊錄</div><div class="quick-action-desc">員工查詢</div></div>
+            <div class="quick-action" onclick="navigateTo('ai-tools')"><div class="quick-action-icon">&#x1F9E0;</div><div class="quick-action-label">AI 工具箱</div><div class="quick-action-desc">9 大 AI 功能</div></div>
           </div>
         </div>
 
@@ -1340,12 +1376,66 @@ tr:hover td{background:#f8fafc}
         </div>
       </div>
 
+      <!-- ===== SMART REQUEST ===== -->
+      <div class="page" id="page-smart-request">
+        <div class="card" style="text-align:center;padding:32px 24px;background:linear-gradient(135deg,#0a1628 0%,#1a3a6a 60%,#0f2847 100%);color:#fff;border:none;position:relative;overflow:hidden;margin-bottom:24px">
+          <div style="position:absolute;top:-40%;right:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(6,199,85,0.15) 0%,transparent 65%);border-radius:50%"></div>
+          <div style="position:absolute;bottom:-50%;left:-5%;width:280px;height:280px;background:radial-gradient(circle,rgba(46,139,255,0.15) 0%,transparent 65%);border-radius:50%"></div>
+          <div style="position:relative;z-index:1">
+            <div style="font-size:2.5rem;margin-bottom:8px">&#x2728;</div>
+            <div style="font-size:1.3rem;font-weight:800;margin-bottom:6px">智慧工單 — 意圖驅動動態派單</div>
+            <div style="font-size:.9rem;opacity:.75;max-width:600px;margin:0 auto">用自然語言描述您的需求，AI 自動識別意圖、選擇正確表單、帶入預設參數、預測簽核層級</div>
+          </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">&#x1F4AC; 描述您的需求</div><div class="card-subtitle">用自然語言告訴 AI 您需要什麼，系統將自動建立對應工單</div></div></div>
+          <div class="smart-input-wrap">
+            <textarea class="smart-textarea" id="smartInput" placeholder="例如：&#10;• 我需要申請下週三到週五的特休，代理人是李建安&#10;• 信用卡系統的報表查詢功能有 bug，客戶反應查不到 2 月的帳單&#10;• 需要採購 20 台 MacBook Pro 給新進工程師，預算約 150 萬&#10;• 下週二 14:00 需要一間可容納 8 人的會議室做 Sprint Review&#10;• 鼎新電腦這個月的顧問費 45 萬需要請款"></textarea>
+            <div class="smart-submit-row">
+              <div style="font-size:.78rem;color:var(--text-secondary)">&#x1F4A1; AI 會自動判斷：工單類型 → 表單欄位 → 簽核流程 → 負責人</div>
+              <button class="btn btn-blue" onclick="analyzeSmartRequest()" style="padding:10px 28px;font-size:.95rem">&#x1F916; AI 分析並建立工單</button>
+            </div>
+          </div>
+          <div style="margin-top:20px;font-size:.82rem;color:var(--text-secondary);font-weight:600">&#x1F4DD; 試試這些範例：</div>
+          <div class="smart-examples">
+            <span class="smart-example" onclick="fillSmartExample(0)">&#x1F334; 我要請下週三到五的特休</span>
+            <span class="smart-example" onclick="fillSmartExample(1)">&#x1F41B; 信用卡系統報表查詢有 bug</span>
+            <span class="smart-example" onclick="fillSmartExample(2)">&#x1F4BB; 採購 20 台 MacBook 給新進人員</span>
+            <span class="smart-example" onclick="fillSmartExample(3)">&#x1F3E2; 下週二要一間 8 人會議室</span>
+            <span class="smart-example" onclick="fillSmartExample(4)">&#x1F4B0; 鼎新電腦顧問費 45 萬請款</span>
+            <span class="smart-example" onclick="fillSmartExample(5)">&#x1F4D6; 資訊安全管理規範需要改版</span>
+          </div>
+        </div>
+
+        <!-- AI Analysis Result Area -->
+        <div id="smartResultArea"></div>
+
+        <!-- History -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">近期智慧工單紀錄</div></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>描述</th><th>AI 判定類型</th><th>工單編號</th><th>狀態</th><th>建立時間</th></tr></thead>
+            <tbody>
+              <tr><td>「VPN 連不上，無法遠端作業」</td><td><span class="badge badge-danger">IT 障礙排除</span></td><td>REQ-046</td><td><span class="badge badge-warning">處理中</span></td><td>03/26 09:30</td></tr>
+              <tr><td>「下週一到三出差台中，需要訂高鐵」</td><td><span class="badge badge-info">差旅申請</span></td><td>TRV-012</td><td><span class="badge badge-success">已核准</span></td><td>03/25 14:20</td></tr>
+              <tr><td>「需要 10 台 24 吋螢幕」</td><td><span class="badge badge-warning">採購申請</span></td><td>PO-089</td><td><span class="badge badge-warning">簽核中</span></td><td>03/24 11:00</td></tr>
+              <tr><td>「報銷上週客戶餐敘費用 NT$3,200」</td><td><span class="badge badge-purple">費用報銷</span></td><td>EXP-0325-002</td><td><span class="badge badge-success">已撥款</span></td><td>03/23 16:45</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+
       <!-- ===== AI TOOLS ===== -->
       <div class="page" id="page-ai-tools">
-        <div class="card" style="text-align:center;padding:32px;background:linear-gradient(135deg,#1b2a4a 0%,#2d4a7a 100%);color:#fff;border:none;margin-bottom:24px">
+        <div class="card" style="text-align:center;padding:32px;background:linear-gradient(135deg,#0a1628 0%,#1a3a6a 60%,#0f2847 100%);color:#fff;border:none;margin-bottom:24px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:-40%;right:-10%;width:250px;height:250px;background:radial-gradient(circle,rgba(6,199,85,0.15) 0%,transparent 65%);border-radius:50%"></div>
+          <div style="position:absolute;bottom:-50%;left:-5%;width:220px;height:220px;background:radial-gradient(circle,rgba(46,139,255,0.15) 0%,transparent 65%);border-radius:50%"></div>
+          <div style="position:relative;z-index:1">
           <div style="font-size:2.5rem;margin-bottom:12px">&#x1F9E0;</div>
           <div style="font-size:1.4rem;font-weight:800;margin-bottom:6px">AI 工具箱</div>
-          <div style="font-size:.9rem;opacity:.75">LINE Bank 內建 AI 能力，提升工作效率與決策品質</div>
+          <div style="font-size:.9rem;opacity:.75">LINE Bank 內建 AI 能力，提升工作效率與決策品質</div></div>
         </div>
 
         <div class="grid-3">
@@ -1384,6 +1474,12 @@ tr:hover td{background:#f8fafc}
             <div class="ai-tool-title">支出趨勢預測</div>
             <div class="ai-tool-desc">基於歷史數據的機器學習模型，預測各部門未來季度的支出趨勢與預算建議</div>
             <div class="ai-tool-badge" style="background:#e8faf0;color:#059669">已上線</div>
+          </div>
+          <div class="ai-tool-card" onclick="navigateTo('smart-request')" style="border:2px solid var(--line-blue)">
+            <div class="ai-tool-icon">&#x2728;</div>
+            <div class="ai-tool-title">意圖驅動智慧工單</div>
+            <div class="ai-tool-desc">用自然語言描述需求，AI 自動識別意圖、選擇表單、帶入參數、預測簽核層級與負責人</div>
+            <div class="ai-tool-badge" style="background:var(--line-blue-light);color:var(--line-blue)">NEW</div>
           </div>
           <div class="ai-tool-card" onclick="toggleAIChat()">
             <div class="ai-tool-icon">&#x1F4AC;</div>
@@ -1508,6 +1604,7 @@ const pageTitles = {
   'announcements':['公告欄','首頁 / 企業公告欄'],'directory':['員工通訊錄','首頁 / 員工通訊錄'],
   'leave':['請假管理','首頁 / 請假管理'],'meeting-rooms':['會議室預約','首頁 / 會議室預約'],
   'expenses':['費用報銷','首頁 / 費用報銷'],'regulations':['內規管理','首頁 / 內規管理辦法'],
+  'smart-request':['智慧工單','首頁 / 智慧工單'],
   'ai-tools':['AI 工具箱','首頁 / AI 工具箱'],'settings':['系統設定','首頁 / 系統設定']
 };
 function navigateTo(page){
@@ -1779,6 +1876,164 @@ function showTrendDemo(){
   document.getElementById('modalFooter').innerHTML=`<button class="btn btn-outline" onclick="closeModal()">關閉</button><button class="btn btn-outline">&#x1F4E5; 匯出報告</button><button class="btn btn-primary" onclick="showToast('success','預測報告已分享至 Teams 管理群組');closeModal()">&#x1F4E8; 分享給管理層</button>`;
 }
 
+// ===== SMART REQUEST (Intent-Driven Dynamic Work Orders) =====
+const smartExamples=[
+  '我要請下週三 4/1 到週五 4/3 的特休假，代理人是李建安，事由是家庭旅遊',
+  '信用卡系統的報表查詢功能有 bug，客戶反應查不到 2 月份的帳單資料，影響約 200 位客戶，請後端組優先處理',
+  '需要採購 20 台 MacBook Pro 16 吋給 Q2 新進的工程師使用，預算大約 150 萬，希望 4 月中到貨',
+  '下週二 4/1 下午 14:00-16:00 需要一間可以容納 8 人的會議室，要有視訊設備，做 Sprint Review',
+  '鼎新電腦這個月的 ERP 技術顧問費 NT$450,000 需要付款請款，合約編號 C-2026-0090',
+  '資訊安全管理規範 REG-IT-001 需要改版更新，加入 AI 工具使用相關的安全規定，預計更新到 v5.2'
+];
+
+const intentDB={
+  leave:{icon:'&#x1F334;',color:'#06C755',bg:'#e8faf0',type:'請假申請',ticket:'LV-2026-048',
+    fields:[{l:'假別',v:'特別休假'},{l:'起始日期',v:'2026/04/01 (三)'},{l:'結束日期',v:'2026/04/03 (五)'},{l:'天數',v:'3 天'},{l:'代理人',v:'李建安'},{l:'事由',v:'家庭旅遊'}],
+    chain:[{name:'陳建宏',role:'申請人',color:'#06C755'},{name:'張文宏',role:'部門主管',color:'#3b82f6'},{name:'黃美玲',role:'HR 確認',color:'#ec4899'}],
+    note:'AI 已確認特休餘額充足（剩餘 8 天），代理人李建安當週無其他代理任務，符合請假辦法第 8 條規定。'},
+  itbug:{icon:'&#x1F41B;',color:'#ef4444',bg:'#fee2e2',type:'IT 障礙排除（緊急）',ticket:'REQ-2026-047',jira:'BANK-IT-047',
+    fields:[{l:'申請類型',v:'系統障礙排除'},{l:'優先級',v:'高（影響客戶）'},{l:'影響系統',v:'信用卡系統'},{l:'影響範圍',v:'約 200 位客戶'},{l:'問題描述',v:'報表查詢功能無法顯示 2 月帳單'},{l:'JIRA 專案',v:'BANK-IT'},{l:'指派團隊',v:'後端組'}],
+    chain:[{name:'陳建宏',role:'申請人',color:'#06C755'},{name:'張文宏',role:'部門主管',color:'#3b82f6'},{name:'李副總',role:'緊急核准',color:'#1b2a4a'}],
+    note:'AI 判定為<strong>高優先級</strong>：涉及客戶服務影響，建議走緊急簽核流程。核准後將自動建立 JIRA BANK-IT-047 並通知後端組。'},
+  purchase:{icon:'&#x1F4BB;',color:'#8b5cf6',bg:'#ede9fe',type:'採購申請',ticket:'PO-2026-090',
+    fields:[{l:'採購品項',v:'MacBook Pro 16" (M4 Pro)'},{l:'數量',v:'20 台'},{l:'預估金額',v:'NT$ 1,500,000'},{l:'用途',v:'Q2 新進工程師配發'},{l:'需求日期',v:'2026/04/15'},{l:'歸屬部門',v:'資訊部'}],
+    chain:[{name:'陳建宏',role:'申請人',color:'#06C755'},{name:'張文宏',role:'部門主管',color:'#3b82f6'},{name:'李副總',role:'副總核准',color:'#1b2a4a'},{name:'總經理',role:'最終核准',color:'#ef4444'}],
+    note:'AI 依據<strong>採購管理辦法第 5 條</strong>：NT$50 萬以上需總經理核准，且依第 8 條需取得 3 家以上報價比價。建議同時聯繫 Apple 授權經銷商取得報價。'},
+  meeting:{icon:'&#x1F3E2;',color:'#2E8BFF',bg:'#e6f2ff',type:'會議室預約',ticket:'MTG-20260401-001',
+    fields:[{l:'日期',v:'2026/04/01 (二)'},{l:'時段',v:'14:00 - 16:00'},{l:'會議室',v:'12F-B 中會議室（10人/投影機）'},{l:'主題',v:'Sprint Review'},{l:'人數',v:'8 人'},{l:'設備需求',v:'視訊設備'}],
+    chain:[],
+    note:'AI 已查詢當日會議室狀態：12F-B 14:00-16:00 可用 &#x2705;，自動選擇最適合的會議室（8 人需求 → 中會議室 10 人容量）。預約確認後將自動發送 Teams 日曆邀請。'},
+  payment:{icon:'&#x1F4B0;',color:'#f59e0b',bg:'#fef3c7',type:'廠商付款申請',ticket:'PAY-0327-001',
+    fields:[{l:'付款對象',v:'鼎新電腦股份有限公司'},{l:'金額',v:'NT$ 450,000'},{l:'摘要',v:'ERP 技術顧問費（月費）'},{l:'關聯合約',v:'C-2026-0090'},{l:'幣別',v:'NTD 新台幣'},{l:'付款方式',v:'匯款'}],
+    chain:[{name:'陳建宏',role:'申請人',color:'#06C755'},{name:'張文宏',role:'部門主管',color:'#3b82f6'},{name:'林佩珊',role:'財務確認',color:'#8b5cf6'},{name:'李副總',role:'最終核准',color:'#1b2a4a'}],
+    note:'AI 已自動帶入合約 C-2026-0090 資訊，比對<strong>廠商付款作業規範第 3 條</strong>：本筆金額 NT$45 萬需副總核准。合約約定付款條件為按季支付。'},
+  regulation:{icon:'&#x1F4D6;',color:'#2E8BFF',bg:'#e6f2ff',type:'法規改版申請',ticket:'REG-CHG-005',
+    fields:[{l:'法規編號',v:'REG-IT-001'},{l:'法規名稱',v:'資訊安全管理規範'},{l:'目前版本',v:'v5.1'},{l:'修訂版本',v:'v5.2'},{l:'修訂內容',v:'新增 AI 工具安全使用規定章節'},{l:'預計生效日',v:'2026/05/01'}],
+    chain:[{name:'陳建宏',role:'申請人',color:'#06C755'},{name:'張文宏',role:'部門主管',color:'#3b82f6'},{name:'劉大衛',role:'風管部審閱',color:'#f59e0b'},{name:'李副總',role:'最終核准',color:'#1b2a4a'}],
+    note:'AI 偵測到本法規為<strong>資安相關法規</strong>，依規定修訂須經風管部交叉審閱。建議修訂完成後全行公告並安排教育訓練。'}
+};
+
+function fillSmartExample(idx){
+  document.getElementById('smartInput').value=smartExamples[idx];
+  document.getElementById('smartInput').focus();
+}
+
+function analyzeSmartRequest(){
+  const text=document.getElementById('smartInput').value.trim();
+  if(!text){showToast('info','請輸入需求描述');return;}
+  const area=document.getElementById('smartResultArea');
+
+  // Determine intent
+  let intentKey='itbug';
+  if(/特休|請假|休假|事假|病假|代理人/.test(text)) intentKey='leave';
+  else if(/bug|障礙|故障|異常|無法|查不到|連不上|crash/.test(text)) intentKey='itbug';
+  else if(/採購|購買|MacBook|筆電|螢幕|設備|到貨/.test(text)) intentKey='purchase';
+  else if(/會議室|會議|Sprint|Review|開會|簡報/.test(text)) intentKey='meeting';
+  else if(/付款|請款|費用.*萬|顧問費|月費|發票/.test(text)) intentKey='payment';
+  else if(/法規|規範|改版|修訂|辦法|REG/.test(text)) intentKey='regulation';
+
+  const intent=intentDB[intentKey];
+
+  // Show analyzing animation
+  area.innerHTML=`
+    <div class="intent-card analyzing">
+      <div class="intent-header">
+        <div style="width:48px;height:48px;border-radius:14px;background:var(--line-blue-light);display:flex;align-items:center;justify-content:center;font-size:1.5rem">&#x1F916;</div>
+        <div style="flex:1"><div style="font-weight:700;font-size:1rem">AI 正在分析您的需求...</div><div style="font-size:.82rem;color:var(--text-secondary)">識別意圖 → 選擇表單 → 帶入參數 → 預測簽核流程</div></div>
+      </div>
+      <div class="intent-body">
+        <div class="intent-steps">
+          <div class="intent-step active" id="step1">&#x1F50D; 意圖識別中...</div>
+          <div class="intent-step pending" id="step2">&#x1F4CB; 表單匹配</div>
+          <div class="intent-step pending" id="step3">&#x270F; 參數帶入</div>
+          <div class="intent-step pending" id="step4">&#x1F465; 簽核預測</div>
+        </div>
+        <div style="text-align:center;padding:24px"><div class="typing-dots"><span></span><span></span><span></span></div></div>
+      </div>
+    </div>`;
+  area.scrollIntoView({behavior:'smooth'});
+
+  // Animate steps
+  setTimeout(()=>{
+    document.getElementById('step1').className='intent-step done';
+    document.getElementById('step1').innerHTML=`&#x2705; 意圖：${intent.type}`;
+    document.getElementById('step2').className='intent-step active';
+  },800);
+  setTimeout(()=>{
+    document.getElementById('step2').className='intent-step done';
+    document.getElementById('step2').innerHTML=`&#x2705; 表單已匹配`;
+    document.getElementById('step3').className='intent-step active';
+  },1500);
+  setTimeout(()=>{
+    document.getElementById('step3').className='intent-step done';
+    document.getElementById('step3').innerHTML=`&#x2705; 參數已帶入`;
+    document.getElementById('step4').className='intent-step active';
+  },2200);
+  setTimeout(()=>{
+    document.getElementById('step4').className='intent-step done';
+    document.getElementById('step4').innerHTML=`&#x2705; 簽核鏈確認`;
+    // Show full result
+    setTimeout(()=>renderSmartResult(intent,text),400);
+  },2800);
+}
+
+function renderSmartResult(intent,originalText){
+  const area=document.getElementById('smartResultArea');
+  const chainHTML=intent.chain.length?`
+    <div style="font-weight:700;font-size:.88rem;margin-bottom:10px">&#x1F465; AI 預測簽核流程</div>
+    <div class="approval-chain">${intent.chain.map(n=>`
+      <div class="approval-node">
+        <div class="approval-node-avatar" style="background:${n.color}">${n.name[0]}</div>
+        <div class="approval-node-name">${n.name}</div>
+        <div class="approval-node-role">${n.role}</div>
+      </div>`).join('')}
+    </div>`:'<div style="font-size:.85rem;color:var(--text-secondary)">&#x2705; 此類型工單無需簽核，確認後即時生效</div>';
+
+  area.innerHTML=`
+    <div class="intent-card" style="border-color:${intent.color}">
+      <div class="intent-header" style="background:${intent.bg}">
+        <div class="intent-icon" style="background:#fff">${intent.icon}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="font-weight:800;font-size:1.05rem">${intent.type}</span>
+            <span class="badge" style="background:${intent.bg};color:${intent.color};border:1px solid ${intent.color}">AI 自動判定</span>
+            ${intent.jira?`<span class="badge badge-info">JIRA: ${intent.jira}</span>`:''}
+          </div>
+          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:2px">工單編號：<strong>${intent.ticket}</strong></div>
+        </div>
+      </div>
+      <div class="intent-body">
+        <div style="margin-bottom:16px;padding:12px;background:#f8fafc;border-radius:10px;font-size:.84rem;color:var(--text-secondary);border-left:3px solid ${intent.color}">
+          <div style="font-weight:600;color:var(--text);margin-bottom:4px">&#x1F4AC; 原始描述</div>${originalText}
+        </div>
+
+        <div style="font-weight:700;font-size:.88rem;margin-bottom:10px">&#x270F; AI 自動帶入的表單欄位</div>
+        <div class="parsed-fields" style="margin-bottom:20px">
+          ${intent.fields.map(f=>`<div class="parsed-field"><div class="parsed-field-label">${f.l}</div><input class="parsed-field-value editable" value="${f.v}"></div>`).join('')}
+        </div>
+
+        ${chainHTML}
+
+        <div style="margin-top:16px;padding:14px;background:linear-gradient(135deg,${intent.bg},#f8fafc);border-radius:10px;font-size:.84rem;line-height:1.7">
+          &#x1F916; <strong>AI 分析說明：</strong>${intent.note}
+        </div>
+
+        <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-blue" onclick="confirmSmartRequest('${intent.ticket}','${intent.type}')">&#x2705; 確認送出工單</button>
+          <button class="btn btn-outline">&#x270F; 修改欄位</button>
+          <button class="btn btn-outline">&#x1F504; 重新分析</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('smartResultArea').innerHTML=''">取消</button>
+        </div>
+      </div>
+    </div>`;
+  area.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function confirmSmartRequest(ticket,type){
+  showToast('success',`工單 ${ticket} 已建立！(${type}) — 已透過 Teams 通知簽核人`);
+  document.getElementById('smartInput').value='';
+}
+
 // ===== ARCHIVE SEARCH =====
 function doArchiveSearch(){
   const q=document.getElementById('archiveSearch').value;
@@ -1837,6 +2092,8 @@ const aiR={
   '風險':'AI 異常偵測引擎目前監控 3 類風險：<br><br>&#x1F6A8; <strong>異常偵測</strong>（本月 1 件）<br>AWS 費用異常上漲 23%<br><br>&#x26A0; <strong>流程停滯</strong>（本月 1 件）<br>付款單 PAY-0325-003 簽核超時 48hr<br><br>&#x1F4CA; <strong>趨勢偏離</strong>（本月 1 件）<br>業務部差旅費達預算 78%<br><br>要查看完整 <a href="#" onclick="showAnomalyDemo();return false">異常報告</a> 嗎？',
   '摘要':'AI 會議摘要功能支援：<br><br>&#x1F399; 上傳會議錄音自動轉文字<br>&#x1F4CB; 自動產生結構化摘要<br>&#x2705; 提取決議事項與行動項目<br>&#x1F465; 自動辨識發言者與負責人<br>&#x1F4E8; 一鍵發送至 Teams 頻道<br><br>要試試看 <a href="#" onclick="showMeetingSummaryDemo();return false">Demo</a> 嗎？',
   '預測':'根據 AI 預測模型（準確度 89%）：<br><br>&#x1F4C8; Q2 IT 總支出預估 <strong>+12.4%</strong><br>&#x2601; 雲端服務：+19.5%（系統升級）<br>&#x1F5A5; 硬體維護：+15%（IBM 漲幅）<br>&#x1F4DD; 軟體授權：+2.8%（正常）<br>&#x1F4AC; 顧問服務：-10.6%（專案收尾）<br><br>要查看完整 <a href="#" onclick="showTrendDemo();return false">預測報告</a> 嗎？',
+  '工單':'&#x2728; <strong>智慧工單</strong>可以幫您：<br><br>只要用自然語言描述需求，AI 就會自動：<br>1. &#x1F50D; 識別意圖（請假/IT需求/採購/付款...）<br>2. &#x1F4CB; 選擇正確表單並帶入參數<br>3. &#x1F465; 預測簽核鏈與負責人<br>4. &#x1F4E8; 一鍵送出並通知相關人員<br><br>前往 <a href="#" onclick="navigateTo(\'smart-request\');toggleAIChat();return false">智慧工單</a> 試試看！',
+  '申請':'您想要申請什麼呢？我建議使用 <a href="#" onclick="navigateTo(\'smart-request\');toggleAIChat();return false">&#x2728; 智慧工單</a>，只需描述需求，AI 會自動幫您：<br><br>• 判斷正確的表單類型<br>• 帶入所有必要欄位<br>• 安排簽核流程<br><br>支援：請假、IT需求、採購、付款、會議室、法規改版等所有類型。',
   '你好':'您好！很高興為您服務 &#x1F60A;<br>今天有 <strong>5 筆待簽核</strong>需要處理，要我幫您摘要嗎？',
   'hello':'Hi! 今天有 5 筆待辦事項。需要我幫您整理嗎？',
   '簽核':'您目前有 <strong>5 筆</strong>待簽核：<br><br>1. &#x1F4B0; 鼎新電腦付款 NT$450K<br>2. &#x1F4BB; 信用卡系統升級（急件）<br>3. &#x1F334; 張雅琪特休申請<br>4. &#x1F4C4; IBM 合約續約<br>5. &#x1F4B0; AWS 雲端月費<br><br>要前往簽核中心處理嗎？',
