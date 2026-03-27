@@ -313,6 +313,8 @@ tr:hover td{background:#f8fafc}
 .emp-name{font-weight:700;font-size:0.92rem}
 .emp-dept{font-size:0.8rem;color:var(--text-secondary)}
 .emp-contact{font-size:0.75rem;color:var(--text-secondary);margin-top:2px}
+.emp-tag{display:inline-block;padding:2px 8px;background:var(--bg);border:1px solid var(--border);border-radius:12px;font-size:.68rem;color:var(--text-secondary);cursor:pointer;transition:var(--ease);font-weight:500}
+.emp-tag:hover{background:var(--line-blue-light);border-color:var(--line-blue);color:var(--line-blue)}
 
 /* Calendar */
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
@@ -484,6 +486,10 @@ tr:hover td{background:#f8fafc}
 /* Blue accent buttons */
 .btn-blue{background:var(--line-blue);color:#fff}
 .btn-blue:hover{background:var(--line-blue-dark);box-shadow:0 4px 12px rgba(46,139,255,0.25)}
+
+/* System checkbox labels */
+.sys-check:has(input:checked){background:var(--line-green-light)!important;border-color:var(--line-green)!important;color:var(--line-green-dark);font-weight:600}
+.sys-check:hover{border-color:var(--border)!important;background:#f0f4ff!important}
 </style>
 </head>
 <body>
@@ -1025,7 +1031,18 @@ tr:hover td{background:#f8fafc}
               <div class="form-group"><label class="form-label">優先級</label><select class="form-select"><option>低</option><option selected>中</option><option>高</option><option>緊急</option></select></div>
               <div class="form-group" style="grid-column:span 2"><label class="form-label">需求標題</label><input class="form-input" placeholder="請簡述需求"></div>
               <div class="form-group" style="grid-column:span 2"><label class="form-label">詳細說明</label><textarea class="form-textarea" rows="5" placeholder="請描述需求內容、預期效果、影響範圍..."></textarea></div>
-              <div class="form-group"><label class="form-label">影響系統</label><select class="form-select"><option>核心銀行系統</option><option>信用卡系統</option><option>網路銀行</option><option>行動銀行 App</option><option>內部作業系統</option><option>其他</option></select></div>
+              <div class="form-group" style="grid-column:span 2"><label class="form-label">影響系統（可多選）</label>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;padding:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:#fff">
+                  <label style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--bg);border-radius:8px;cursor:pointer;font-size:.82rem;transition:var(--ease);border:1.5px solid transparent" class="sys-check"><input type="checkbox" style="accent-color:var(--line-green)"><span>台幣核心系統</span></label>
+                  <label style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--bg);border-radius:8px;cursor:pointer;font-size:.82rem;transition:var(--ease);border:1.5px solid transparent" class="sys-check"><input type="checkbox" style="accent-color:var(--line-green)"><span>外幣核心系統 FXS</span></label>
+                  <label style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--bg);border-radius:8px;cursor:pointer;font-size:.82rem;transition:var(--ease);border:1.5px solid transparent" class="sys-check"><input type="checkbox" style="accent-color:var(--line-green)"><span>保代系統</span></label>
+                  <label style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--bg);border-radius:8px;cursor:pointer;font-size:.82rem;transition:var(--ease);border:1.5px solid transparent" class="sys-check"><input type="checkbox" style="accent-color:var(--line-green)"><span>簽帳卡系統</span></label>
+                  <label style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--bg);border-radius:8px;cursor:pointer;font-size:.82rem;transition:var(--ease);border:1.5px solid transparent" class="sys-check"><input type="checkbox" style="accent-color:var(--line-green)"><span>貸款系統 e-Loan</span></label>
+                  <label style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--bg);border-radius:8px;cursor:pointer;font-size:.82rem;transition:var(--ease);border:1.5px solid transparent" class="sys-check"><input type="checkbox" style="accent-color:var(--line-green)"><span>Channel APP 行動銀行</span></label>
+                  <label style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--bg);border-radius:8px;cursor:pointer;font-size:.82rem;transition:var(--ease);border:1.5px solid transparent" class="sys-check"><input type="checkbox" style="accent-color:var(--line-green)"><span>Channel Web 網路銀行</span></label>
+                  <label style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--bg);border-radius:8px;cursor:pointer;font-size:.82rem;transition:var(--ease);border:1.5px solid transparent" class="sys-check"><input type="checkbox" style="accent-color:var(--line-green)"><span>Channel BKS 中後台系統</span></label>
+                </div>
+              </div>
               <div class="form-group"><label class="form-label">期望完成日</label><input class="form-input" type="date"></div>
               <div class="form-group"><label class="form-label">JIRA 專案</label><select class="form-select"><option>BANK-IT (一般開發)</option><option>BANK-SEC (資安)</option><option>BANK-INFRA (基礎建設)</option></select></div>
               <div class="form-group"><label class="form-label">指派團隊</label><select class="form-select"><option>自動分派</option><option>前端組</option><option>後端組</option><option>DBA 組</option><option>資安組</option><option>DevOps 組</option></select></div>
@@ -1093,7 +1110,19 @@ tr:hover td{background:#f8fafc}
       <!-- ===== DIRECTORY ===== -->
       <div class="page" id="page-directory">
         <div class="card">
-          <div class="card-header"><div class="card-title">員工通訊錄</div><div style="display:flex;gap:8px"><input class="form-input" style="width:220px" placeholder="搜尋姓名、部門、分機..." id="empSearch" oninput="filterEmployees()"><select class="form-select" style="width:140px" id="deptFilter" onchange="filterEmployees()"><option value="">全部部門</option><option>資訊部</option><option>總務部</option><option>風管部</option><option>業務部</option><option>人力資源部</option><option>總經理室</option></select></div></div>
+          <div class="card-header"><div class="card-title">員工通訊錄</div><div style="display:flex;gap:8px;flex-wrap:wrap"><input class="form-input" style="width:260px" placeholder="搜尋姓名、部門、職能標籤..." id="empSearch" oninput="filterEmployees()"><select class="form-select" style="width:140px" id="deptFilter" onchange="filterEmployees()"><option value="">全部部門</option><option>資訊部</option><option>總務部</option><option>風管部</option><option>業務部</option><option>人力資源部</option><option>總經理室</option></select></div></div>
+          <div style="margin-bottom:16px;padding:12px;background:linear-gradient(135deg,var(--line-blue-light),#f8fafc);border-radius:10px;font-size:.82rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="font-weight:700;color:var(--line-blue)">&#x1F3F7; 熱門職能標籤：</span>
+            <span class="emp-tag" onclick="document.getElementById('empSearch').value='後端開發';filterEmployees()">後端開發</span>
+            <span class="emp-tag" onclick="document.getElementById('empSearch').value='前端開發';filterEmployees()">前端開發</span>
+            <span class="emp-tag" onclick="document.getElementById('empSearch').value='Channel APP';filterEmployees()">Channel APP</span>
+            <span class="emp-tag" onclick="document.getElementById('empSearch').value='台幣核心';filterEmployees()">台幣核心</span>
+            <span class="emp-tag" onclick="document.getElementById('empSearch').value='貸款系統';filterEmployees()">貸款系統</span>
+            <span class="emp-tag" onclick="document.getElementById('empSearch').value='DevOps';filterEmployees()">DevOps</span>
+            <span class="emp-tag" onclick="document.getElementById('empSearch').value='風險管理';filterEmployees()">風險管理</span>
+            <span class="emp-tag" onclick="document.getElementById('empSearch').value='採購管理';filterEmployees()">採購管理</span>
+            <span style="margin-left:auto;font-size:.72rem;color:var(--text-secondary)">&#x2699; 部門主管可編輯職能標籤</span>
+          </div>
           <div class="grid-3" id="empGrid"></div>
         </div>
       </div>
@@ -2116,30 +2145,40 @@ function escapeHtml(t){const d=document.createElement('div');d.textContent=t;ret
 
 // ===== EMPLOYEES =====
 const employees=[
-  {name:'陳建宏',dept:'資訊部',title:'副理',ext:'5501',email:'ch.chen@linebank.com.tw',color:'#06C755'},
-  {name:'林佩珊',dept:'總務部',title:'專員',ext:'3201',email:'ps.lin@linebank.com.tw',color:'#8b5cf6'},
-  {name:'王志明',dept:'資訊部',title:'工程師',ext:'5510',email:'cm.wang@linebank.com.tw',color:'#3b82f6'},
-  {name:'張雅琪',dept:'資訊部',title:'工程師',ext:'5508',email:'yc.chang@linebank.com.tw',color:'#ef4444'},
-  {name:'李建安',dept:'資訊部',title:'資深工程師',ext:'5503',email:'ca.li@linebank.com.tw',color:'#f59e0b'},
-  {name:'張文宏',dept:'總務部',title:'科長',ext:'3200',email:'wh.chang@linebank.com.tw',color:'#06C755'},
-  {name:'李副總',dept:'總經理室',title:'副總經理',ext:'1001',email:'vp.li@linebank.com.tw',color:'#1b2a4a'},
-  {name:'陳宏志',dept:'資訊部',title:'工程師',ext:'5512',email:'hc.chen@linebank.com.tw',color:'#3b82f6'},
-  {name:'黃美玲',dept:'人力資源部',title:'科長',ext:'2100',email:'ml.huang@linebank.com.tw',color:'#ec4899'},
-  {name:'劉大衛',dept:'風管部',title:'副理',ext:'4200',email:'dw.liu@linebank.com.tw',color:'#f59e0b'},
-  {name:'吳佳蓉',dept:'業務部',title:'經理',ext:'6100',email:'jr.wu@linebank.com.tw',color:'#8b5cf6'},
-  {name:'周建國',dept:'業務部',title:'專員',ext:'6108',email:'jg.zhou@linebank.com.tw',color:'#3b82f6'},
+  {name:'陳建宏',dept:'資訊部',title:'副理',ext:'5501',email:'ch.chen@linebank.com.tw',color:'#06C755',tags:['專案管理','系統架構','Channel BKS','資安治理']},
+  {name:'林佩珊',dept:'總務部',title:'專員',ext:'3201',email:'ps.lin@linebank.com.tw',color:'#8b5cf6',tags:['採購管理','廠商付款','合約管理','資產盤點']},
+  {name:'王志明',dept:'資訊部',title:'工程師',ext:'5510',email:'cm.wang@linebank.com.tw',color:'#3b82f6',tags:['後端開發','台幣核心系統','簽帳卡系統','API 整合']},
+  {name:'張雅琪',dept:'資訊部',title:'工程師',ext:'5508',email:'yc.chang@linebank.com.tw',color:'#ef4444',tags:['前端開發','Channel APP','Channel Web','UI/UX']},
+  {name:'李建安',dept:'資訊部',title:'資深工程師',ext:'5503',email:'ca.li@linebank.com.tw',color:'#f59e0b',tags:['DevOps','雲端架構','外幣核心 FXS','SRE']},
+  {name:'張文宏',dept:'總務部',title:'科長',ext:'3200',email:'wh.chang@linebank.com.tw',color:'#06C755',tags:['行政管理','場地設施','印鑑管理','安全管理']},
+  {name:'李副總',dept:'總經理室',title:'副總經理',ext:'1001',email:'vp.li@linebank.com.tw',color:'#1b2a4a',tags:['經營策略','預算審核','最終核准權限']},
+  {name:'陳宏志',dept:'資訊部',title:'工程師',ext:'5512',email:'hc.chen@linebank.com.tw',color:'#3b82f6',tags:['後端開發','貸款系統 e-Loan','保代系統','資料庫管理']},
+  {name:'黃美玲',dept:'人力資源部',title:'科長',ext:'2100',email:'ml.huang@linebank.com.tw',color:'#ec4899',tags:['人事管理','薪酬福利','教育訓練','績效考核']},
+  {name:'劉大衛',dept:'風管部',title:'副理',ext:'4200',email:'dw.liu@linebank.com.tw',color:'#f59e0b',tags:['風險管理','法令遵循','洗錢防制','資安稽核']},
+  {name:'吳佳蓉',dept:'業務部',title:'經理',ext:'6100',email:'jr.wu@linebank.com.tw',color:'#8b5cf6',tags:['業務開發','客戶關係','Channel APP','行銷企劃']},
+  {name:'周建國',dept:'業務部',title:'專員',ext:'6108',email:'jg.zhou@linebank.com.tw',color:'#3b82f6',tags:['客戶服務','Channel Web','數據分析','活動執行']},
 ];
 function renderEmployees(list){
   document.getElementById('empGrid').innerHTML=list.map(e=>`
-    <div class="emp-card">
+    <div class="emp-card" style="flex-wrap:wrap">
       <div class="emp-avatar" style="background:${e.color}">${e.name[0]}</div>
-      <div class="emp-info"><div class="emp-name">${e.name}</div><div class="emp-dept">${e.dept} / ${e.title}</div><div class="emp-contact">&#x1F4DE; ${e.ext} &nbsp;|&nbsp; &#x2709; ${e.email}</div></div>
-      <button class="btn btn-outline btn-sm btn-icon" title="Teams 訊息" onclick="showToast('info','已開啟 Teams 對話：${e.name}')">&#x1F4AC;</button>
+      <div class="emp-info" style="min-width:0">
+        <div class="emp-name">${e.name}</div>
+        <div class="emp-dept">${e.dept} / ${e.title}</div>
+        <div class="emp-contact">&#x1F4DE; ${e.ext} &nbsp;|&nbsp; &#x2709; ${e.email}</div>
+      </div>
+      <button class="btn btn-outline btn-sm btn-icon" title="Teams 訊息" onclick="showToast('info','已開啟 Teams 對話：${e.name}')" style="flex-shrink:0">&#x1F4AC;</button>
+      <div style="width:100%;display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+        ${(e.tags||[]).map(t=>`<span class="emp-tag" onclick="document.getElementById('empSearch').value='${t}';filterEmployees()">${t}</span>`).join('')}
+      </div>
     </div>`).join('');
 }
 function filterEmployees(){
   const s=document.getElementById('empSearch').value.toLowerCase(),d=document.getElementById('deptFilter').value;
-  renderEmployees(employees.filter(e=>(!s||e.name.includes(s)||e.dept.includes(s)||e.ext.includes(s)||e.email.includes(s))&&(!d||e.dept===d)));
+  renderEmployees(employees.filter(e=>{
+    const tagMatch=e.tags&&e.tags.some(t=>t.toLowerCase().includes(s));
+    return(!s||e.name.includes(s)||e.dept.includes(s)||e.ext.includes(s)||e.email.toLowerCase().includes(s)||e.title.includes(s)||tagMatch)&&(!d||e.dept===d);
+  }));
 }
 
 // ===== MODAL =====
