@@ -117,19 +117,19 @@ async function seedData(client) {
 
   // Seed users
   const users = [
-    ['LB12345', '陳建宏', hash, '資訊部', '副理', 'ch.chen@linebank.com.tw', '5501', 'admin'],
-    ['LB10001', '王志明', hash, '資訊部', '工程師', 'cm.wang@linebank.com.tw', '5510', 'user'],
-    ['LB10002', '林佩珊', hash, '財務部', '經理', 'ps.lin@linebank.com.tw', '5201', 'user'],
-    ['LB10003', '張雅琪', hash, '人資部', '專員', 'yc.chang@linebank.com.tw', '5301', 'user'],
-    ['LB10004', '李建安', hash, '總務部', '副理', 'ja.lee@linebank.com.tw', '5101', 'user'],
-    ['LB10005', '劉大衛', hash, '風管部', '資深專員', 'dw.liu@linebank.com.tw', '5601', 'user'],
-    ['LB10006', '黃雅慧', hash, '法遵部', '經理', 'yh.huang@linebank.com.tw', '5701', 'user'],
-    ['LB10007', '趙雅芳', hash, '行銷部', '專員', 'yf.zhao@linebank.com.tw', '5401', 'user'],
-    ['LB10008', '周承翰', hash, '行銷部', '副理', 'ch.zhou@linebank.com.tw', '5402', 'user'],
-    ['LB10009', '蔡宜庭', hash, '人資部', '經理', 'yt.tsai@linebank.com.tw', '5302', 'user'],
-    ['LB10010', '劉家豪', hash, '客服部', '專員', 'jh.liu@linebank.com.tw', '5801', 'user'],
-    ['LB10011', '陳柏翰', hash, '營運部', '副理', 'bh.chen@linebank.com.tw', '5901', 'user'],
-    ['LB10012', '吳明哲', hash, '稽核室', '經理', 'mj.wu@linebank.com.tw', '5051', 'user'],
+    ['BK00013', '陳建宏', hash, '資訊部', '副理', 'ch.chen@linebank.com.tw', '5501', 'admin'],
+    ['BK00001', '王志明', hash, '資訊部', '工程師', 'cm.wang@linebank.com.tw', '5510', 'user'],
+    ['BK00002', '林佩珊', hash, '財務部', '經理', 'ps.lin@linebank.com.tw', '5201', 'user'],
+    ['BK00003', '張雅琪', hash, '人資部', '專員', 'yc.chang@linebank.com.tw', '5301', 'user'],
+    ['BK00004', '李建安', hash, '總務部', '副理', 'ja.lee@linebank.com.tw', '5101', 'user'],
+    ['BK00005', '劉大衛', hash, '風管部', '資深專員', 'dw.liu@linebank.com.tw', '5601', 'user'],
+    ['BK00006', '黃雅慧', hash, '法遵部', '經理', 'yh.huang@linebank.com.tw', '5701', 'user'],
+    ['BK00007', '趙雅芳', hash, '行銷部', '專員', 'yf.zhao@linebank.com.tw', '5401', 'user'],
+    ['BK00008', '周承翰', hash, '行銷部', '副理', 'ch.zhou@linebank.com.tw', '5402', 'user'],
+    ['BK00009', '蔡宜庭', hash, '人資部', '經理', 'yt.tsai@linebank.com.tw', '5302', 'user'],
+    ['BK00010', '劉家豪', hash, '客服部', '專員', 'jh.liu@linebank.com.tw', '5801', 'user'],
+    ['BK00011', '陳柏翰', hash, '營運部', '副理', 'bh.chen@linebank.com.tw', '5901', 'user'],
+    ['BK00012', '吳明哲', hash, '稽核室', '經理', 'mj.wu@linebank.com.tw', '5051', 'user'],
   ];
 
   for (const u of users) {
@@ -159,19 +159,19 @@ async function seedData(client) {
   // Seed some training records (simulate partial completion)
   const records = [
     // 陳建宏 - 完成4門
-    ['LB12345', 'TC-COMP-001', 92], ['LB12345', 'TC-SEC-001', 88],
-    ['LB12345', 'TC-COMP-003', 85], ['LB12345', 'TC-AUD-001', 78],
+    ['BK00013', 'TC-COMP-001', 92], ['BK00013', 'TC-SEC-001', 88],
+    ['BK00013', 'TC-COMP-003', 85], ['BK00013', 'TC-AUD-001', 78],
     // 王志明 - 完成3門
-    ['LB10001', 'TC-COMP-001', 90], ['LB10001', 'TC-SEC-001', 85], ['LB10001', 'TC-SEC-002', 82],
+    ['BK00001', 'TC-COMP-001', 90], ['BK00001', 'TC-SEC-001', 85], ['BK00001', 'TC-SEC-002', 82],
     // 林佩珊 - 完成5門
-    ['LB10002', 'TC-COMP-001', 95], ['LB10002', 'TC-COMP-002', 88], ['LB10002', 'TC-COMP-003', 91],
-    ['LB10002', 'TC-SEC-001', 87], ['LB10002', 'TC-AUD-001', 80],
+    ['BK00002', 'TC-COMP-001', 95], ['BK00002', 'TC-COMP-002', 88], ['BK00002', 'TC-COMP-003', 91],
+    ['BK00002', 'TC-SEC-001', 87], ['BK00002', 'TC-AUD-001', 80],
     // 黃雅慧(法遵部) - 全部完成
-    ['LB10006', 'TC-COMP-001', 98], ['LB10006', 'TC-COMP-002', 95], ['LB10006', 'TC-COMP-003', 96],
-    ['LB10006', 'TC-SEC-001', 92], ['LB10006', 'TC-SEC-002', 90], ['LB10006', 'TC-AUD-001', 88],
+    ['BK00006', 'TC-COMP-001', 98], ['BK00006', 'TC-COMP-002', 95], ['BK00006', 'TC-COMP-003', 96],
+    ['BK00006', 'TC-SEC-001', 92], ['BK00006', 'TC-SEC-002', 90], ['BK00006', 'TC-AUD-001', 88],
     // 吳明哲(稽核室) - 全部完成
-    ['LB10012', 'TC-COMP-001', 94], ['LB10012', 'TC-COMP-002', 91], ['LB10012', 'TC-COMP-003', 89],
-    ['LB10012', 'TC-SEC-001', 86], ['LB10012', 'TC-SEC-002', 84], ['LB10012', 'TC-AUD-001', 95],
+    ['BK00012', 'TC-COMP-001', 94], ['BK00012', 'TC-COMP-002', 91], ['BK00012', 'TC-COMP-003', 89],
+    ['BK00012', 'TC-SEC-001', 86], ['BK00012', 'TC-SEC-002', 84], ['BK00012', 'TC-AUD-001', 95],
   ];
 
   for (const [userId, courseId, score] of records) {

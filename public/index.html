@@ -535,7 +535,7 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
     <div class="login-subtitle">Internal Portal — 員工內部整合平台</div>
     <div class="login-field">
       <label>員工編號 Employee ID</label>
-      <input type="text" id="loginUser" placeholder="e.g. LB12345" value="LB12345">
+      <input type="text" id="loginUser" placeholder="e.g. BK00013" value="BK00013">
     </div>
     <div class="login-field">
       <label>密碼 Password</label>
@@ -650,20 +650,33 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
           </div>
         </div>
 
-        <!-- Quick Actions (10 items) -->
-        <div class="card">
-          <div class="card-header"><div class="card-title">快速操作</div></div>
+        <!-- AI-Powered Quick Actions -->
+        <div class="card" style="border:1.5px solid rgba(46,139,255,0.2);background:linear-gradient(135deg,#fafcff 0%,#f0f7ff 50%,#f0faf5 100%)">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--line-green),var(--line-blue));display:flex;align-items:center;justify-content:center;font-size:1rem;color:#fff">&#x2728;</div>
+              <div><div class="card-title">AI 智慧功能</div><div class="card-subtitle" style="margin:0">由 AI 驅動的自動化工具，大幅提升工作效率</div></div>
+            </div>
+            <span style="padding:4px 12px;border-radius:20px;font-size:.7rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--line-green),var(--line-blue));letter-spacing:.5px">AI POWERED</span>
+          </div>
           <div class="quick-actions" style="grid-template-columns:repeat(5,1fr)">
-            <div class="quick-action" onclick="navigateTo('smart-request')" style="border-color:var(--line-blue);background:linear-gradient(135deg,#f8fbff,#e6f2ff)"><div class="quick-action-icon" style="background:linear-gradient(135deg,#e6f2ff,#e8faf0)">&#x2728;</div><div class="quick-action-label" style="color:var(--line-blue)">智慧工單</div><div class="quick-action-desc">AI 自動派單</div></div>
-            <div class="quick-action" onclick="navigateTo('contracts')"><div class="quick-action-icon">&#x1F4E4;</div><div class="quick-action-label">上傳合約</div><div class="quick-action-desc">AI 自動解析</div></div>
+            <div class="quick-action" onclick="navigateTo('smart-request')" style="border-color:var(--line-blue);background:linear-gradient(135deg,#f8fbff,#e6f2ff)"><div class="quick-action-icon" style="background:linear-gradient(135deg,#e6f2ff,#e8faf0)">&#x2728;</div><div class="quick-action-label" style="color:var(--line-blue)">智慧工單</div><div class="quick-action-desc">自然語言自動派單</div></div>
+            <div class="quick-action" onclick="navigateTo('contracts')" style="border-color:var(--line-green);background:linear-gradient(135deg,#f8fff8,#e8faf0)"><div class="quick-action-icon" style="background:linear-gradient(135deg,#e8faf0,#e6f2ff)">&#x1F4E4;</div><div class="quick-action-label" style="color:var(--line-green)">合約解析</div><div class="quick-action-desc">PDF 自動擷取欄位</div></div>
+            <div class="quick-action" onclick="navigateTo('regulations')" style="border-color:var(--line-blue);background:linear-gradient(135deg,#f8fbff,#e6f2ff)"><div class="quick-action-icon" style="background:linear-gradient(135deg,#e6f2ff,#e8faf0)">&#x1F4D6;</div><div class="quick-action-label" style="color:var(--line-blue)">內規搜尋</div><div class="quick-action-desc">語意查詢公司規範</div></div>
+            <div class="quick-action" onclick="navigateTo('expenses')" style="border-color:var(--line-green);background:linear-gradient(135deg,#f8fff8,#e8faf0)"><div class="quick-action-icon" style="background:linear-gradient(135deg,#e8faf0,#e6f2ff)">&#x1F9FE;</div><div class="quick-action-label" style="color:var(--line-green)">收據辨識</div><div class="quick-action-desc">拍照自動帶入報銷</div></div>
+            <div class="quick-action" onclick="navigateTo('ai-tools')" style="border-color:var(--line-blue);background:linear-gradient(135deg,#f8fbff,#e6f2ff)"><div class="quick-action-icon" style="background:linear-gradient(135deg,#e6f2ff,#e8faf0)">&#x1F9E0;</div><div class="quick-action-label" style="color:var(--line-blue)">AI 工具箱</div><div class="quick-action-desc">9 大 AI 功能總覽</div></div>
+          </div>
+        </div>
+
+        <!-- General Quick Actions -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">常用功能</div></div>
+          <div class="quick-actions" style="grid-template-columns:repeat(5,1fr)">
             <div class="quick-action" onclick="navigateTo('payments')"><div class="quick-action-icon">&#x1F4B3;</div><div class="quick-action-label">付款申請</div><div class="quick-action-desc">廠商付款</div></div>
             <div class="quick-action" onclick="navigateTo('it-requests')"><div class="quick-action-icon">&#x1F6E0;</div><div class="quick-action-label">IT 需求</div><div class="quick-action-desc">JIRA 整合</div></div>
             <div class="quick-action" onclick="navigateTo('leave')"><div class="quick-action-icon">&#x1F4DD;</div><div class="quick-action-label">請假申請</div><div class="quick-action-desc">假別查詢</div></div>
-            <div class="quick-action" onclick="navigateTo('expenses')"><div class="quick-action-icon">&#x1F9FE;</div><div class="quick-action-label">費用報銷</div><div class="quick-action-desc">收據辨識</div></div>
             <div class="quick-action" onclick="navigateTo('meeting-rooms')"><div class="quick-action-icon">&#x1F3E2;</div><div class="quick-action-label">會議室</div><div class="quick-action-desc">即時預約</div></div>
-            <div class="quick-action" onclick="navigateTo('regulations')"><div class="quick-action-icon">&#x1F4D6;</div><div class="quick-action-label">內規管理</div><div class="quick-action-desc">AI 法規搜尋</div></div>
             <div class="quick-action" onclick="navigateTo('directory')"><div class="quick-action-icon">&#x1F4DE;</div><div class="quick-action-label">通訊錄</div><div class="quick-action-desc">員工查詢</div></div>
-            <div class="quick-action" onclick="navigateTo('ai-tools')"><div class="quick-action-icon">&#x1F9E0;</div><div class="quick-action-label">AI 工具箱</div><div class="quick-action-desc">9 大 AI 功能</div></div>
           </div>
         </div>
 
@@ -737,8 +750,14 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
         </div>
 
         <!-- AI Insights -->
-        <div class="card" style="border-left:4px solid var(--purple)">
-          <div class="card-header"><div><div class="card-title">&#x1F9E0; AI 智慧洞察</div><div class="card-subtitle">系統自動分析產生的智慧建議</div></div><span class="ai-badge">&#x2728; AI 驅動</span></div>
+        <div class="card" style="border:1.5px solid rgba(46,139,255,0.2);background:linear-gradient(135deg,#fafcff 0%,#f0f7ff 50%,#f0faf5 100%)">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--line-green),var(--line-blue));display:flex;align-items:center;justify-content:center;font-size:1rem;color:#fff">&#x1F9E0;</div>
+              <div><div class="card-title">AI 智慧洞察</div><div class="card-subtitle" style="margin:0">系統自動分析產生的智慧建議</div></div>
+            </div>
+            <span style="padding:4px 12px;border-radius:20px;font-size:.7rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--line-green),var(--line-blue));letter-spacing:.5px">AI POWERED</span>
+          </div>
           <div class="ai-insight">
             <div class="ai-insight-icon" style="background:#fee2e2">&#x1F50D;</div>
             <div class="ai-insight-text"><strong>異常偵測：</strong>本月 AWS 雲端費用 USD 12,500 較上月增加 <strong style="color:var(--danger)">23%</strong>，建議檢視 EC2 與 S3 用量明細，可能存在閒置資源。<br><span style="font-size:.75rem;color:var(--text-secondary)">基於過去 6 個月付款數據分析</span></div>
@@ -1035,25 +1054,25 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
           <div class="kanban">
             <div class="kanban-col">
               <div class="kanban-col-header">待審核 <span class="kanban-count">2</span></div>
-              <div class="kanban-card" onclick="showToast('info','REQ-2026-045 詳細資訊')"><div class="kanban-card-title">客戶管理系統新增報表</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#dbeafe;color:#1e40af">功能需求</span><span>李建安</span><span>03/25</span></div></div>
-              <div class="kanban-card" onclick="showToast('info','REQ-2026-046 詳細資訊')"><div class="kanban-card-title">VPN 連線異常排查</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#fee2e2;color:#991b1b">障礙排除</span><span>張雅琪</span><span>03/25</span></div></div>
+              <div class="kanban-card" onclick="showITDetail('REQ-045')" style="cursor:pointer"><div class="kanban-card-title">客戶管理系統新增報表</div><div style="font-size:.75rem;color:var(--text-secondary);margin:4px 0">業務部門需新增月度客戶分群報表，含 AUM、交易頻次維度</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#dbeafe;color:#1e40af">功能需求</span><span>李建安</span><span>03/25</span></div></div>
+              <div class="kanban-card" onclick="showITDetail('REQ-046')" style="cursor:pointer"><div class="kanban-card-title">VPN 連線異常排查</div><div style="font-size:.75rem;color:var(--text-secondary);margin:4px 0">遠端同仁反映 GlobalProtect VPN 頻繁斷線，影響約 30 人</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#fee2e2;color:#991b1b">障礙排除</span><span>張雅琪</span><span>03/25</span></div></div>
             </div>
             <div class="kanban-col">
               <div class="kanban-col-header">進行中 <span class="kanban-count">3</span></div>
-              <div class="kanban-card" style="border-left:3px solid var(--danger)"><div class="kanban-card-title">信用卡系統升級</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#fee2e2;color:#991b1b">高優先</span><span>JIRA-042</span><span>Sprint 12</span></div></div>
-              <div class="kanban-card"><div class="kanban-card-title">行動銀行 App 改版</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#fef3c7;color:#92400e">中優先</span><span>JIRA-039</span><span>Sprint 12</span></div></div>
-              <div class="kanban-card"><div class="kanban-card-title">內網郵件系統升級</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#dbeafe;color:#1e40af">基礎建設</span><span>JIRA-037</span><span>Sprint 11</span></div></div>
+              <div class="kanban-card" onclick="showITDetail('REQ-042')" style="border-left:3px solid var(--danger);cursor:pointer"><div class="kanban-card-title">信用卡系統升級</div><div style="font-size:.75rem;color:var(--text-secondary);margin:4px 0">配合金管會新規，信用卡核卡流程需支援線上身分驗證(eKYC)</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#fee2e2;color:#991b1b">高優先</span><span>JIRA-042</span><span>Sprint 12</span></div><div style="margin-top:6px;display:flex;gap:4px"><div style="flex:1;height:4px;border-radius:2px;background:var(--line-green)"></div><div style="flex:1;height:4px;border-radius:2px;background:var(--line-green)"></div><div style="flex:1;height:4px;border-radius:2px;background:var(--line-green);opacity:.3"></div><div style="flex:1;height:4px;border-radius:2px;background:#e2e8f0"></div></div><div style="font-size:.68rem;color:var(--text-secondary);margin-top:2px">進度 60% ・後端組</div></div>
+              <div class="kanban-card" onclick="showITDetail('REQ-039')" style="cursor:pointer"><div class="kanban-card-title">行動銀行 App 改版</div><div style="font-size:.75rem;color:var(--text-secondary);margin:4px 0">App 5.0 改版：首頁重構、暗色模式、手勢操作優化</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#fef3c7;color:#92400e">中優先</span><span>JIRA-039</span><span>Sprint 12</span></div><div style="margin-top:6px;display:flex;gap:4px"><div style="flex:1;height:4px;border-radius:2px;background:var(--line-blue)"></div><div style="flex:1;height:4px;border-radius:2px;background:var(--line-blue);opacity:.3"></div><div style="flex:1;height:4px;border-radius:2px;background:#e2e8f0"></div><div style="flex:1;height:4px;border-radius:2px;background:#e2e8f0"></div></div><div style="font-size:.68rem;color:var(--text-secondary);margin-top:2px">進度 35% ・前端組</div></div>
+              <div class="kanban-card" onclick="showITDetail('REQ-037')" style="cursor:pointer"><div class="kanban-card-title">內網郵件系統升級</div><div style="font-size:.75rem;color:var(--text-secondary);margin:4px 0">Exchange Server 2019 → Exchange Online 遷移，約 280 個信箱</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#dbeafe;color:#1e40af">基礎建設</span><span>JIRA-037</span><span>Sprint 11</span></div></div>
             </div>
             <div class="kanban-col">
               <div class="kanban-col-header">測試中 <span class="kanban-count">2</span></div>
-              <div class="kanban-card"><div class="kanban-card-title">存款利率自動更新模組</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#ede9fe;color:#6d28d9">UAT</span><span>JIRA-031</span></div></div>
-              <div class="kanban-card"><div class="kanban-card-title">內網SSO整合Azure AD</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#ede9fe;color:#6d28d9">SIT</span><span>JIRA-035</span></div></div>
+              <div class="kanban-card" onclick="showITDetail('REQ-031')" style="cursor:pointer"><div class="kanban-card-title">存款利率自動更新模組</div><div style="font-size:.75rem;color:var(--text-secondary);margin:4px 0">串接央行利率 API，每日自動更新牌告利率至核心系統</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#ede9fe;color:#6d28d9">UAT</span><span>JIRA-031</span></div></div>
+              <div class="kanban-card" onclick="showITDetail('REQ-035')" style="cursor:pointer"><div class="kanban-card-title">內網SSO整合Azure AD</div><div style="font-size:.75rem;color:var(--text-secondary);margin:4px 0">統一員工登入，支援 MFA 雙因子驗證，整合 5 套內部系統</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#ede9fe;color:#6d28d9">SIT</span><span>JIRA-035</span></div></div>
             </div>
             <div class="kanban-col">
               <div class="kanban-col-header">已完成 <span class="kanban-count">3</span></div>
-              <div class="kanban-card" style="opacity:.65"><div class="kanban-card-title">OTP 驗證機制強化</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#e8faf0;color:#059669">已上線</span><span>JIRA-028</span></div></div>
-              <div class="kanban-card" style="opacity:.65"><div class="kanban-card-title">報表匯出效能優化</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#e8faf0;color:#059669">已上線</span><span>JIRA-025</span></div></div>
-              <div class="kanban-card" style="opacity:.65"><div class="kanban-card-title">ATM 交易通知推播</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#e8faf0;color:#059669">已上線</span><span>JIRA-022</span></div></div>
+              <div class="kanban-card" style="opacity:.65"><div class="kanban-card-title">OTP 驗證機制強化</div><div style="font-size:.75rem;color:var(--text-secondary);margin:4px 0">SMS OTP 改為 App Push + TOTP 雙軌制</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#e8faf0;color:#059669">已上線</span><span>JIRA-028</span></div></div>
+              <div class="kanban-card" style="opacity:.65"><div class="kanban-card-title">報表匯出效能優化</div><div style="font-size:.75rem;color:var(--text-secondary);margin:4px 0">大量資料匯出從 45 秒降至 3 秒（改用串流匯出）</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#e8faf0;color:#059669">已上線</span><span>JIRA-025</span></div></div>
+              <div class="kanban-card" style="opacity:.65"><div class="kanban-card-title">ATM 交易通知推播</div><div style="font-size:.75rem;color:var(--text-secondary);margin:4px 0">ATM 提款/轉帳即時 LINE Notify 推播通知</div><div class="kanban-card-meta"><span class="kanban-card-tag" style="background:#e8faf0;color:#059669">已上線</span><span>JIRA-022</span></div></div>
             </div>
           </div>
         </div>
@@ -2168,7 +2187,7 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
             <div class="card-header"><div class="card-title">個人資訊</div></div>
             <div class="grid-2">
               <div class="form-group"><label class="form-label">姓名</label><input class="form-input" value="陳建宏" disabled></div>
-              <div class="form-group"><label class="form-label">員工編號</label><input class="form-input" value="LB12345" disabled></div>
+              <div class="form-group"><label class="form-label">員工編號</label><input class="form-input" value="BK00013" disabled></div>
               <div class="form-group"><label class="form-label">部門</label><input class="form-input" value="資訊部" disabled></div>
               <div class="form-group"><label class="form-label">職稱</label><input class="form-input" value="副理" disabled></div>
               <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="ch.chen@linebank.com.tw"></div>
@@ -2224,7 +2243,7 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
 
 <script>
 // ===== STATE =====
-const state = { currentPage:'dashboard', user:{ name:'陳建宏', id:'LB12345', dept:'資訊部', role:'副理' }};
+const state = { currentPage:'dashboard', user:{ name:'陳建宏', id:'BK00013', dept:'資訊部', role:'副理' }};
 
 // ===== LOGIN =====
 async function doLogin(){
@@ -2439,6 +2458,129 @@ function updateApprovalCount(delta){
 }
 
 // ===== IT REQUEST =====
+const itRequestDetails = {
+  'REQ-045': {
+    title: '客戶管理系統新增報表',
+    type: '功能需求', priority: '中', status: '待審核',
+    applicant: '李建安（總務部）', date: '2026-03-25',
+    jira: '—', team: '—',
+    desc: '業務部門反映現有 CRM 報表無法滿足分析需求，需新增以下月度報表：\n\n1. 客戶分群報表：依 AUM（管理資產規模）分為 VIP（>500萬）、一般（50-500萬）、基礎（<50萬）三級\n2. 交易頻次分析：各分群客戶之月均交易次數、金額、常用通路（App / 網銀 / ATM）\n3. 流失預警報表：連續 60 天無交易之客戶清單，含最後交易日期與 AUM\n4. 匯出格式：支援 Excel (.xlsx) 及 PDF，可排程每月 5 日自動寄送',
+    systems: ['台幣核心系統', 'Channel BKS 中後台系統'],
+    deadline: '2026-04-30',
+    attachments: ['CRM報表需求規格書_v1.2.docx', '現有報表截圖.png']
+  },
+  'REQ-046': {
+    title: 'VPN 連線異常排查',
+    type: '障礙排除', priority: '高', status: '待審核',
+    applicant: '張雅琪（人資部）', date: '2026-03-25',
+    jira: '—', team: '—',
+    desc: '自 3/24 起，遠端辦公同仁反映 GlobalProtect VPN 頻繁斷線，具體症狀：\n\n1. 連線後約 15-30 分鐘自動斷開，需重新認證\n2. 斷線時無錯誤訊息，僅顯示「連線中斷」\n3. 影響範圍：約 30 位遠端同仁（主要為人資部、行銷部、客服部）\n4. 已排除個人網路問題（多位同仁不同 ISP 均有此現象）\n\n懷疑與上週 Palo Alto 防火牆韌體更新有關（3/21 更新至 PAN-OS 11.1.3）',
+    systems: [],
+    deadline: '2026-03-27',
+    attachments: ['VPN斷線截圖_彙整.zip', '防火牆更新紀錄.pdf']
+  },
+  'REQ-042': {
+    title: '信用卡系統升級 — eKYC 線上身分驗證',
+    type: '功能需求', priority: '高', status: '進行中',
+    applicant: '王志明（資訊部）', date: '2026-03-23',
+    jira: 'JIRA-042', team: '後端組',
+    desc: '配合金管會 2026/07 新規（金管銀外字第 11200xxxxx 號），信用卡線上申請流程需支援 eKYC 線上身分驗證，取代現行紙本對保：\n\n1. 整合 TWID 台灣行動身分識別：支援自然人憑證 + 行動身分識別\n2. 活體偵測（Liveness Detection）：串接第三方 SDK（FacePhi），防止照片/影片攻擊\n3. 身分證 OCR 辨識：正反面自動擷取姓名、身分證字號、發證日期\n4. 雙證件比對：身分證照片 vs 自拍照 AI 人臉比對，相似度需 > 85%\n5. 審核流程調整：eKYC 通過後自動進入信審流程，失敗則轉人工審核\n\n預計影響：核卡流程從 5-7 天縮短至即時核卡',
+    systems: ['簽帳卡系統', 'Channel APP 行動銀行', 'Channel Web 網路銀行'],
+    deadline: '2026-06-30',
+    attachments: ['eKYC技術規格書_v2.0.pdf', '金管會函釋.pdf', 'FacePhi_SDK評估報告.pptx']
+  },
+  'REQ-039': {
+    title: '行動銀行 App 5.0 改版',
+    type: '功能需求', priority: '中', status: '進行中',
+    applicant: '周承翰（行銷部）', date: '2026-03-20',
+    jira: 'JIRA-039', team: '前端組',
+    desc: 'App 5.0 大版本改版，主要範圍：\n\n1. 首頁重構：改為卡片式佈局，支援個人化排序（使用者可拖曳調整常用功能位置）\n2. 暗色模式（Dark Mode）：全 App 支援，跟隨系統設定或手動切換\n3. 手勢操作優化：下拉刷新、左滑轉帳、長按快速查餘額\n4. 生物辨識升級：支援 Face ID / 指紋快速登入（取代每次輸入密碼）\n5. 推播通知中心：整合交易通知、行銷活動、系統公告，可分類管理\n\n設計稿已由 UX 團隊完成，Figma 連結已附',
+    systems: ['Channel APP 行動銀行'],
+    deadline: '2026-05-31',
+    attachments: ['App5.0_Figma設計稿.url', 'UX研究報告_使用者訪談.pdf']
+  },
+  'REQ-037': {
+    title: '內網郵件系統遷移至 Exchange Online',
+    type: '基礎建設', priority: '中', status: '進行中',
+    applicant: '陳建宏（資訊部）', date: '2026-03-18',
+    jira: 'JIRA-037', team: 'DevOps',
+    desc: '將現有 Exchange Server 2019 遷移至 Microsoft 365 Exchange Online：\n\n1. 遷移範圍：約 280 個信箱，含 50GB 共享信箱 3 個\n2. 混合部署過渡期：2 週，確保內外部郵件路由正常\n3. DLP 政策遷移：現有 12 條資料外洩防護規則需重新設定\n4. 歸檔政策：超過 2 年郵件自動歸檔至 Online Archive\n5. 合規需求：郵件保留 7 年（金融業法規要求），eDiscovery 設定\n\n風險：週末批次遷移期間可能有 2-4 小時郵件延遲',
+    systems: [],
+    deadline: '2026-04-15',
+    attachments: ['Exchange遷移計畫書_v3.docx', 'DLP規則清單.xlsx', '遷移排程甘特圖.xlsx']
+  },
+  'REQ-031': {
+    title: '存款利率自動更新模組',
+    type: '功能需求', priority: '中', status: '測試中 (UAT)',
+    applicant: '林佩珊（財務部）', date: '2026-03-10',
+    jira: 'JIRA-031', team: '後端組',
+    desc: '每日自動擷取央行公告利率並更新至核心系統：\n\n1. 資料來源：中央銀行全球資訊網 Open API\n2. 更新頻率：每營業日 09:30 自動執行，若 API 無回應則每 30 分鐘重試（最多 5 次）\n3. 更新範圍：台幣活存、定存（1/3/6/9/12個月、2/3年期）共 8 種利率\n4. 異動通知：利率異動時自動 Email 通知財務部 + 營運部主管\n5. 異常處理：若與前日差異超過 0.5% 則暫停更新並發出告警\n\nUAT 測試中，已完成 15/18 個測試案例',
+    systems: ['台幣核心系統'],
+    deadline: '2026-03-31',
+    attachments: ['央行API串接規格.pdf', 'UAT測試報告_進行中.xlsx']
+  },
+  'REQ-035': {
+    title: '內網 SSO 整合 Azure AD (Entra ID)',
+    type: '資安相關', priority: '中', status: '測試中 (SIT)',
+    applicant: '陳建宏（資訊部）', date: '2026-03-15',
+    jira: 'JIRA-035', team: '資安組',
+    desc: '統一員工登入驗證，整合至 Azure Active Directory（Entra ID）：\n\n1. SSO 整合範圍：員工內部平台、JIRA、Confluence、GitLab、SurveyCake 共 5 套系統\n2. 驗證方式：OIDC / SAML 2.0，支援 MFA 雙因子驗證（Microsoft Authenticator）\n3. 條件式存取：依裝置合規狀態、地理位置、風險等級動態調整驗證強度\n4. 帳號生命週期：串接 HR 系統，到職自動建帳、離職自動停用（T+0）\n5. 稽核日誌：所有登入/登出紀錄保留 1 年，異常登入即時告警\n\nSIT 環境已部署完成，正在進行跨系統登入測試',
+    systems: ['Channel BKS 中後台系統'],
+    deadline: '2026-04-10',
+    attachments: ['SSO架構圖_v2.vsdx', 'Entra ID設定文件.pdf', 'SIT測試計畫.xlsx']
+  }
+};
+
+function showITDetail(reqId) {
+  const d = itRequestDetails[reqId];
+  if (!d) { showToast('info', reqId + ' 詳細資訊'); return; }
+  const priorityColor = d.priority === '高' ? 'var(--danger)' : d.priority === '中' ? 'var(--warning)' : 'var(--info)';
+  const statusBadge = d.status.includes('待審核') ? 'badge-warning' : d.status.includes('進行中') ? 'badge-info' : d.status.includes('測試') ? 'badge-purple' : 'badge-success';
+  const sysHtml = d.systems.length ? d.systems.map(s => `<span style="display:inline-block;padding:3px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:.78rem;margin:2px">${s}</span>`).join('') : '<span style="color:var(--text-secondary);font-size:.82rem">不適用</span>';
+  const attachHtml = d.attachments.map(a => `<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--bg);border-radius:6px;font-size:.82rem;cursor:pointer" onclick="showToast('info','下載 ${a}')">&#x1F4CE; ${a}</div>`).join('');
+  const descHtml = d.desc.replace(/\n/g, '<br>');
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);animation:fadeIn .2s';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:16px;width:720px;max-height:85vh;overflow-y:auto;padding:32px;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative">
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.3rem;color:var(--text-secondary);cursor:pointer">&#x2715;</button>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <span style="font-size:.78rem;color:var(--text-secondary);background:var(--bg);padding:2px 10px;border-radius:6px;font-weight:600">${reqId}</span>
+        <span class="badge ${statusBadge}">${d.status}</span>
+        <span style="display:inline-block;padding:2px 10px;border-radius:6px;font-size:.75rem;font-weight:700;color:#fff;background:${priorityColor}">${d.priority}優先</span>
+      </div>
+      <h2 style="font-size:1.25rem;margin-bottom:16px;color:var(--primary)">${d.title}</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;padding:16px;background:var(--bg);border-radius:10px">
+        <div><span style="font-size:.75rem;color:var(--text-secondary)">申請人</span><div style="font-weight:600;font-size:.88rem">${d.applicant}</div></div>
+        <div><span style="font-size:.75rem;color:var(--text-secondary)">申請日期</span><div style="font-weight:600;font-size:.88rem">${d.date}</div></div>
+        <div><span style="font-size:.75rem;color:var(--text-secondary)">JIRA Ticket</span><div style="font-weight:600;font-size:.88rem">${d.jira}</div></div>
+        <div><span style="font-size:.75rem;color:var(--text-secondary)">指派團隊</span><div style="font-weight:600;font-size:.88rem">${d.team}</div></div>
+        <div><span style="font-size:.75rem;color:var(--text-secondary)">類型</span><div style="font-weight:600;font-size:.88rem">${d.type}</div></div>
+        <div><span style="font-size:.75rem;color:var(--text-secondary)">期望完成日</span><div style="font-weight:600;font-size:.88rem">${d.deadline}</div></div>
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-weight:700;font-size:.88rem;margin-bottom:8px;color:var(--primary)">&#x1F4DD; 需求說明</div>
+        <div style="font-size:.85rem;line-height:1.8;color:var(--text);padding:16px;background:#f8fafc;border-radius:10px;border:1px solid var(--border)">${descHtml}</div>
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-weight:700;font-size:.88rem;margin-bottom:8px;color:var(--primary)">&#x1F4BB; 影響系統</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">${sysHtml}</div>
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-weight:700;font-size:.88rem;margin-bottom:8px;color:var(--primary)">&#x1F4CE; 附件</div>
+        <div style="display:flex;flex-direction:column;gap:6px">${attachHtml}</div>
+      </div>
+      <div style="display:flex;gap:10px;padding-top:16px;border-top:1px solid var(--border)">
+        <button class="btn btn-primary" onclick="showToast('success','已核准並建立 JIRA Ticket');this.closest('div[style*=fixed]').remove()">&#x2705; 核准</button>
+        <button class="btn btn-outline" onclick="showToast('info','已退回申請');this.closest('div[style*=fixed]').remove()">&#x21A9; 退回</button>
+        <button class="btn btn-outline" onclick="showToast('info','已加入備註')">&#x1F4AC; 備註</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
 function submitITRequest(){showToast('success','IT 需求已送出！等待簽核後自動建立 JIRA Ticket 並通知團隊');}
 
 // ===== MEETING ROOM =====
