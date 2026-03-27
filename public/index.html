@@ -777,10 +777,11 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
         <div class="tab-content active" id="tab-contract-upload">
           <div class="card">
             <div class="card-header"><div><div class="card-title">&#x1F916; AI 智慧合約上傳</div><div class="card-subtitle">上傳合約 PDF，系統將自動解析關鍵欄位並建立歸檔記錄與付款草稿</div></div></div>
-            <div class="upload-zone" id="contractUploadZone" onclick="simulateUpload()">
+            <input type="file" id="contractFileInput" accept=".pdf" style="display:none" onchange="handleContractUpload(this.files[0])">
+            <div class="upload-zone" id="contractUploadZone" onclick="document.getElementById('contractFileInput').click()">
               <div class="upload-icon">&#x1F4C1;</div>
               <div class="upload-text">拖曳合約 PDF 至此處，或點擊選擇檔案</div>
-              <div class="upload-hint">支援 PDF 格式，單檔上限 50MB</div>
+              <div class="upload-hint">支援 PDF 格式，單檔上限 50MB｜AI 自動解析欄位</div>
             </div>
           </div>
           <div id="contractParseResult" style="display:none">
@@ -2226,11 +2227,59 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
 const state = { currentPage:'dashboard', user:{ name:'陳建宏', id:'LB12345', dept:'資訊部', role:'副理' }};
 
 // ===== LOGIN =====
-function doLogin(){
-  document.getElementById('loginScreen').classList.add('hidden');
-  document.getElementById('app').classList.add('visible');
-  showToast('info',`歡迎回來，${state.user.name}！您有 5 筆待辦事項`);
+async function doLogin(){
+  const userId = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value;
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, password })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      state.user = data.user;
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('app').classList.add('visible');
+      // Update UI with real user info
+      const nameEl = document.querySelector('.user-name');
+      const roleEl = document.querySelector('.user-role');
+      const avatarEl = document.querySelector('.user-avatar');
+      if (nameEl) nameEl.textContent = data.user.name;
+      if (roleEl) roleEl.textContent = `${data.user.dept} / ${data.user.title}`;
+      if (avatarEl) avatarEl.textContent = data.user.name.charAt(0);
+      document.getElementById('greetingText').innerHTML = `早安，<span>${data.user.name}</span>`;
+      showToast('info', `歡迎回來，${data.user.name}！`);
+    } else {
+      // Fallback to demo mode
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('app').classList.add('visible');
+      showToast('info', `Demo 模式 — 歡迎回來，${state.user.name}！`);
+    }
+  } catch (e) {
+    // Offline / no API: fallback demo mode
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('app').classList.add('visible');
+    showToast('info', `Demo 模式 — 歡迎回來，${state.user.name}！`);
+  }
 }
+// Auto-check session on load
+async function checkSession() {
+  try {
+    const res = await fetch('/api/me');
+    if (res.ok) {
+      const user = await res.json();
+      state.user = user;
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('app').classList.add('visible');
+      const nameEl = document.querySelector('.user-name');
+      const roleEl = document.querySelector('.user-role');
+      if (nameEl) nameEl.textContent = user.name;
+      if (roleEl) roleEl.textContent = `${user.dept} / ${user.title}`;
+    }
+  } catch(e) { /* not logged in, show login screen */ }
+}
+checkSession();
 
 // ===== NAVIGATION =====
 const pageTitles = {
@@ -2272,15 +2321,97 @@ function switchToTab(name){
 }
 
 // ===== CONTRACT UPLOAD =====
-function simulateUpload(){
-  const z=document.getElementById('contractUploadZone');
-  z.innerHTML=`<div style="display:flex;align-items:center;gap:12px"><div style="font-size:1.5rem">&#x1F4C4;</div><div style="flex:1;text-align:left"><div style="font-weight:600">鼎新電腦_ERP維護合約_2026.pdf</div><div style="font-size:.78rem;color:var(--text-secondary)">2.4 MB — 上傳中...</div><div class="progress-bar" style="margin-top:6px"><div class="progress-fill" id="uploadProgress" style="width:0%;background:var(--line-green)"></div></div></div></div>`;
-  let p=0;const iv=setInterval(()=>{p+=Math.random()*18;if(p>=100){p=100;clearInterval(iv);document.getElementById('uploadProgress').style.width='100%';setTimeout(()=>{z.innerHTML=`<div style="display:flex;align-items:center;gap:12px"><div style="font-size:1.5rem">&#x1F4C4;</div><div style="flex:1;text-align:left"><div style="font-weight:600">鼎新電腦_ERP維護合約_2026.pdf</div><div style="font-size:.78rem;color:var(--success)">&#x2714; 上傳完成 — AI 解析完成</div></div><span class="badge badge-success">完成</span></div>`;document.getElementById('contractParseResult').style.display='block';showToast('success','AI 已完成合約解析，請確認欄位');},600);}document.getElementById('uploadProgress').style.width=p+'%';},180);
+let lastParsedContract = null;
+
+async function handleContractUpload(file) {
+  if (!file) return;
+  const z = document.getElementById('contractUploadZone');
+  const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+
+  // Show upload progress
+  z.innerHTML = `<div style="display:flex;align-items:center;gap:12px"><div style="font-size:1.5rem">&#x1F4C4;</div><div style="flex:1;text-align:left"><div style="font-weight:600">${file.name}</div><div style="font-size:.78rem;color:var(--text-secondary)">${sizeMB} MB — 上傳中，AI 解析中...</div><div class="progress-bar" style="margin-top:6px"><div class="progress-fill" id="uploadProgress" style="width:15%;background:linear-gradient(90deg,var(--line-green),var(--line-blue));transition:width .3s"></div></div></div></div>`;
+
+  // Animate progress while waiting
+  let p = 15;
+  const iv = setInterval(() => { p = Math.min(p + Math.random() * 8, 90); document.getElementById('uploadProgress').style.width = p + '%'; }, 400);
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch('/api/contracts/parse', { method: 'POST', body: formData });
+    clearInterval(iv);
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || '上傳失敗');
+    }
+
+    const data = await res.json();
+    document.getElementById('uploadProgress').style.width = '100%';
+
+    setTimeout(() => {
+      const modeLabel = data.mode === 'ai' ? 'AI 解析完成' : 'AI 解析完成（Demo 模式）';
+      z.innerHTML = `<div style="display:flex;align-items:center;gap:12px"><div style="font-size:1.5rem">&#x1F4C4;</div><div style="flex:1;text-align:left"><div style="font-weight:600">${file.name}</div><div style="font-size:.78rem;color:var(--success)">&#x2714; ${modeLabel}</div></div><span class="badge badge-success">完成</span></div>`;
+
+      // Fill parsed fields
+      lastParsedContract = data.parsed;
+      lastParsedContract.filename = file.name;
+      const fields = document.querySelectorAll('#contractParseResult .parsed-field-value.editable');
+      const values = [
+        data.parsed.contract_no, data.parsed.vendor, data.parsed.name,
+        data.parsed.amount, (data.parsed.period_start||'') + ' - ' + (data.parsed.period_end||''),
+        data.parsed.sign_date, data.parsed.payment_terms,
+        data.parsed.first_payment_date, data.parsed.contact_person, data.parsed.category
+      ];
+      fields.forEach((f, i) => { if (values[i]) f.value = values[i]; });
+
+      // Update confidence
+      const confBadge = document.querySelector('#contractParseResult .badge-success');
+      if (confBadge && data.parsed.confidence) {
+        confBadge.textContent = `信心度 ${(data.parsed.confidence * 100).toFixed(1)}%`;
+      }
+
+      document.getElementById('contractParseResult').style.display = 'block';
+      showToast('success', 'AI 已完成合約解析，請確認欄位');
+    }, 500);
+
+  } catch (err) {
+    clearInterval(iv);
+    z.innerHTML = `<div style="display:flex;align-items:center;gap:12px"><div style="font-size:1.5rem">&#x274C;</div><div style="flex:1;text-align:left"><div style="font-weight:600">${file.name}</div><div style="font-size:.78rem;color:var(--danger)">${err.message}</div></div></div>`;
+    showToast('error', err.message);
+  }
 }
-function confirmContractAndCreatePayment(){
-  document.getElementById('autoPaymentDraft').style.display='block';
-  showToast('success','合約已歸檔，付款草稿已自動建立');
-  document.getElementById('autoPaymentDraft').scrollIntoView({behavior:'smooth'});
+
+// Keep old simulateUpload as fallback for demo
+function simulateUpload() { document.getElementById('contractFileInput').click(); }
+
+async function confirmContractAndCreatePayment(){
+  if (lastParsedContract) {
+    try {
+      // Read potentially edited field values
+      const fields = document.querySelectorAll('#contractParseResult .parsed-field-value.editable');
+      const keys = ['contract_no','vendor','name','amount','period','sign_date','payment_terms','first_payment_date','contact_person','category'];
+      keys.forEach((k, i) => {
+        if (fields[i] && k !== 'period') lastParsedContract[k] = fields[i].value;
+      });
+
+      const res = await fetch('/api/contracts/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ parsed: lastParsedContract, paymentPlan: [] })
+      });
+      if (res.ok) {
+        showToast('success', '合約已歸檔至資料庫，付款草稿已建立');
+      } else {
+        showToast('error', '歸檔失敗，使用 Demo 模式顯示');
+      }
+    } catch(e) {
+      showToast('info', 'Demo 模式 — 合約已歸檔');
+    }
+  }
+  document.getElementById('autoPaymentDraft').style.display = 'block';
+  document.getElementById('autoPaymentDraft').scrollIntoView({ behavior: 'smooth' });
 }
 
 // ===== APPROVALS =====
@@ -2340,7 +2471,10 @@ function changeDate(d){showToast('info','已切換日期（Demo 模式顯示相�
 function changeSalaryPeriod(){showToast('info','已切換薪資期間（Demo 模式顯示相同資料）');}
 
 // ===== TRAINING =====
-function startTraining(name){
+function startTraining(courseIdOrName, name){
+  // Handle both startTraining('courseId','name') and startTraining('name') from static HTML
+  const courseId = name ? courseIdOrName : '';
+  if (!name) name = courseIdOrName;
   openModal('&#x1F393; '+name,`
     <div style="text-align:center;padding:20px 0">
       <div style="font-size:3rem;margin-bottom:16px">&#x1F4D6;</div>
@@ -2360,13 +2494,93 @@ function startTraining(name){
           <div><div style="font-weight:600">取得完訓證明</div><div style="font-size:.78rem;color:var(--text-secondary)">通過後自動記錄，可下載 PDF</div></div>
         </div>
       </div>
-      <div style="margin-top:24px;display:flex;gap:10px;justify-content:center">
-        <button class="btn btn-primary" onclick="showToast('info','正在開啟教材...');closeModal()">&#x1F4D6; 開始閱讀教材</button>
-        <button class="btn btn-blue" onclick="window.open('https://www.surveycake.com','_blank');closeModal()">&#x1F4DD; 直接進入測驗 (SurveyCake)</button>
+      <div style="margin-top:20px;padding:16px;background:var(--bg);border-radius:10px;text-align:left">
+        <div style="font-weight:600;margin-bottom:8px">&#x1F4DD; 模擬測驗提交（Demo）</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <label style="font-size:.85rem">輸入分數：</label>
+          <input type="number" id="demoScore" class="form-input" style="width:100px" value="85" min="0" max="100">
+          <button class="btn btn-primary btn-sm" onclick="submitTrainingScore('${courseId}')">提交成績</button>
+        </div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;justify-content:center">
+        <button class="btn btn-outline" onclick="showToast('info','正在開啟教材...');closeModal()">&#x1F4D6; 開始閱讀教材</button>
+        <button class="btn btn-blue" onclick="window.open('https://www.surveycake.com','_blank')">&#x1F4DD; 前往 SurveyCake 測驗</button>
       </div>
     </div>
   `);
 }
+
+async function submitTrainingScore(courseId) {
+  const score = parseInt(document.getElementById('demoScore').value);
+  if (isNaN(score) || score < 0 || score > 100) { showToast('error','請輸入 0-100 的分數'); return; }
+  try {
+    const res = await fetch('/api/training/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ courseId, score })
+    });
+    const data = await res.json();
+    if (data.passed) {
+      showToast('success', `測驗通過！成績 ${score} 分，紀錄已儲存`);
+    } else {
+      showToast('error', `未通過（${score} 分），需 70 分以上，可重新測驗`);
+    }
+    closeModal();
+    loadTrainingData(); // refresh
+  } catch(e) {
+    showToast('info', `Demo 模式 — 成績 ${score} 分已記錄`);
+    closeModal();
+  }
+}
+
+async function loadTrainingData() {
+  try {
+    const res = await fetch('/api/training/courses');
+    if (!res.ok) return;
+    const courses = await res.json();
+    renderTrainingCourses(courses);
+  } catch(e) { /* use static HTML fallback */ }
+}
+
+function renderTrainingCourses(courses) {
+  const list = document.getElementById('trainingList');
+  if (!list || !courses.length) return;
+
+  const catIcons = { compliance: '&#x1F4DC;', security: '&#x1F6E1;', audit: '&#x1F50D;' };
+  const catColors = { compliance: '#e8faf0,#d1fae5', security: '#e6f2ff,#dbeafe', audit: '#ede9fe,#e0e7ff' };
+  const catLabels = { compliance: '法遵', security: '資安', audit: '稽核' };
+  const catBadgeClass = { compliance: 'badge-success', security: 'badge-info', audit: 'badge-purple' };
+
+  list.innerHTML = courses.map(c => {
+    const pct = c.total_users > 0 ? Math.round((c.completed_count / c.total_users) * 100) : 0;
+    const barColor = pct >= 80 ? 'var(--line-green)' : pct >= 60 ? 'var(--warning)' : 'var(--danger)';
+    const isCompleted = c.passed;
+
+    return `<div class="training-item" data-cat="${c.category}">
+      <div class="training-icon" style="background:linear-gradient(135deg,${catColors[c.category] || '#f1f5f9,#e2e8f0'})">${catIcons[c.category] || '&#x1F4D6;'}</div>
+      <div class="training-info">
+        <div class="training-title">${c.name}</div>
+        <div class="training-meta">
+          <span class="badge ${catBadgeClass[c.category] || 'badge-gray'}">${catLabels[c.category] || c.category}</span>
+          <span>${c.is_required ? '必修' : '選修'}</span>
+          <span>截止 ${c.deadline || '—'}</span>
+          <span>${c.duration_min} 分鐘</span>
+        </div>
+        <div class="training-progress">
+          <div class="progress-bar" style="height:4px"><div class="progress-fill" style="width:${pct}%;background:${barColor}"></div></div>
+          <span style="font-size:.73rem;color:var(--text-secondary)">全行完成率 ${pct}%</span>
+        </div>
+      </div>
+      <div class="training-action">
+        ${isCompleted
+          ? `<span class="badge" style="background:#e8faf0;color:#059669;font-size:.78rem;padding:6px 14px">&#x2705; ${c.score}分 通過</span>`
+          : `<button class="btn btn-primary btn-sm" onclick="startTraining('${c.id}','${c.name}')">開始課程</button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function filterTraining(){
   const cat=document.getElementById('trainingCatFilter').value;
   document.querySelectorAll('.training-item').forEach(item=>{
@@ -3012,13 +3226,20 @@ const uz=document.getElementById('contractUploadZone');
 if(uz){
   ['dragenter','dragover'].forEach(e=>uz.addEventListener(e,ev=>{ev.preventDefault();uz.classList.add('dragover')}));
   ['dragleave','drop'].forEach(e=>uz.addEventListener(e,ev=>{ev.preventDefault();uz.classList.remove('dragover')}));
-  uz.addEventListener('drop',()=>simulateUpload());
+  uz.addEventListener('drop',(ev)=>{const f=ev.dataTransfer.files[0];if(f)handleContractUpload(f);});
 }
 
 // ===== INIT =====
 renderEmployees(employees);
 renderMonthlyChart();
 updateGreeting();
+
+// Load training data from API when navigating to training page
+const origNavigate = navigateTo;
+navigateTo = function(page) {
+  origNavigate(page);
+  if (page === 'training') loadTrainingData();
+};
 </script>
 </body>
 </html>

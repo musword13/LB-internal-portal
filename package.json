@@ -1,12 +1,19 @@
 {
   "name": "linebank-internal-portal",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "LINE Bank Internal Portal",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.21.0"
+    "express": "^4.21.0",
+    "pg": "^8.13.0",
+    "multer": "^1.4.5-lts.1",
+    "pdf-parse": "^1.1.1",
+    "@anthropic-ai/sdk": "^0.39.0",
+    "bcryptjs": "^2.4.3",
+    "express-session": "^1.18.1",
+    "connect-pg-simple": "^10.0.0"
   },
   "engines": {
     "node": ">=18"
