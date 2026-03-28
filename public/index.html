@@ -520,6 +520,176 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
 /* System checkbox labels */
 .sys-check:has(input:checked){background:var(--line-green-light)!important;border-color:var(--line-green)!important;color:var(--line-green-dark);font-weight:600}
 .sys-check:hover{border-color:var(--border)!important;background:#f0f4ff!important}
+
+/* ===== MOBILE RESPONSIVE ===== */
+
+/* Mobile bottom nav */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--bg-card);border-top:1px solid var(--border);box-shadow:0 -2px 12px rgba(0,0,0,0.06);padding:4px 0;padding-bottom:env(safe-area-inset-bottom)}
+.mobile-nav-items{display:flex;justify-content:space-around;align-items:center}
+.mobile-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;cursor:pointer;color:var(--text-secondary);font-size:.65rem;font-weight:600;transition:var(--ease);position:relative;min-width:0;flex:1}
+.mobile-nav-item.active{color:var(--line-green)}
+.mobile-nav-item .mobile-nav-icon{font-size:1.2rem}
+.mobile-nav-item .mobile-nav-badge{position:absolute;top:2px;right:50%;transform:translateX(14px);background:var(--danger);color:#fff;font-size:.55rem;padding:1px 5px;border-radius:8px;font-weight:700;min-width:14px;text-align:center}
+.mobile-menu-overlay{display:none;position:fixed;inset:0;z-index:150;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px)}
+.mobile-menu-overlay.open{display:block}
+.mobile-menu-panel{position:fixed;left:-280px;top:0;bottom:0;width:280px;background:var(--bg-sidebar);z-index:160;transition:left .3s ease;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom)}
+.mobile-menu-panel.open{left:0}
+
+@media(max-width:768px){
+  /* Hide desktop sidebar, show mobile nav */
+  .sidebar{display:none}
+  .mobile-nav{display:block}
+  .main{margin-left:0}
+
+  /* Topbar adjustments */
+  .topbar{padding:0 14px;height:50px}
+  .topbar-left{gap:8px}
+  .topbar-title{font-size:.92rem}
+  .topbar-breadcrumb{display:none}
+  .search-box{width:140px}
+  .search-box input{padding:6px 10px 6px 30px;font-size:.78rem}
+
+  /* Content padding */
+  .content{padding:14px 14px 80px 14px}
+
+  /* Login */
+  .login-card{width:92vw;padding:32px 24px;border-radius:16px}
+  .login-brand-text{font-size:1.3rem}
+  .login-subtitle{font-size:.82rem;margin-bottom:24px}
+  .login-field input{padding:10px 14px}
+
+  /* Greeting banner */
+  .greeting-banner{padding:18px 16px;border-radius:12px}
+  .greeting-hello{font-size:1.1rem}
+  .greeting-sub{font-size:.75rem;margin-bottom:10px}
+  .greeting-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+  .greeting-stat{padding:6px 10px;font-size:.72rem}
+  .greeting-stat-num{font-size:.95rem}
+  .greeting-stat-label{font-size:.65rem}
+
+  /* Hero stats - 2 cols on mobile */
+  .hero-stats{grid-template-columns:repeat(2,1fr)!important;gap:10px!important;margin-bottom:16px}
+  .hero-stat{padding:12px 14px}
+  .hero-stat-icon{width:30px;height:30px;font-size:.9rem;margin-bottom:6px}
+  .hero-stat-value{font-size:1.15rem}
+
+  /* Cards */
+  .card{padding:16px;margin-bottom:14px;border-radius:10px}
+  .card-header{flex-wrap:wrap;gap:8px}
+  .card-title{font-size:.92rem}
+
+  /* Grids */
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;gap:14px}
+
+  /* Quick actions */
+  .quick-actions{grid-template-columns:repeat(3,1fr)!important;gap:8px}
+  .quick-action{padding:14px 8px;gap:6px}
+  .quick-action-icon{font-size:1.4rem;width:40px;height:40px;border-radius:10px}
+  .quick-action-label{font-size:.75rem}
+  .quick-action-desc{font-size:.65rem}
+
+  /* Tabs */
+  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;gap:0;flex-wrap:nowrap}
+  .tab{white-space:nowrap;padding:8px 14px;font-size:.82rem;flex-shrink:0}
+
+  /* Tables */
+  .table-wrap{margin:0 -16px;padding:0 16px}
+  table{min-width:600px}
+  th,td{padding:8px 10px;font-size:.78rem}
+
+  /* Kanban */
+  .kanban{grid-template-columns:1fr;gap:12px}
+  .kanban-col{padding:12px}
+
+  /* Parsed fields */
+  .parsed-fields{grid-template-columns:1fr}
+
+  /* File items */
+  .file-item{gap:10px}
+  .file-icon{width:32px;height:32px;font-size:1.1rem}
+  .file-name{font-size:.82rem}
+  .file-meta{font-size:.7rem}
+
+  /* Timeline */
+  .timeline-title{font-size:.82rem}
+
+  /* Employee cards */
+  .emp-card{padding:12px;gap:10px}
+  .emp-avatar{width:38px;height:38px;font-size:.85rem}
+
+  /* Chart area */
+  .chart-area{height:140px}
+
+  /* AI Chat */
+  .ai-fab{width:48px;height:48px;font-size:1.2rem;bottom:70px;right:14px}
+  .ai-chat{width:calc(100vw - 20px);right:10px;bottom:70px;height:60vh;border-radius:16px}
+
+  /* Notification panel */
+  .notif-panel{width:100%;right:-100%}
+
+  /* Flow steps */
+  .flow-steps{flex-wrap:wrap;gap:8px}
+  .flow-step:not(:last-child)::after{display:none}
+  .flow-dot{width:30px;height:30px;font-size:.75rem}
+  .flow-label{font-size:.68rem}
+
+  /* Leave bar */
+  .leave-type{width:60px;font-size:.78rem}
+
+  /* Donut chart */
+  .donut-chart{width:100px;height:100px}
+  .donut-center{inset:20px}
+
+  /* Training */
+  .training-item{flex-direction:column;align-items:flex-start;gap:10px}
+  .training-action{align-self:flex-end}
+
+  /* Toast */
+  .toast-container{top:auto;bottom:80px;right:10px;left:10px}
+  .toast{font-size:.78rem;padding:10px 14px}
+
+  /* Upload zone */
+  .upload-zone{padding:24px 16px}
+  .upload-icon{font-size:2rem}
+  .upload-text{font-size:.88rem}
+
+  /* Forms */
+  .form-group[style*="grid-column:span 2"]{grid-column:span 1!important}
+
+  /* Salary chart */
+  .salary-chart-bar{min-width:30px}
+
+  /* Regulation search */
+  .reg-search-input{padding:12px 16px 12px 42px;font-size:.88rem}
+  .reg-search-btn{padding:8px 14px;font-size:.78rem}
+  .reg-tags{gap:6px}
+  .reg-tag{padding:5px 10px;font-size:.73rem}
+
+  /* Smart request */
+  .smart-textarea{min-height:80px;padding:14px 16px;font-size:.88rem}
+
+  /* IT detail modal */
+  div[style*="width:720px"]{width:95vw!important;padding:20px!important;max-height:90vh!important}
+
+  /* Meeting room grid */
+  .room-grid{grid-template-columns:repeat(2,1fr)!important}
+
+  /* AI insight */
+  .ai-insight{padding:10px 12px;gap:10px}
+  .ai-insight-icon{width:30px;height:30px;font-size:1rem}
+  .ai-insight-text{font-size:.8rem}
+
+  /* Badge in headers */
+  .ai-badge{font-size:.62rem;padding:2px 8px}
+}
+
+/* Small phone */
+@media(max-width:380px){
+  .quick-actions{grid-template-columns:repeat(2,1fr)!important}
+  .hero-stats{grid-template-columns:1fr}
+  .greeting-stats{flex-direction:column;gap:6px}
+  .login-card{padding:24px 18px}
+}
 </style>
 </head>
 <body>
@@ -2239,6 +2409,42 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
   </div>
 </div>
 
+<!-- Mobile Bottom Navigation -->
+<div class="mobile-nav" id="mobileNav">
+  <div class="mobile-nav-items">
+    <div class="mobile-nav-item active" data-page="dashboard" onclick="navigateTo('dashboard');setMobileActive(this)"><span class="mobile-nav-icon">&#x1F3E0;</span>首頁</div>
+    <div class="mobile-nav-item" data-page="contracts" onclick="navigateTo('contracts');setMobileActive(this)"><span class="mobile-nav-icon">&#x1F4C4;</span>合約</div>
+    <div class="mobile-nav-item" data-page="approvals" onclick="navigateTo('approvals');setMobileActive(this)"><span class="mobile-nav-icon">&#x2705;</span>簽核<span class="mobile-nav-badge">5</span></div>
+    <div class="mobile-nav-item" data-page="smart-request" onclick="navigateTo('smart-request');setMobileActive(this)"><span class="mobile-nav-icon">&#x2728;</span>AI 工單</div>
+    <div class="mobile-nav-item" onclick="toggleMobileMenu()" id="mobileMenuBtn"><span class="mobile-nav-icon">&#x2630;</span>更多</div>
+  </div>
+</div>
+
+<!-- Mobile slide-out menu -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="toggleMobileMenu()"></div>
+<div class="mobile-menu-panel" id="mobileMenuPanel">
+  <div style="padding:20px;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;gap:10px">
+    <div style="width:40px;height:40px;border-radius:50%;background:var(--line-green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem">陳</div>
+    <div><div style="color:#fff;font-weight:700;font-size:.9rem">陳建宏</div><div style="color:rgba(255,255,255,0.5);font-size:.75rem">資訊部 / 副理</div></div>
+  </div>
+  <div style="padding:10px 0">
+    <div class="nav-item" onclick="navigateTo('it-requests');toggleMobileMenu()"><span class="nav-icon">&#x1F4BB;</span>IT 需求申請</div>
+    <div class="nav-item" onclick="navigateTo('payments');toggleMobileMenu()"><span class="nav-icon">&#x1F4B0;</span>付款申請</div>
+    <div class="nav-item" onclick="navigateTo('leave');toggleMobileMenu()"><span class="nav-icon">&#x1F334;</span>請假管理</div>
+    <div class="nav-item" onclick="navigateTo('salary');toggleMobileMenu()"><span class="nav-icon">&#x1F4B5;</span>薪資查詢</div>
+    <div style="padding:12px 22px 6px;font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.3);font-weight:700">企業服務</div>
+    <div class="nav-item" onclick="navigateTo('announcements');toggleMobileMenu()"><span class="nav-icon">&#x1F4E2;</span>公告欄</div>
+    <div class="nav-item" onclick="navigateTo('directory');toggleMobileMenu()"><span class="nav-icon">&#x1F465;</span>員工通訊錄</div>
+    <div class="nav-item" onclick="navigateTo('training');toggleMobileMenu()"><span class="nav-icon">&#x1F393;</span>教育訓練</div>
+    <div class="nav-item" onclick="navigateTo('meeting-rooms');toggleMobileMenu()"><span class="nav-icon">&#x1F3E2;</span>會議室預約</div>
+    <div class="nav-item" onclick="navigateTo('expenses');toggleMobileMenu()"><span class="nav-icon">&#x1F4B3;</span>費用報銷</div>
+    <div class="nav-item" onclick="navigateTo('regulations');toggleMobileMenu()"><span class="nav-icon">&#x1F4D6;</span>內規管理</div>
+    <div class="nav-item" onclick="navigateTo('ai-tools');toggleMobileMenu()"><span class="nav-icon">&#x1F9E0;</span>AI 工具箱</div>
+    <div style="padding:12px 22px 6px;font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.3);font-weight:700">系統</div>
+    <div class="nav-item" onclick="navigateTo('settings');toggleMobileMenu()"><span class="nav-icon">&#x2699;</span>系統設定</div>
+  </div>
+</div>
+
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
@@ -2582,6 +2788,35 @@ function showITDetail(reqId) {
 }
 
 function submitITRequest(){showToast('success','IT 需求已送出！等待簽核後自動建立 JIRA Ticket 並通知團隊');}
+
+// ===== MOBILE NAV =====
+function setMobileActive(el){
+  document.querySelectorAll('.mobile-nav-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+}
+function toggleMobileMenu(){
+  const overlay=document.getElementById('mobileMenuOverlay');
+  const panel=document.getElementById('mobileMenuPanel');
+  overlay.classList.toggle('open');
+  panel.classList.toggle('open');
+}
+// Sync mobile nav active state when navigating via sidebar or other means
+const origNavigateTo=window.navigateTo||(()=>{});
+const _patchMobileNav=()=>{
+  const oldNav=navigateTo;
+  // After any navigation, update mobile nav active state
+  const observer=new MutationObserver(()=>{
+    const activePage=document.querySelector('.page.active');
+    if(!activePage)return;
+    const pageId=activePage.id.replace('page-','');
+    document.querySelectorAll('.mobile-nav-item[data-page]').forEach(i=>{
+      i.classList.toggle('active',i.dataset.page===pageId);
+    });
+  });
+  observer.observe(document.querySelector('.content')||document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+};
+if(document.readyState==='complete')_patchMobileNav();
+else window.addEventListener('load',_patchMobileNav);
 
 // ===== MEETING ROOM =====
 function quickBook(room,time){
