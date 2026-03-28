@@ -84,6 +84,36 @@ async function initDB() {
         UNIQUE(user_id, course_id)
       );
 
+      -- 請假餘額
+      CREATE TABLE IF NOT EXISTS leave_balances (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(20) REFERENCES users(id),
+        leave_type VARCHAR(20) NOT NULL,
+        total DECIMAL(5,1) NOT NULL,
+        used DECIMAL(5,1) DEFAULT 0,
+        unit VARCHAR(10) DEFAULT 'day',
+        expire_date DATE,
+        year INT DEFAULT EXTRACT(YEAR FROM NOW()),
+        UNIQUE(user_id, leave_type, year)
+      );
+
+      -- 請假申請
+      CREATE TABLE IF NOT EXISTS leave_requests (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(20) REFERENCES users(id),
+        leave_type VARCHAR(20) NOT NULL,
+        start_date DATE NOT NULL,
+        end_date DATE NOT NULL,
+        period VARCHAR(10) DEFAULT 'full',
+        days DECIMAL(5,1) NOT NULL,
+        deputy_id VARCHAR(20) REFERENCES users(id),
+        reason TEXT,
+        status VARCHAR(20) DEFAULT 'pending',
+        reviewer_id VARCHAR(20) REFERENCES users(id),
+        reviewed_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
       -- Session table for connect-pg-simple
       CREATE TABLE IF NOT EXISTS "session" (
         "sid" varchar NOT NULL COLLATE "default",
@@ -180,6 +210,61 @@ async function seedData(client) {
        VALUES ($1, $2, $3, $4, NOW() - interval '1 day' * (random()*20)::int)
        ON CONFLICT DO NOTHING`,
       [userId, courseId, score, score >= 70]
+    );
+  }
+
+  // Seed leave balances for all users (2026)
+  const leaveTypes = [
+    ['annual', 15, 'day', '2026-12-31'],
+    ['personal', 14, 'day', '2026-12-31'],
+    ['sick', 30, 'day', '2026-12-31'],
+    ['comp', 8, 'hour', '2026-06-30'],
+    ['marriage', 8, 'day', null],
+    ['funeral', 0, 'day', null],
+    ['official', 0, 'day', null],
+  ];
+  for (const u of users) {
+    for (const [lt, total, unit, exp] of leaveTypes) {
+      await client.query(
+        `INSERT INTO leave_balances (user_id, leave_type, total, used, unit, expire_date, year)
+         VALUES ($1,$2,$3,0,$4,$5,2026) ON CONFLICT DO NOTHING`,
+        [u[0], lt, total, unit, exp]
+      );
+    }
+  }
+
+  // Seed some leave usage for 陳建宏
+  const leaveUsage = [
+    ['BK00013', 'annual', 7], ['BK00013', 'personal', 2],
+    ['BK00013', 'sick', 1], ['BK00013', 'comp', 2],
+  ];
+  for (const [uid, lt, used] of leaveUsage) {
+    await client.query(
+      `UPDATE leave_balances SET used=$3 WHERE user_id=$1 AND leave_type=$2 AND year=2026`,
+      [uid, lt, used]
+    );
+  }
+
+  // Seed leave requests
+  const leaveRequests = [
+    ['BK00013', 'annual', '2026-03-10', '2026-03-10', 'full', 1, 'BK00004', '個人事務', 'approved', 'BK00009'],
+    ['BK00013', 'personal', '2026-02-20', '2026-02-20', 'morning', 0.5, 'BK00003', '家庭事務', 'approved', 'BK00009'],
+    ['BK00013', 'annual', '2026-02-05', '2026-02-07', 'full', 3, 'BK00004', '出遊', 'approved', 'BK00009'],
+    ['BK00013', 'sick', '2026-01-15', '2026-01-15', 'full', 1, 'BK00001', '感冒', 'approved', 'BK00009'],
+    ['BK00013', 'annual', '2026-01-02', '2026-01-03', 'full', 2, 'BK00004', '元旦連假', 'approved', 'BK00009'],
+    ['BK00013', 'personal', '2025-12-20', '2025-12-20', 'morning', 0.5, 'BK00003', '搬家', 'approved', 'BK00009'],
+    // 張雅琪 pending leave
+    ['BK00003', 'annual', '2026-03-28', '2026-03-30', 'full', 3, 'BK00004', '個人旅遊', 'pending', null],
+    // 王志明 approved leave
+    ['BK00001', 'personal', '2026-03-27', '2026-03-27', 'morning', 0.5, 'BK00013', '看診', 'approved', 'BK00009'],
+    ['BK00001', 'annual', '2026-04-01', '2026-04-02', 'full', 2, 'BK00013', '清明連假', 'approved', 'BK00009'],
+    ['BK00002', 'annual', '2026-04-03', '2026-04-04', 'full', 2, 'BK00006', '家庭旅遊', 'pending', null],
+  ];
+  for (const lr of leaveRequests) {
+    await client.query(
+      `INSERT INTO leave_requests (user_id, leave_type, start_date, end_date, period, days, deputy_id, reason, status, reviewer_id, created_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10, NOW() - interval '1 day' * (random()*30)::int) ON CONFLICT DO NOTHING`,
+      lr
     );
   }
 

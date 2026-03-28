@@ -403,6 +403,122 @@ app.get('/api/contracts/:id', requireAuth, async (req, res) => {
 });
 
 // =============================================
+// LEAVE API
+// =============================================
+
+// 取得假別餘額
+app.get('/api/leave/balances', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { rows } = await pool.query(
+      'SELECT * FROM leave_balances WHERE user_id = $1 AND year = EXTRACT(YEAR FROM NOW()) ORDER BY leave_type',
+      [userId]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('Leave balances error:', err);
+    res.status(500).json({ error: '載入假別餘額失敗' });
+  }
+});
+
+// 取得請假紀錄 (自己的)
+app.get('/api/leave/my-records', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { rows } = await pool.query(`
+      SELECT lr.*, d.name as deputy_name
+      FROM leave_requests lr
+      LEFT JOIN users d ON d.id = lr.deputy_id
+      WHERE lr.user_id = $1
+      ORDER BY lr.start_date DESC
+      LIMIT 50
+    `, [userId]);
+    res.json(rows);
+  } catch (err) {
+    console.error('Leave records error:', err);
+    res.status(500).json({ error: '載入請假紀錄失敗' });
+  }
+});
+
+// 取得部門日曆（同部門所有人的請假）
+app.get('/api/leave/calendar', requireAuth, async (req, res) => {
+  try {
+    const dept = req.session.user.dept;
+    const month = req.query.month || new Date().toISOString().slice(0, 7); // YYYY-MM
+    const { rows } = await pool.query(`
+      SELECT lr.id, lr.leave_type, lr.start_date, lr.end_date, lr.period, lr.days, lr.status,
+             u.name as user_name, u.dept
+      FROM leave_requests lr
+      JOIN users u ON u.id = lr.user_id
+      WHERE u.dept = $1
+        AND lr.status IN ('approved','pending')
+        AND lr.start_date <= ($2 || '-31')::date
+        AND lr.end_date >= ($2 || '-01')::date
+      ORDER BY lr.start_date
+    `, [dept, month]);
+    res.json(rows);
+  } catch (err) {
+    console.error('Leave calendar error:', err);
+    res.status(500).json({ error: '載入部門日曆失敗' });
+  }
+});
+
+// 取得可選代理人（同部門同事）
+app.get('/api/leave/deputies', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { rows } = await pool.query(
+      'SELECT id, name, title FROM users WHERE id != $1 ORDER BY name',
+      [userId]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: '載入代理人失敗' });
+  }
+});
+
+// 送出請假申請
+app.post('/api/leave/submit', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { leaveType, startDate, endDate, period, days, deputyId, reason } = req.body;
+
+    // Check balance
+    const { rows: balRows } = await pool.query(
+      'SELECT * FROM leave_balances WHERE user_id = $1 AND leave_type = $2 AND year = EXTRACT(YEAR FROM NOW())',
+      [userId, leaveType]
+    );
+
+    if (balRows.length > 0) {
+      const bal = balRows[0];
+      const remaining = parseFloat(bal.total) - parseFloat(bal.used);
+      if (remaining < parseFloat(days) && parseFloat(bal.total) > 0) {
+        return res.status(400).json({ error: `${leaveType} 餘額不足，剩餘 ${remaining} ${bal.unit === 'hour' ? '小時' : '天'}` });
+      }
+    }
+
+    // Insert request
+    const { rows } = await pool.query(`
+      INSERT INTO leave_requests (user_id, leave_type, start_date, end_date, period, days, deputy_id, reason, status)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'pending')
+      RETURNING *
+    `, [userId, leaveType, startDate, endDate, period, days, deputyId, reason]);
+
+    // Update balance (deduct used)
+    await pool.query(
+      `UPDATE leave_balances SET used = used + $3
+       WHERE user_id = $1 AND leave_type = $2 AND year = EXTRACT(YEAR FROM NOW())`,
+      [userId, leaveType, days]
+    );
+
+    res.json({ success: true, leave: rows[0] });
+  } catch (err) {
+    console.error('Leave submit error:', err);
+    res.status(500).json({ error: '請假送出失敗: ' + err.message });
+  }
+});
+
+// =============================================
 // SPA FALLBACK
 // =============================================
 app.get('*', (req, res) => {

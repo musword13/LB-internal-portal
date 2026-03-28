@@ -1507,56 +1507,34 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
           <div class="grid-2">
             <div class="card">
               <div class="card-header"><div class="card-title">新增請假單</div></div>
-              <div class="form-group"><label class="form-label">假別</label><select class="form-select"><option>特別休假</option><option>事假</option><option>病假</option><option>婚假</option><option>喪假</option><option>公假</option><option>補休</option></select></div>
-              <div class="form-group"><label class="form-label">起始日期</label><input class="form-input" type="date"></div>
-              <div class="form-group"><label class="form-label">結束日期</label><input class="form-input" type="date"></div>
-              <div class="form-group"><label class="form-label">時段</label><select class="form-select"><option>全天</option><option>上午</option><option>下午</option></select></div>
-              <div class="form-group"><label class="form-label">職務代理人</label><select class="form-select"><option>李建安</option><option>張雅琪</option><option>王志明</option><option>陳宏志</option></select></div>
-              <div class="form-group"><label class="form-label">請假事由</label><textarea class="form-textarea" rows="3"></textarea></div>
+              <div class="form-group"><label class="form-label">假別</label><select class="form-select" id="leaveType"><option value="annual">特別休假</option><option value="personal">事假</option><option value="sick">病假</option><option value="marriage">婚假</option><option value="funeral">喪假</option><option value="official">公假</option><option value="comp">補休</option></select></div>
+              <div class="form-group"><label class="form-label">起始日期</label><input class="form-input" type="date" id="leaveStart"></div>
+              <div class="form-group"><label class="form-label">結束日期</label><input class="form-input" type="date" id="leaveEnd"></div>
+              <div class="form-group"><label class="form-label">時段</label><select class="form-select" id="leavePeriod"><option value="full">全天</option><option value="morning">上午</option><option value="afternoon">下午</option></select></div>
+              <div class="form-group"><label class="form-label">職務代理人</label><select class="form-select" id="leaveDeputy"></select></div>
+              <div class="form-group"><label class="form-label">請假事由</label><textarea class="form-textarea" rows="3" id="leaveReason"></textarea></div>
               <div class="form-group"><label class="form-label">附件 (病假需附診斷證明)</label><div class="upload-zone" style="padding:16px"><div class="upload-text" style="font-size:.85rem">上傳附件</div></div></div>
-              <button class="btn btn-primary" onclick="showToast('success','請假單已送出，等待主管核准。已透過 Teams 通知主管')">送出申請</button>
+              <button class="btn btn-primary" onclick="submitLeaveRequest()">送出申請</button>
             </div>
             <div>
               <div class="card">
                 <div class="card-header"><div class="card-title">假別餘額總覽</div></div>
-                <div class="leave-bar"><div class="leave-type">特休</div><div class="leave-progress"><div class="progress-bar"><div class="progress-fill" style="width:47%;background:var(--line-green)"></div></div></div><div class="leave-nums">7 / 15 天</div></div>
-                <div class="leave-bar"><div class="leave-type">事假</div><div class="leave-progress"><div class="progress-bar"><div class="progress-fill" style="width:14%;background:var(--warning)"></div></div></div><div class="leave-nums">2 / 14 天</div></div>
-                <div class="leave-bar"><div class="leave-type">病假</div><div class="leave-progress"><div class="progress-bar"><div class="progress-fill" style="width:3%;background:var(--danger)"></div></div></div><div class="leave-nums">1 / 30 天</div></div>
-                <div class="leave-bar"><div class="leave-type">補休</div><div class="leave-progress"><div class="progress-bar"><div class="progress-fill" style="width:25%;background:var(--info)"></div></div></div><div class="leave-nums">2 / 8 小時</div></div>
+                <div id="leaveBalanceBars"><div style="text-align:center;padding:20px;color:var(--text-secondary)">載入中...</div></div>
               </div>
               <div class="card">
-                <div class="card-header"><div class="card-title">部門請假日曆 — 3月</div></div>
-                <div class="cal-grid">
-                  <div class="cal-header">一</div><div class="cal-header">二</div><div class="cal-header">三</div><div class="cal-header">四</div><div class="cal-header">五</div><div class="cal-header">六</div><div class="cal-header">日</div>
-                  <div class="cal-day" style="opacity:.3">23</div><div class="cal-day" style="opacity:.3">24</div><div class="cal-day" style="opacity:.3">25</div><div class="cal-day" style="opacity:.3">26</div><div class="cal-day" style="opacity:.3">27</div><div class="cal-day" style="opacity:.3">28</div><div class="cal-day">1</div>
-                  <div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div>
-                  <div class="cal-day">9</div><div class="cal-day has-event">10</div><div class="cal-day">11</div><div class="cal-day">12</div><div class="cal-day">13</div><div class="cal-day">14</div><div class="cal-day">15</div>
-                  <div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day">21</div><div class="cal-day">22</div>
-                  <div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day today has-event">26</div><div class="cal-day has-event">27</div><div class="cal-day has-event">28</div><div class="cal-day">29</div>
-                  <div class="cal-day has-event">30</div><div class="cal-day">31</div>
-                </div>
-                <div style="margin-top:12px;font-size:.78rem;color:var(--text-secondary)">
-                  <div style="margin-bottom:4px">&#x1F534; 3/26-28 張雅琪（特休）— 待審</div>
-                  <div style="margin-bottom:4px">&#x1F7E0; 3/27 王志明（事假半天）</div>
-                  <div>&#x1F7E2; 3/10 陳建宏（特休）— 已核准</div>
-                </div>
+                <div class="card-header"><div class="card-title" id="leaveCalTitle">部門請假日曆</div><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="changeLeaveCalMonth(-1)">&#x25C0;</button><button class="btn btn-ghost btn-sm" onclick="changeLeaveCalMonth(1)">&#x25B6;</button></div></div>
+                <div class="cal-grid" id="leaveCalGrid"></div>
+                <div id="leaveCalEvents" style="margin-top:12px;font-size:.78rem;color:var(--text-secondary)"></div>
               </div>
             </div>
           </div>
         </div>
         <div class="tab-content" id="tab-leave-records">
           <div class="card">
-            <div class="card-header"><div class="card-title">請假紀錄</div><div style="display:flex;gap:8px"><select class="form-select" style="width:120px;padding:6px 10px"><option>2026 年</option><option>2025 年</option></select><select class="form-select" style="width:120px;padding:6px 10px"><option>全部假別</option><option>特休</option><option>事假</option><option>病假</option></select></div></div>
+            <div class="card-header"><div class="card-title">請假紀錄</div></div>
             <div class="table-wrap"><table>
               <thead><tr><th>假別</th><th>日期</th><th>天數</th><th>代理人</th><th>事由</th><th>狀態</th></tr></thead>
-              <tbody>
-                <tr><td>特休</td><td>2026/03/10</td><td>1 天</td><td>李建安</td><td>個人事務</td><td><span class="badge badge-success">已核准</span></td></tr>
-                <tr><td>事假</td><td>2026/02/20</td><td>0.5 天</td><td>張雅琪</td><td>家庭事務</td><td><span class="badge badge-success">已核准</span></td></tr>
-                <tr><td>特休</td><td>2026/02/05-02/07</td><td>3 天</td><td>李建安</td><td>出遊</td><td><span class="badge badge-success">已核准</span></td></tr>
-                <tr><td>病假</td><td>2026/01/15</td><td>1 天</td><td>王志明</td><td>感冒</td><td><span class="badge badge-success">已核准</span></td></tr>
-                <tr><td>特休</td><td>2026/01/02-01/03</td><td>2 天</td><td>李建安</td><td>元旦連假</td><td><span class="badge badge-success">已核准</span></td></tr>
-                <tr><td>事假</td><td>2025/12/20</td><td>0.5 天</td><td>張雅琪</td><td>搬家</td><td><span class="badge badge-success">已核准</span></td></tr>
-              </tbody>
+              <tbody id="leaveRecordsBody"><tr><td colspan="6" style="text-align:center;padding:20px">載入中...</td></tr></tbody>
             </table></div>
           </div>
         </div>
@@ -1565,17 +1543,9 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
             <div class="card-header"><div class="card-title">假別餘額明細</div></div>
             <div class="table-wrap"><table>
               <thead><tr><th>假別</th><th>年度額度</th><th>已使用</th><th>剩餘</th><th>到期日</th><th>狀態</th></tr></thead>
-              <tbody>
-                <tr><td><strong>特別休假</strong></td><td>15 天</td><td>7 天</td><td><strong style="color:var(--accent)">8 天</strong></td><td>2026/12/31</td><td><span class="badge badge-success">正常</span></td></tr>
-                <tr><td><strong>事假</strong></td><td>14 天</td><td>2 天</td><td><strong>12 天</strong></td><td>2026/12/31</td><td><span class="badge badge-success">正常</span></td></tr>
-                <tr><td><strong>病假</strong></td><td>30 天</td><td>1 天</td><td><strong>29 天</strong></td><td>2026/12/31</td><td><span class="badge badge-success">正常</span></td></tr>
-                <tr><td><strong>補休</strong></td><td>8 小時</td><td>2 小時</td><td><strong>6 小時</strong></td><td>2026/06/30</td><td><span class="badge badge-warning">6月到期</span></td></tr>
-                <tr><td><strong>婚假</strong></td><td>8 天</td><td>0 天</td><td><strong>8 天</strong></td><td>—</td><td><span class="badge badge-gray">未使用</span></td></tr>
-                <tr><td><strong>喪假</strong></td><td>依規定</td><td>0 天</td><td><strong>—</strong></td><td>—</td><td><span class="badge badge-gray">—</span></td></tr>
-                <tr><td><strong>公假</strong></td><td>不限</td><td>1 天</td><td><strong>—</strong></td><td>—</td><td><span class="badge badge-gray">—</span></td></tr>
-              </tbody>
+              <tbody id="leaveBalanceBody"><tr><td colspan="6" style="text-align:center;padding:20px">載入中...</td></tr></tbody>
             </table></div>
-            <div style="margin-top:16px;padding:14px;background:#fef3c7;border-radius:8px;font-size:.85rem">&#x26A0; 提醒：您有 <strong>6 小時</strong>補休將於 2026/06/30 到期，請儘早安排使用。</div>
+            <div id="leaveBalanceAlert" style="margin-top:16px;display:none;padding:14px;background:#fef3c7;border-radius:8px;font-size:.85rem"></div>
           </div>
         </div>
       </div>
@@ -1922,20 +1892,20 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
             <div class="table-wrap"><table id="regTable">
               <thead><tr><th>法規編號</th><th>法規名稱</th><th>所屬部門</th><th>類別</th><th>版本</th><th>更新日期</th><th>狀態</th><th>操作</th></tr></thead>
               <tbody>
-                <tr><td>REG-HR-001</td><td><strong>員工請假管理辦法</strong></td><td><span class="badge badge-info">人力資源部</span></td><td>人事管理</td><td>v3.2</td><td>2026-02-15</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-HR-001','員工請假管理辦法')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
-                <tr><td>REG-FIN-001</td><td><strong>差旅費報支要點</strong></td><td><span class="badge badge-warning">財務會計部</span></td><td>財務會計</td><td>v2.8</td><td>2026-01-20</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-FIN-001','差旅費報支要點')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
+                <tr><td>REG-RISK-002</td><td><strong>洗錢防制注意事項</strong></td><td><span class="badge badge-danger">風管部</span></td><td>風險管理</td><td>v6.2</td><td>2026-03-20</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-RISK-002','洗錢防制注意事項')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
+                <tr><td>REG-FIN-002</td><td><strong>廠商付款作業規範</strong></td><td><span class="badge badge-warning">財務會計部</span></td><td>財務會計</td><td>v2.0</td><td>2026-03-15</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-FIN-002','廠商付款作業規範')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
                 <tr><td>REG-IT-001</td><td><strong>資訊安全管理規範</strong></td><td><span class="badge badge-purple">資訊部</span></td><td>資訊安全</td><td>v5.1</td><td>2026-03-10</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-IT-001','資訊安全管理規範')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
-                <tr><td>REG-IT-002</td><td><strong>系統帳號權限管理辦法</strong></td><td><span class="badge badge-purple">資訊部</span></td><td>資訊安全</td><td>v2.3</td><td>2025-12-01</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-IT-002','系統帳號權限管理辦法')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
                 <tr><td>REG-RISK-001</td><td><strong>風險管理政策</strong></td><td><span class="badge badge-danger">風管部</span></td><td>風險管理</td><td>v4.0</td><td>2026-03-01</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-RISK-001','風險管理政策')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
                 <tr><td>REG-COMP-001</td><td><strong>法令遵循管理辦法</strong></td><td><span class="badge badge-gray">法遵部</span></td><td>法令遵循</td><td>v3.5</td><td>2026-02-28</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-COMP-001','法令遵循管理辦法')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
+                <tr><td>REG-HR-001</td><td><strong>員工請假管理辦法</strong></td><td><span class="badge badge-info">人力資源部</span></td><td>人事管理</td><td>v3.2</td><td>2026-02-15</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-HR-001','員工請假管理辦法')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
+                <tr><td>REG-IT-004</td><td><strong>雲端服務使用管理要點</strong></td><td><span class="badge badge-purple">資訊部</span></td><td>資訊安全</td><td>v1.2</td><td>2026-02-01</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-IT-004','雲端服務使用管理要點')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
+                <tr><td>REG-FIN-001</td><td><strong>差旅費報支要點</strong></td><td><span class="badge badge-warning">財務會計部</span></td><td>財務會計</td><td>v2.8</td><td>2026-01-20</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-FIN-001','差旅費報支要點')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
+                <tr><td>REG-IT-003</td><td><strong>個人資料保護管理規範</strong></td><td><span class="badge badge-purple">資訊部</span></td><td>法令遵循</td><td>v3.0</td><td>2026-01-05</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-IT-003','個人資料保護管理規範')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
+                <tr><td>REG-IT-002</td><td><strong>系統帳號權限管理辦法</strong></td><td><span class="badge badge-purple">資訊部</span></td><td>資訊安全</td><td>v2.3</td><td>2025-12-01</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-IT-002','系統帳號權限管理辦法')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
                 <tr><td>REG-GA-001</td><td><strong>採購作業管理辦法</strong></td><td><span class="badge badge-info">總務部</span></td><td>作業規範</td><td>v2.1</td><td>2025-11-15</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-GA-001','採購作業管理辦法')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
                 <tr><td>REG-GA-002</td><td><strong>印鑑管理辦法</strong></td><td><span class="badge badge-info">總務部</span></td><td>作業規範</td><td>v1.8</td><td>2025-10-20</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-GA-002','印鑑管理辦法')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
-                <tr><td>REG-IT-003</td><td><strong>個人資料保護管理規範</strong></td><td><span class="badge badge-purple">資訊部</span></td><td>法令遵循</td><td>v3.0</td><td>2026-01-05</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-IT-003','個人資料保護管理規範')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
                 <tr><td>REG-HR-002</td><td><strong>員工績效考核辦法</strong></td><td><span class="badge badge-info">人力資源部</span></td><td>人事管理</td><td>v2.5</td><td>2025-09-01</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-HR-002','員工績效考核辦法')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
-                <tr><td>REG-FIN-002</td><td><strong>廠商付款作業規範</strong></td><td><span class="badge badge-warning">財務會計部</span></td><td>財務會計</td><td>v2.0</td><td>2026-03-15</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-FIN-002','廠商付款作業規範')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
-                <tr><td>REG-RISK-002</td><td><strong>洗錢防制注意事項</strong></td><td><span class="badge badge-danger">風管部</span></td><td>風險管理</td><td>v6.2</td><td>2026-03-20</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-RISK-002','洗錢防制注意事項')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
                 <tr><td>REG-HR-003</td><td><strong>員工福利委員會組織章程</strong></td><td><span class="badge badge-info">人力資源部</span></td><td>人事管理</td><td>v1.5</td><td>2025-08-10</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-HR-003','員工福利委員會組織章程')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
-                <tr><td>REG-IT-004</td><td><strong>雲端服務使用管理要點</strong></td><td><span class="badge badge-purple">資訊部</span></td><td>資訊安全</td><td>v1.2</td><td>2026-02-01</td><td><span class="badge badge-success">現行</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-IT-004','雲端服務使用管理要點')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
                 <tr><td>REG-GA-003</td><td><strong>辦公場所安全管理辦法</strong></td><td><span class="badge badge-info">總務部</span></td><td>作業規範</td><td>v1.0</td><td>2025-07-01</td><td><span class="badge badge-gray">修訂中</span></td><td><button class="btn btn-outline btn-sm" onclick="viewRegDetail('REG-GA-003','辦公場所安全管理辦法')">檢視</button> <button class="btn btn-ghost btn-sm">&#x1F4E5;</button></td></tr>
               </tbody>
             </table></div>
@@ -2527,6 +2497,7 @@ function navigateTo(page){
   document.getElementById('pageTitle').textContent=t[0];
   document.getElementById('pageBreadcrumb').textContent=t[1];
   window.scrollTo(0,0);
+  if(page==='leave') loadLeaveData();
 }
 document.querySelectorAll('.nav-item[data-page]').forEach(i=>{i.addEventListener('click',()=>navigateTo(i.dataset.page))});
 
@@ -3222,6 +3193,204 @@ function simulateRegUpload(){
 
 function filterRegTable(val,type){
   showToast('info',val?`篩選：${val}`:'顯示全部');
+}
+
+// ===== LEAVE MANAGEMENT =====
+const leaveTypeNames={annual:'特休',personal:'事假',sick:'病假',marriage:'婚假',funeral:'喪假',official:'公假',comp:'補休'};
+const leaveTypeColors={annual:'var(--line-green)',personal:'var(--warning)',sick:'var(--danger)',comp:'var(--info)',marriage:'#a855f7',funeral:'#6b7280',official:'#3b82f6'};
+let leaveCalMonth=new Date().getMonth(), leaveCalYear=new Date().getFullYear();
+let leaveCalData=[];
+
+async function loadLeaveData(){
+  try{
+    const [balRes,recRes,depRes]=await Promise.all([
+      fetch('/api/leave/balances'),fetch('/api/leave/my-records'),fetch('/api/leave/deputies')
+    ]);
+    if(balRes.ok){
+      const bals=await balRes.json();
+      renderLeaveBalanceBars(bals);
+      renderLeaveBalanceTable(bals);
+    }
+    if(recRes.ok){
+      const recs=await recRes.json();
+      renderLeaveRecords(recs);
+    }
+    if(depRes.ok){
+      const deps=await depRes.json();
+      const sel=document.getElementById('leaveDeputy');
+      sel.innerHTML=deps.map(d=>`<option value="${d.id}">${d.name}（${d.title}）</option>`).join('');
+    }
+    loadLeaveCalendar();
+  }catch(e){
+    console.error('Leave load error:',e);
+  }
+}
+
+function renderLeaveBalanceBars(bals){
+  const show=['annual','personal','sick','comp'];
+  const el=document.getElementById('leaveBalanceBars');
+  el.innerHTML=bals.filter(b=>show.includes(b.leave_type)).map(b=>{
+    const total=parseFloat(b.total),used=parseFloat(b.used);
+    const pct=total>0?Math.round(used/total*100):0;
+    const unit=b.unit==='hour'?'小時':'天';
+    const name=leaveTypeNames[b.leave_type]||b.leave_type;
+    const color=leaveTypeColors[b.leave_type]||'var(--line-green)';
+    return `<div class="leave-bar"><div class="leave-type">${name}</div><div class="leave-progress"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div></div><div class="leave-nums">${used} / ${total} ${unit}</div></div>`;
+  }).join('');
+}
+
+function renderLeaveBalanceTable(bals){
+  const body=document.getElementById('leaveBalanceBody');
+  const alertEl=document.getElementById('leaveBalanceAlert');
+  let alerts=[];
+  body.innerHTML=bals.map(b=>{
+    const total=parseFloat(b.total),used=parseFloat(b.used),remain=total-used;
+    const unit=b.unit==='hour'?'小時':'天';
+    const name=leaveTypeNames[b.leave_type]||b.leave_type;
+    const exp=b.expire_date?new Date(b.expire_date).toLocaleDateString('zh-TW'):'—';
+    let statusBadge='<span class="badge badge-success">正常</span>';
+    if(total===0) statusBadge='<span class="badge badge-gray">—</span>';
+    else if(b.expire_date){
+      const daysLeft=Math.ceil((new Date(b.expire_date)-new Date())/(86400000));
+      if(daysLeft<120&&daysLeft>0){statusBadge=`<span class="badge badge-warning">${Math.ceil(daysLeft/30)}月到期</span>`;alerts.push(`您有 <strong>${remain} ${unit}</strong>${name}將於 ${exp} 到期，請儘早安排使用。`);}
+    }
+    const totalStr=total>0?`${total} ${unit}`:(b.leave_type==='funeral'?'依規定':'不限');
+    const remainStr=total>0?`<strong${remain>0?' style="color:var(--accent)"':''}>${remain} ${unit}</strong>`:'<strong>—</strong>';
+    return `<tr><td><strong>${name}</strong></td><td>${totalStr}</td><td>${used} ${unit}</td><td>${remainStr}</td><td>${exp}</td><td>${statusBadge}</td></tr>`;
+  }).join('');
+  if(alerts.length){alertEl.style.display='block';alertEl.innerHTML='&#x26A0; 提醒：'+alerts.join('<br>');}
+  else alertEl.style.display='none';
+}
+
+function renderLeaveRecords(recs){
+  const body=document.getElementById('leaveRecordsBody');
+  if(recs.length===0){body.innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-secondary)">暫無請假紀錄</td></tr>';return;}
+  body.innerHTML=recs.map(r=>{
+    const name=leaveTypeNames[r.leave_type]||r.leave_type;
+    const s=new Date(r.start_date).toLocaleDateString('zh-TW');
+    const e=new Date(r.end_date).toLocaleDateString('zh-TW');
+    const dateStr=s===e?s:`${s} - ${e}`;
+    const days=parseFloat(r.days);
+    const unit=r.leave_type==='comp'?'小時':'天';
+    const statusMap={pending:['badge-info','待審'],approved:['badge-success','已核准'],rejected:['badge-danger','退回']};
+    const [cls,label]=statusMap[r.status]||['badge-gray',r.status];
+    return `<tr><td>${name}</td><td>${dateStr}</td><td>${days} ${unit}</td><td>${r.deputy_name||'—'}</td><td>${r.reason||'—'}</td><td><span class="badge ${cls}">${label}</span></td></tr>`;
+  }).join('');
+}
+
+async function loadLeaveCalendar(){
+  const m=String(leaveCalMonth+1).padStart(2,'0');
+  const monthStr=`${leaveCalYear}-${m}`;
+  document.getElementById('leaveCalTitle').textContent=`部門請假日曆 — ${leaveCalYear}/${m}`;
+  try{
+    const res=await fetch(`/api/leave/calendar?month=${monthStr}`);
+    if(res.ok) leaveCalData=await res.json();
+    else leaveCalData=[];
+  }catch(e){leaveCalData=[];}
+  renderLeaveCalendar();
+}
+
+function changeLeaveCalMonth(delta){
+  leaveCalMonth+=delta;
+  if(leaveCalMonth>11){leaveCalMonth=0;leaveCalYear++;}
+  if(leaveCalMonth<0){leaveCalMonth=11;leaveCalYear--;}
+  loadLeaveCalendar();
+}
+
+function renderLeaveCalendar(){
+  const grid=document.getElementById('leaveCalGrid');
+  const eventsEl=document.getElementById('leaveCalEvents');
+  const firstDay=new Date(leaveCalYear,leaveCalMonth,1);
+  const lastDay=new Date(leaveCalYear,leaveCalMonth+1,0);
+  const startDow=(firstDay.getDay()+6)%7; // Monday=0
+  const today=new Date();
+  const todayStr=today.toISOString().slice(0,10);
+
+  // Build event map: date -> list of events
+  const eventMap={};
+  for(const ev of leaveCalData){
+    let d=new Date(ev.start_date);
+    const end=new Date(ev.end_date);
+    while(d<=end){
+      const ds=d.toISOString().slice(0,10);
+      if(!eventMap[ds])eventMap[ds]=[];
+      eventMap[ds].push(ev);
+      d=new Date(d.getTime()+86400000);
+    }
+  }
+
+  let html='<div class="cal-header">一</div><div class="cal-header">二</div><div class="cal-header">三</div><div class="cal-header">四</div><div class="cal-header">五</div><div class="cal-header">六</div><div class="cal-header">日</div>';
+  // Previous month fill
+  const prevLast=new Date(leaveCalYear,leaveCalMonth,0).getDate();
+  for(let i=startDow-1;i>=0;i--) html+=`<div class="cal-day" style="opacity:.3">${prevLast-i}</div>`;
+  // Current month
+  for(let d=1;d<=lastDay.getDate();d++){
+    const ds=`${leaveCalYear}-${String(leaveCalMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday=ds===todayStr;
+    const hasEv=eventMap[ds]&&eventMap[ds].length>0;
+    html+=`<div class="cal-day${isToday?' today':''}${hasEv?' has-event':''}">${d}</div>`;
+  }
+  grid.innerHTML=html;
+
+  // Events legend
+  const statusIcon={pending:'&#x1F534;',approved:'&#x1F7E2;'};
+  const seen=new Set();
+  let evHtml='';
+  for(const ev of leaveCalData){
+    const key=ev.id;
+    if(seen.has(key))continue;seen.add(key);
+    const s=new Date(ev.start_date);const e=new Date(ev.end_date);
+    const sStr=`${s.getMonth()+1}/${s.getDate()}`;
+    const eStr=`${e.getMonth()+1}/${e.getDate()}`;
+    const dateRange=s.getTime()===e.getTime()?sStr:`${sStr}-${eStr}`;
+    const periodNote=ev.period==='morning'?'（上午半天）':ev.period==='afternoon'?'（下午半天）':'';
+    const icon=statusIcon[ev.status]||'&#x1F7E0;';
+    const statusLabel=ev.status==='pending'?' — 待審':' — 已核准';
+    const typeName=leaveTypeNames[ev.leave_type]||ev.leave_type;
+    evHtml+=`<div style="margin-bottom:4px">${icon} ${dateRange} ${ev.user_name}（${typeName}${periodNote}）${statusLabel}</div>`;
+  }
+  eventsEl.innerHTML=evHtml||'<div style="color:var(--text-secondary)">本月無請假記錄</div>';
+}
+
+async function submitLeaveRequest(){
+  const leaveType=document.getElementById('leaveType').value;
+  const startDate=document.getElementById('leaveStart').value;
+  const endDate=document.getElementById('leaveEnd').value;
+  const period=document.getElementById('leavePeriod').value;
+  const deputyId=document.getElementById('leaveDeputy').value;
+  const reason=document.getElementById('leaveReason').value;
+
+  if(!startDate||!endDate){showToast('error','請選擇起始和結束日期');return;}
+  if(new Date(endDate)<new Date(startDate)){showToast('error','結束日期不能早於起始日期');return;}
+  if(!reason.trim()){showToast('error','請填寫請假事由');return;}
+
+  // Calculate days
+  const start=new Date(startDate),end=new Date(endDate);
+  let days=0;
+  for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
+    const dow=d.getDay();
+    if(dow!==0&&dow!==6) days++;
+  }
+  if(period!=='full') days=Math.max(days-0.5,0.5);
+
+  try{
+    const res=await fetch('/api/leave/submit',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({leaveType,startDate,endDate,period,days,deputyId,reason})
+    });
+    const data=await res.json();
+    if(res.ok&&data.success){
+      showToast('success',`請假單已送出（${days}天），等待主管核准。`);
+      document.getElementById('leaveReason').value='';
+      document.getElementById('leaveStart').value='';
+      document.getElementById('leaveEnd').value='';
+      loadLeaveData();
+    }else{
+      showToast('error',data.error||'送出失敗');
+    }
+  }catch(e){
+    showToast('error','送出失敗：'+e.message);
+  }
 }
 
 // ===== AI TOOL DEMOS =====
