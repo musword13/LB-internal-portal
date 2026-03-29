@@ -802,7 +802,7 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
           </div>
           <div class="hero-stat" onclick="navigateTo('approvals')">
             <div class="hero-stat-icon">&#x23F3;</div>
-            <div class="hero-stat-value">5</div>
+            <div class="hero-stat-value" id="dashboardApprovalCount">5</div>
             <div class="hero-stat-label">待簽核項目</div>
             <div class="hero-stat-trend down">&#x26A0; 需要處理</div>
           </div>
@@ -1113,101 +1113,22 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
       <!-- ===== APPROVALS ===== -->
       <div class="page" id="page-approvals">
         <div class="tabs">
-          <div class="tab active" data-tab="approval-pending">待我簽核 <span class="badge badge-danger" style="margin-left:4px">5</span></div>
+          <div class="tab active" data-tab="approval-pending">待我簽核 <span class="badge badge-danger" style="margin-left:4px" id="approvalPendingBadge">0</span></div>
           <div class="tab" data-tab="approval-sent">我送出的</div>
           <div class="tab" data-tab="approval-done">已完成</div>
         </div>
         <div class="tab-content active" id="tab-approval-pending">
-          <!-- Item 1 -->
-          <div class="card">
-            <div class="card-header"><div class="card-title">廠商付款 — 技術顧問費 (鼎新電腦)</div><span class="badge badge-warning">待簽核</span></div>
-            <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px">
-              <div><span style="color:var(--text-secondary);font-size:.8rem">申請人：</span><strong>林佩珊</strong></div>
-              <div><span style="color:var(--text-secondary);font-size:.8rem">部門：</span><strong>總務部</strong></div>
-              <div><span style="color:var(--text-secondary);font-size:.8rem">金額：</span><strong style="color:var(--accent)">NT$ 450,000</strong></div>
-              <div><span style="color:var(--text-secondary);font-size:.8rem">申請日期：</span><strong>2026-03-24</strong></div>
-            </div>
-            <div style="font-weight:600;font-size:.82rem;margin-bottom:8px">簽核流程</div>
-            <div class="flow-steps">
-              <div class="flow-step done"><div class="flow-dot">&#x2713;</div><div class="flow-label">林佩珊<br><span style="font-size:.63rem">申請人</span></div></div>
-              <div class="flow-step done"><div class="flow-dot">&#x2713;</div><div class="flow-label">張文宏<br><span style="font-size:.63rem">部門主管</span></div></div>
-              <div class="flow-step active"><div class="flow-dot">3</div><div class="flow-label">陳建宏<br><span style="font-size:.63rem">副理（您）</span></div></div>
-              <div class="flow-step"><div class="flow-dot">4</div><div class="flow-label">李副總<br><span style="font-size:.63rem">最終核准</span></div></div>
-            </div>
-            <div style="display:flex;gap:10px"><button class="btn btn-primary" onclick="approveItem(this)">&#x2705; 核准</button><button class="btn btn-danger" onclick="rejectItem(this)">&#x274C; 退回</button><button class="btn btn-outline">&#x1F4AC; 加註意見</button><button class="btn btn-outline">&#x1F4C4; 附件</button></div>
-          </div>
-          <!-- Item 2 -->
-          <div class="card">
-            <div class="card-header"><div class="card-title">IT 開發需求 — 信用卡系統升級</div><span class="badge badge-danger">急件</span></div>
-            <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px">
-              <div><span style="color:var(--text-secondary);font-size:.8rem">申請人：</span><strong>王志明</strong></div>
-              <div><span style="color:var(--text-secondary);font-size:.8rem">優先級：</span><strong style="color:var(--danger)">高</strong></div>
-              <div><span style="color:var(--text-secondary);font-size:.8rem">預估工時：</span><strong>320 hr</strong></div>
-              <div><span style="color:var(--text-secondary);font-size:.8rem">影響系統：</span><strong>信用卡系統</strong></div>
-            </div>
-            <div style="display:flex;gap:10px"><button class="btn btn-primary btn-sm" onclick="approveAndCreateJira(this)">&#x2705; 核准並建立 JIRA</button><button class="btn btn-danger btn-sm" onclick="rejectItem(this)">&#x274C; 退回</button><button class="btn btn-outline btn-sm">&#x1F4AC; 加註</button></div>
-          </div>
-          <!-- Item 3 -->
-          <div class="card">
-            <div class="card-header"><div class="card-title">請假申請 — 張雅琪 特休 3/28-3/30</div><span class="badge badge-info">待審</span></div>
-            <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px">
-              <div><span style="color:var(--text-secondary);font-size:.8rem">假別：</span><strong>特別休假</strong></div>
-              <div><span style="color:var(--text-secondary);font-size:.8rem">天數：</span><strong>3 天</strong></div>
-              <div><span style="color:var(--text-secondary);font-size:.8rem">代理人：</span><strong>李建安</strong></div>
-              <div><span style="color:var(--text-secondary);font-size:.8rem">剩餘特休：</span><strong>5 天</strong></div>
-            </div>
-            <div style="display:flex;gap:10px"><button class="btn btn-primary btn-sm" onclick="approveItem(this)">&#x2705; 核准</button><button class="btn btn-danger btn-sm" onclick="rejectItem(this)">&#x274C; 退回</button></div>
-          </div>
-          <!-- Item 4 -->
-          <div class="card">
-            <div class="card-header"><div class="card-title">合約續約審核 — IBM 主機維護合約</div><span class="badge badge-warning">待簽核</span></div>
-            <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px">
-              <div><span style="color:var(--text-secondary);font-size:.8rem">金額：</span><strong>NT$ 3,200,000/年</strong></div>
-              <div><span style="color:var(--text-secondary);font-size:.8rem">到期日：</span><strong style="color:var(--danger)">2026-04-15</strong></div>
-              <div><span style="color:var(--text-secondary);font-size:.8rem">漲幅：</span><strong>+3.2%</strong></div>
-            </div>
-            <div style="display:flex;gap:10px"><button class="btn btn-primary btn-sm" onclick="approveItem(this)">&#x2705; 核准</button><button class="btn btn-danger btn-sm" onclick="rejectItem(this)">&#x274C; 退回</button><button class="btn btn-outline btn-sm">&#x1F4AC; 查看比價</button></div>
-          </div>
-          <!-- Item 5 -->
-          <div class="card">
-            <div class="card-header"><div class="card-title">廠商付款 — 雲端服務月費 (AWS)</div><span class="badge badge-warning">待簽核</span></div>
-            <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px">
-              <div><span style="color:var(--text-secondary);font-size:.8rem">申請人：</span><strong>陳宏志</strong></div>
-              <div><span style="color:var(--text-secondary);font-size:.8rem">金額：</span><strong>USD 12,500</strong></div>
-              <div><span style="color:var(--text-secondary);font-size:.8rem">合約：</span><strong>C-2026-0085</strong></div>
-            </div>
-            <div style="display:flex;gap:10px"><button class="btn btn-primary btn-sm" onclick="approveItem(this)">&#x2705; 核准</button><button class="btn btn-danger btn-sm" onclick="rejectItem(this)">&#x274C; 退回</button></div>
-          </div>
+          <div id="approvalPendingList"><div style="text-align:center;padding:40px;color:var(--text-secondary)">載入中...</div></div>
         </div>
         <div class="tab-content" id="tab-approval-sent">
-          <div class="card">
-            <div class="card-header"><div class="card-title">我送出的簽核</div></div>
-            <div class="table-wrap"><table>
-              <thead><tr><th>類型</th><th>標題</th><th>送出日期</th><th>目前關卡</th><th>進度</th><th>狀態</th></tr></thead>
-              <tbody>
-                <tr><td>&#x1F4B0; 付款</td><td>Microsoft M365 授權年費</td><td>03/20</td><td>李副總</td><td>3/4</td><td><span class="badge badge-warning">簽核中</span></td></tr>
-                <tr><td>&#x1F4BB; IT需求</td><td>內網SSO整合Azure AD</td><td>03/18</td><td>—</td><td>4/4</td><td><span class="badge badge-success">已核准</span></td></tr>
-                <tr><td>&#x1F4B0; 付款</td><td>Fortinet 防火牆維護</td><td>03/15</td><td>—</td><td>3/3</td><td><span class="badge badge-success">已核准</span></td></tr>
-                <tr><td>&#x1F334; 請假</td><td>特休 3/10</td><td>03/07</td><td>—</td><td>2/2</td><td><span class="badge badge-success">已核准</span></td></tr>
-              </tbody>
-            </table></div>
-          </div>
+          <div id="approvalSentList"><div style="text-align:center;padding:40px;color:var(--text-secondary)">載入中...</div></div>
         </div>
         <div class="tab-content" id="tab-approval-done">
           <div class="card">
-            <div class="card-header"><div class="card-title">已完成簽核歷史</div><div style="display:flex;gap:8px"><select class="form-select" style="width:130px;padding:6px 10px"><option>全部類型</option><option>付款</option><option>IT需求</option><option>請假</option><option>合約</option></select><input class="form-input" type="month" style="width:160px;padding:6px 10px" value="2026-03"></div></div>
+            <div class="card-header"><div class="card-title">已完成簽核歷史</div><div style="display:flex;gap:8px"><select class="form-select" style="width:130px;padding:6px 10px" id="approvalHistoryType" onchange="loadApprovalHistory()"><option value="">全部類型</option><option value="payment">付款</option><option value="it-request">IT需求</option><option value="leave">請假</option><option value="contract">合約</option></select><input class="form-input" type="month" style="width:160px;padding:6px 10px" id="approvalHistoryMonth" value="2026-03" onchange="loadApprovalHistory()"></div></div>
             <div class="table-wrap"><table>
-              <thead><tr><th>類型</th><th>標題</th><th>申請人</th><th>完成日期</th><th>我的決定</th><th>結果</th></tr></thead>
-              <tbody>
-                <tr><td>&#x1F4B0;</td><td>趨勢科技 資安軟體授權</td><td>王志明</td><td>03/23</td><td><span class="badge badge-success">核准</span></td><td>已付款</td></tr>
-                <tr><td>&#x1F4B0;</td><td>中華電信 專線租賃 3月</td><td>張雅琪</td><td>03/21</td><td><span class="badge badge-success">核准</span></td><td>已付款</td></tr>
-                <tr><td>&#x1F4BB;</td><td>OTP 驗證機制強化</td><td>李建安</td><td>03/18</td><td><span class="badge badge-success">核准</span></td><td>已上線</td></tr>
-                <tr><td>&#x1F334;</td><td>李建安 特休 3/14</td><td>李建安</td><td>03/12</td><td><span class="badge badge-success">核准</span></td><td>—</td></tr>
-                <tr><td>&#x1F4B0;</td><td>鼎新電腦 ERP客製開發</td><td>林佩珊</td><td>03/10</td><td><span class="badge badge-success">核准</span></td><td>已付款</td></tr>
-                <tr><td>&#x1F4BB;</td><td>報表匯出效能優化</td><td>陳宏志</td><td>03/05</td><td><span class="badge badge-success">核准</span></td><td>已上線</td></tr>
-                <tr><td>&#x1F4B0;</td><td>AWS 雲端服務 2月</td><td>陳宏志</td><td>02/28</td><td><span class="badge badge-success">核准</span></td><td>已付款</td></tr>
-                <tr><td>&#x1F4C4;</td><td>趨勢科技 合約續約</td><td>劉大衛</td><td>02/15</td><td><span class="badge badge-success">核准</span></td><td>已簽約</td></tr>
-              </tbody>
+              <thead><tr><th>類型</th><th>標題</th><th>申請人</th><th>完成日期</th><th>我的決定</th></tr></thead>
+              <tbody id="approvalHistoryBody"><tr><td colspan="5" style="text-align:center;color:var(--text-secondary)">載入中...</td></tr></tbody>
             </table></div>
           </div>
         </div>
@@ -1312,40 +1233,7 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
                 <button class="btn btn-primary btn-sm" onclick="switchToTab('ann-new')">+ 發布公告</button>
               </div>
             </div>
-            <div id="annList">
-              <div class="ann-item" data-cat="緊急" style="border-left:4px solid var(--danger);background:#fff5f5;padding:16px;border-radius:0 10px 10px 0;margin-bottom:16px">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap"><span class="badge badge-danger">緊急</span><strong>系統維護公告 — 核心系統 3/29 (六) 02:00-06:00 維護</strong><span style="margin-left:auto;font-size:.7rem;color:var(--text-secondary)">&#x1F4CC; 置頂</span></div>
-                <div style="font-size:.8rem;color:var(--text-secondary)">資訊部 | 陳建宏 | 2026-03-25 09:00 | 閱讀 152/186 人 (82%)</div>
-                <p style="margin-top:8px;font-size:.88rem">維護期間核心銀行系統、網路銀行暫停服務。請各單位提前做好準備。IT Helpdesk 分機 9999。</p>
-                <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="showToast('info','已標記已讀')">&#x2705; 標記已讀</button><button class="btn btn-ghost btn-sm" onclick="showToast('info','已轉發至 Teams')">&#x1F4E8; 轉發 Teams</button><button class="btn btn-ghost btn-sm">&#x1F4CE; 附件 (1)</button></div>
-              </div>
-              <div class="ann-item" data-cat="全行" style="border-left:4px solid var(--info);padding:16px;background:#f0f7ff;border-radius:0 10px 10px 0;margin-bottom:16px">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="badge badge-info">全行</span><strong>2026 年第一季營運會議紀要已公布</strong></div>
-                <div style="font-size:.8rem;color:var(--text-secondary)">總經理室 | 李副總 | 2026-03-24 14:30 | 閱讀 89/186 人 (48%)</div>
-                <p style="margin-top:8px;font-size:.88rem">Q1 營運會議紀要已上傳文件庫，請各部門主管於本週五前完成檢閱。</p>
-                <div style="margin-top:10px;display:flex;gap:8px"><button class="btn btn-ghost btn-sm">&#x2705; 標記已讀</button><button class="btn btn-ghost btn-sm">&#x1F4E8; 轉發</button><button class="btn btn-ghost btn-sm">&#x1F4CE; 附件 (2)</button></div>
-              </div>
-              <div class="ann-item" data-cat="人事" style="border-left:4px solid var(--line-green);padding:16px;background:var(--line-green-light);border-radius:0 10px 10px 0;margin-bottom:16px">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="badge badge-success">人事</span><strong>2026 年員工旅遊活動報名開始</strong></div>
-                <div style="font-size:.8rem;color:var(--text-secondary)">人力資源部 | 黃美玲 | 2026-03-22 10:00 | 閱讀 203/186 人 (100%+)</div>
-                <p style="margin-top:8px;font-size:.88rem">今年員工旅遊 5/16-5/18，花蓮三日遊。請於 4/10 前完成報名。</p>
-                <div style="margin-top:10px;display:flex;gap:8px"><button class="btn btn-ghost btn-sm">&#x2705; 已讀</button><button class="btn btn-ghost btn-sm">&#x1F4E8; 轉發</button></div>
-              </div>
-              <div class="ann-item" data-cat="教育訓練" style="border-left:4px solid var(--purple);padding:16px;background:#faf5ff;border-radius:0 10px 10px 0;margin-bottom:16px">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="badge badge-purple">教育訓練</span><strong>資訊安全意識培訓 — 4/2 (三) 14:00 必修</strong></div>
-                <div style="font-size:.8rem;color:var(--text-secondary)">風管部 | 劉大衛 | 2026-03-21 11:00 | 閱讀 134/186 人 (72%)</div>
-                <p style="margin-top:8px;font-size:.88rem">依金管會規定，全行同仁需完成年度資安意識培訓。線上課程連結將於 4/1 開放。</p>
-                <div style="margin-top:10px;display:flex;gap:8px"><button class="btn btn-ghost btn-sm">&#x2705; 標記已讀</button><button class="btn btn-ghost btn-sm">&#x1F4E8; 轉發</button></div>
-              </div>
-              <div class="ann-item" data-cat="行政" style="border-left:4px solid #cbd5e1;padding:16px;border-radius:0 10px 10px 0;margin-bottom:16px">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="badge badge-gray">行政</span><strong>B1 停車場 4/1 起調整車位編號</strong></div>
-                <div style="font-size:.8rem;color:var(--text-secondary)">總務部 | 張文宏 | 2026-03-20 16:00 | 閱讀 67/186 人 (36%)</div>
-              </div>
-              <div class="ann-item" data-cat="行政" style="border-left:4px solid #cbd5e1;padding:16px;border-radius:0 10px 10px 0;margin-bottom:16px">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="badge badge-gray">行政</span><strong>4 月份慶生會：4/11 (五) 15:00 交誼廳</strong></div>
-                <div style="font-size:.8rem;color:var(--text-secondary)">人力資源部 | 黃美玲 | 2026-03-19 09:00 | 閱讀 45/186 人 (24%)</div>
-              </div>
-            </div>
+            <div id="annList"><div style="text-align:center;padding:40px;color:var(--text-secondary)">載入中...</div></div>
           </div>
         </div>
 
@@ -1657,146 +1545,32 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
       <div class="page" id="page-meeting-rooms">
         <div class="card">
           <div class="card-header">
-            <div><div class="card-title">會議室預約系統</div><div class="card-subtitle" id="meetingDate">2026 年 3 月 27 日 (五)</div></div>
+            <div><div class="card-title">會議室預約系統</div><div class="card-subtitle" id="meetingDate"></div></div>
             <div style="display:flex;gap:8px;align-items:center">
-              <select class="form-select" style="width:100px" id="roomFloorFilter" onchange="filterRoomFloor()"><option value="all">全部樓層</option><option value="3">3 樓</option><option value="2">2 樓</option></select>
-              <button class="btn btn-outline btn-sm" onclick="changeDate(-1)">&#x2B05;</button><button class="btn btn-primary btn-sm">今天</button><button class="btn btn-outline btn-sm" onclick="changeDate(1)">&#x27A1;</button>
+              <select class="form-select" style="width:100px" id="roomFloorFilter" onchange="loadRoomBookings()"><option value="all">全部樓層</option><option value="3">3 樓</option><option value="2">2 樓</option></select>
+              <button class="btn btn-outline btn-sm" onclick="changeRoomDate(-1)">&#x2B05;</button><button class="btn btn-primary btn-sm" onclick="roomViewDate=new Date().toISOString().slice(0,10);loadRoomBookings()">今天</button><button class="btn btn-outline btn-sm" onclick="changeRoomDate(1)">&#x27A1;</button>
             </div>
           </div>
-
-          <!-- 3F 會議室 -->
-          <div class="room-floor-section" data-floor="3">
-            <div style="font-weight:700;font-size:1rem;margin-bottom:12px;color:var(--line-green)">&#x1F3E2; 3 樓會議室</div>
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">3-1 <span style="font-size:.75rem;color:var(--text-secondary)">(20人 | 投影機+視訊)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-10:00</div><div class="room-status booked">Q1 營運會議 — 李副總</div></div>
-                <div class="room-slot"><div class="room-time">10:00-11:00</div><div class="room-status booked">Q1 營運會議 — 李副總</div></div>
-                <div class="room-slot"><div class="room-time">11:00-12:00</div><div class="room-status free" onclick="quickBook('3-1','11:00-12:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">13:00-14:00</div><div class="room-status booked">部門周會 — 資訊部</div></div>
-                <div class="room-slot"><div class="room-time">14:00-15:00</div><div class="room-status free" onclick="quickBook('3-1','14:00-15:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">15:00-17:00</div><div class="room-status booked">專案檢討 — 王志明</div></div>
-              </div>
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">3-2 <span style="font-size:.75rem;color:var(--text-secondary)">(12人 | 投影機)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-10:00</div><div class="room-status free" onclick="quickBook('3-2','09:00-10:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">10:00-11:00</div><div class="room-status booked">廠商拜訪 — 鼎新電腦</div></div>
-                <div class="room-slot"><div class="room-time">11:00-12:00</div><div class="room-status free" onclick="quickBook('3-2','11:00-12:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">13:00-15:00</div><div class="room-status booked">資安演練 — 風管部</div></div>
-                <div class="room-slot"><div class="room-time">15:00-16:00</div><div class="room-status free" onclick="quickBook('3-2','15:00-16:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">16:00-17:00</div><div class="room-status free" onclick="quickBook('3-2','16:00-17:00')">&#x2705; 可預約</div></div>
-              </div>
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">3-3 <span style="font-size:.75rem;color:var(--text-secondary)">(8人 | 白板+視訊)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-10:00</div><div class="room-status booked">1-on-1 — 陳建宏</div></div>
-                <div class="room-slot"><div class="room-time">10:00-12:00</div><div class="room-status free" onclick="quickBook('3-3','10:00-12:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">13:00-14:00</div><div class="room-status booked">面試 — HR</div></div>
-                <div class="room-slot"><div class="room-time">14:00-15:00</div><div class="room-status free" onclick="quickBook('3-3','14:00-15:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">15:00-17:00</div><div class="room-status free" onclick="quickBook('3-3','15:00-17:00')">&#x2705; 可預約</div></div>
-              </div>
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">3-4 <span style="font-size:.75rem;color:var(--text-secondary)">(6人 | 白板)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-12:00</div><div class="room-status free" onclick="quickBook('3-4','09:00-12:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">13:00-14:00</div><div class="room-status booked">Sprint Review — Scrum Team</div></div>
-                <div class="room-slot"><div class="room-time">14:00-15:00</div><div class="room-status booked">Sprint Review — Scrum Team</div></div>
-                <div class="room-slot"><div class="room-time">15:00-17:00</div><div class="room-status free" onclick="quickBook('3-4','15:00-17:00')">&#x2705; 可預約</div></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 2F 會議室 -->
-          <div class="room-floor-section" data-floor="2" style="margin-top:24px">
-            <div style="font-weight:700;font-size:1rem;margin-bottom:12px;color:var(--line-blue)">&#x1F3E2; 2 樓會議室</div>
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">2-2 <span style="font-size:.75rem;color:var(--text-secondary)">(6人)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-10:00</div><div class="room-status booked">晨會 — 法遵部</div></div>
-                <div class="room-slot"><div class="room-time">10:00-12:00</div><div class="room-status free" onclick="quickBook('2-2','10:00-12:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">13:00-17:00</div><div class="room-status free" onclick="quickBook('2-2','13:00-17:00')">&#x2705; 可預約</div></div>
-              </div>
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">2-3 <span style="font-size:.75rem;color:var(--text-secondary)">(6人)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-12:00</div><div class="room-status free" onclick="quickBook('2-3','09:00-12:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">13:00-14:00</div><div class="room-status booked">1-on-1 — 林佩珊</div></div>
-                <div class="room-slot"><div class="room-time">14:00-17:00</div><div class="room-status free" onclick="quickBook('2-3','14:00-17:00')">&#x2705; 可預約</div></div>
-              </div>
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">2-4 <span style="font-size:.75rem;color:var(--text-secondary)">(8人)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-11:00</div><div class="room-status booked">產品需求會議 — PM</div></div>
-                <div class="room-slot"><div class="room-time">11:00-12:00</div><div class="room-status free" onclick="quickBook('2-4','11:00-12:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">13:00-15:00</div><div class="room-status booked">UX Review — 設計部</div></div>
-                <div class="room-slot"><div class="room-time">15:00-17:00</div><div class="room-status free" onclick="quickBook('2-4','15:00-17:00')">&#x2705; 可預約</div></div>
-              </div>
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">2-5 <span style="font-size:.75rem;color:var(--text-secondary)">(8人)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-10:00</div><div class="room-status free" onclick="quickBook('2-5','09:00-10:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">10:00-12:00</div><div class="room-status booked">教育訓練 — HR</div></div>
-                <div class="room-slot"><div class="room-time">13:00-17:00</div><div class="room-status free" onclick="quickBook('2-5','13:00-17:00')">&#x2705; 可預約</div></div>
-              </div>
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">2-6 <span style="font-size:.75rem;color:var(--text-secondary)">(10人 | 投影機)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-10:00</div><div class="room-status booked">Standup — 開發團隊A</div></div>
-                <div class="room-slot"><div class="room-time">10:00-12:00</div><div class="room-status free" onclick="quickBook('2-6','10:00-12:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">13:00-14:00</div><div class="room-status booked">廠商 Demo — AWS</div></div>
-                <div class="room-slot"><div class="room-time">14:00-17:00</div><div class="room-status free" onclick="quickBook('2-6','14:00-17:00')">&#x2705; 可預約</div></div>
-              </div>
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">2-7 <span style="font-size:.75rem;color:var(--text-secondary)">(10人 | 投影機)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-12:00</div><div class="room-status booked">系統架構討論 — Infra</div></div>
-                <div class="room-slot"><div class="room-time">13:00-15:00</div><div class="room-status free" onclick="quickBook('2-7','13:00-15:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">15:00-17:00</div><div class="room-status booked">Code Review — 後端</div></div>
-              </div>
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">2-8 <span style="font-size:.75rem;color:var(--text-secondary)">(6人)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-17:00</div><div class="room-status free" onclick="quickBook('2-8','09:00-17:00')">&#x2705; 全天可預約</div></div>
-              </div>
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">2-9 <span style="font-size:.75rem;color:var(--text-secondary)">(6人)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-11:00</div><div class="room-status free" onclick="quickBook('2-9','09:00-11:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">11:00-12:00</div><div class="room-status booked">面試 — HR</div></div>
-                <div class="room-slot"><div class="room-time">13:00-17:00</div><div class="room-status free" onclick="quickBook('2-9','13:00-17:00')">&#x2705; 可預約</div></div>
-              </div>
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">2-10 <span style="font-size:.75rem;color:var(--text-secondary)">(12人 | 視訊)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-10:00</div><div class="room-status booked">跨部門會議 — 營運部</div></div>
-                <div class="room-slot"><div class="room-time">10:00-11:00</div><div class="room-status booked">跨部門會議 — 營運部</div></div>
-                <div class="room-slot"><div class="room-time">11:00-12:00</div><div class="room-status free" onclick="quickBook('2-10','11:00-12:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">13:00-17:00</div><div class="room-status free" onclick="quickBook('2-10','13:00-17:00')">&#x2705; 可預約</div></div>
-              </div>
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">2-11 <span style="font-size:.75rem;color:var(--text-secondary)">(8人)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-12:00</div><div class="room-status free" onclick="quickBook('2-11','09:00-12:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">13:00-14:00</div><div class="room-status booked">週報 — 風管部</div></div>
-                <div class="room-slot"><div class="room-time">14:00-17:00</div><div class="room-status free" onclick="quickBook('2-11','14:00-17:00')">&#x2705; 可預約</div></div>
-              </div>
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">2-12 <span style="font-size:.75rem;color:var(--text-secondary)">(6人)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-17:00</div><div class="room-status free" onclick="quickBook('2-12','09:00-17:00')">&#x2705; 全天可預約</div></div>
-              </div>
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">2-13 <span style="font-size:.75rem;color:var(--text-secondary)">(15人 | 投影機+視訊)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-10:00</div><div class="room-status free" onclick="quickBook('2-13','09:00-10:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">10:00-12:00</div><div class="room-status booked">董事會預備會議</div></div>
-                <div class="room-slot"><div class="room-time">13:00-15:00</div><div class="room-status booked">客戶簡報 — 業務部</div></div>
-                <div class="room-slot"><div class="room-time">15:00-17:00</div><div class="room-status free" onclick="quickBook('2-13','15:00-17:00')">&#x2705; 可預約</div></div>
-              </div>
-              <div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">2-14 <span style="font-size:.75rem;color:var(--text-secondary)">(20人 | 投影機+視訊+白板)</span></div>
-                <div class="room-slot"><div class="room-time">09:00-12:00</div><div class="room-status booked">全行月會 — 總經理</div></div>
-                <div class="room-slot"><div class="room-time">13:00-14:00</div><div class="room-status free" onclick="quickBook('2-14','13:00-14:00')">&#x2705; 可預約</div></div>
-                <div class="room-slot"><div class="room-time">14:00-16:00</div><div class="room-status booked">資安教育訓練 — 全行</div></div>
-                <div class="room-slot"><div class="room-time">16:00-17:00</div><div class="room-status free" onclick="quickBook('2-14','16:00-17:00')">&#x2705; 可預約</div></div>
-              </div>
-            </div>
-          </div>
+          <div id="roomGrid"><div style="text-align:center;padding:40px;color:var(--text-secondary)">載入中...</div></div>
         </div>
 
         <!-- 快速預約 -->
         <div class="card">
           <div class="card-header"><div class="card-title">快速預約</div></div>
           <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
-            <div class="form-group" style="margin:0"><label class="form-label">樓層</label><select class="form-select" style="width:90px" id="bookFloor" onchange="updateBookRoomOptions()"><option value="3">3 樓</option><option value="2">2 樓</option></select></div>
-            <div class="form-group" style="margin:0"><label class="form-label">會議室</label><select class="form-select" style="width:140px" id="bookRoom"><option>3-1</option><option>3-2</option><option>3-3</option><option>3-4</option></select></div>
-            <div class="form-group" style="margin:0"><label class="form-label">日期</label><input class="form-input" type="date" style="width:160px" value="2026-03-27"></div>
-            <div class="form-group" style="margin:0"><label class="form-label">時段</label><select class="form-select" style="width:180px" id="bookTime"><option>09:00-10:00</option><option>10:00-11:00</option><option>11:00-12:00</option><option>13:00-14:00</option><option>14:00-15:00</option><option>15:00-16:00</option><option>16:00-17:00</option></select></div>
+            <div class="form-group" style="margin:0"><label class="form-label">會議室</label><select class="form-select" style="width:140px" id="bookRoom"></select></div>
+            <div class="form-group" style="margin:0"><label class="form-label">日期</label><input class="form-input" type="date" style="width:160px" id="bookDate"></div>
+            <div class="form-group" style="margin:0"><label class="form-label">開始</label><select class="form-select" style="width:110px" id="bookStart"><option>09:00</option><option>10:00</option><option>11:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option></select></div>
+            <div class="form-group" style="margin:0"><label class="form-label">結束</label><select class="form-select" style="width:110px" id="bookEnd"><option>10:00</option><option>11:00</option><option>12:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option></select></div>
             <div class="form-group" style="margin:0"><label class="form-label">會議主題</label><input class="form-input" style="width:200px" placeholder="輸入主題" id="bookSubject"></div>
-            <div class="form-group" style="margin:0"><label class="form-label">與會人員</label><input class="form-input" style="width:200px" placeholder="搜尋姓名加入"></div>
             <button class="btn btn-primary" onclick="bookMeetingRoom()">預約</button>
           </div>
         </div>
 
-        <!-- 會議室總覽統計 -->
+        <!-- 統計 -->
         <div class="card">
           <div class="card-header"><div class="card-title">&#x1F4CA; 今日會議室使用統計</div></div>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
-            <div style="text-align:center;padding:16px;background:var(--bg);border-radius:10px"><div style="font-size:2rem;font-weight:800;color:var(--line-green)">17</div><div style="font-size:.8rem;color:var(--text-secondary)">總會議室數</div></div>
-            <div style="text-align:center;padding:16px;background:var(--bg);border-radius:10px"><div style="font-size:2rem;font-weight:800;color:var(--accent)">11</div><div style="font-size:.8rem;color:var(--text-secondary)">今日有預約</div></div>
-            <div style="text-align:center;padding:16px;background:var(--bg);border-radius:10px"><div style="font-size:2rem;font-weight:800;color:var(--success)">2</div><div style="font-size:.8rem;color:var(--text-secondary)">全天空閒</div></div>
-            <div style="text-align:center;padding:16px;background:var(--bg);border-radius:10px"><div style="font-size:2rem;font-weight:800;color:var(--line-blue)">64%</div><div style="font-size:.8rem;color:var(--text-secondary)">今日使用率</div></div>
-          </div>
+          <div id="roomStats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px"></div>
         </div>
       </div>
 
@@ -2471,6 +2245,8 @@ async function checkSession() {
       const roleEl = document.querySelector('.user-role');
       if (nameEl) nameEl.textContent = user.name;
       if (roleEl) roleEl.textContent = `${user.dept} / ${user.title}`;
+      // Load approval stats for dashboard
+      loadDashboardApprovalCount();
     }
   } catch(e) { /* not logged in, show login screen */ }
 }
@@ -2498,6 +2274,10 @@ function navigateTo(page){
   document.getElementById('pageBreadcrumb').textContent=t[1];
   window.scrollTo(0,0);
   if(page==='leave') loadLeaveData();
+  if(page==='directory') loadDirectory();
+  if(page==='announcements') loadAnnouncements();
+  if(page==='meeting-rooms') loadRoomBookings();
+  if(page==='approvals') loadApprovalData();
 }
 document.querySelectorAll('.nav-item[data-page]').forEach(i=>{i.addEventListener('click',()=>navigateTo(i.dataset.page))});
 
@@ -2611,27 +2391,188 @@ async function confirmContractAndCreatePayment(){
 }
 
 // ===== APPROVALS =====
-function approveItem(btn){
-  const card=btn.closest('.card');
-  card.style.opacity='0.5';card.style.pointerEvents='none';
-  showToast('success','已核准！已透過 Teams 通知下一位簽核人');
-  setTimeout(()=>{card.style.display='none';updateApprovalCount(-1);},800);
+const typeIcons = { payment: '&#x1F4B0;', 'it-request': '&#x1F4BB;', leave: '&#x1F334;', contract: '&#x1F4C4;', expense: '&#x1F4B3;' };
+const typeLabels = { payment: '付款', 'it-request': 'IT需求', leave: '請假', contract: '合約', expense: '費用' };
+
+async function loadApprovalData() {
+  try { await Promise.all([loadApprovalPending(), loadApprovalSent(), loadApprovalHistory()]); } catch(e) { console.error('Approval load error:', e); }
 }
-function rejectItem(btn){
-  const card=btn.closest('.card');
-  card.style.opacity='0.5';card.style.pointerEvents='none';
-  showToast('error','已退回，已透過 Teams 通知申請人');
-  setTimeout(()=>{card.style.display='none';updateApprovalCount(-1);},800);
+
+async function loadApprovalPending() {
+  try {
+    const res = await fetch('/api/approvals/pending');
+    if (!res.ok) throw new Error();
+    const items = await res.json();
+    const container = document.getElementById('approvalPendingList');
+    document.getElementById('approvalPendingBadge').textContent = items.length;
+    // Update nav badge
+    const navBadge = document.querySelector('.nav-item[data-page="approvals"] .nav-badge');
+    if (navBadge) { navBadge.textContent = items.length; navBadge.style.display = items.length > 0 ? '' : 'none'; }
+    const mobileBadge = document.querySelector('.mobile-nav-item[data-page="approvals"] .mobile-nav-badge');
+    if (mobileBadge) { mobileBadge.textContent = items.length; mobileBadge.style.display = items.length > 0 ? '' : 'none'; }
+
+    if (items.length === 0) {
+      container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">&#x2705; 目前沒有待簽核項目</div>';
+      return;
+    }
+    container.innerHTML = items.map(a => {
+      const priorityBadge = a.priority === 'urgent' ? '<span class="badge badge-danger">急件</span>'
+        : a.priority === 'high' ? '<span class="badge badge-warning">高優先</span>'
+        : '<span class="badge badge-warning">待簽核</span>';
+      const amountStr = a.amount ? `<div><span style="color:var(--text-secondary);font-size:.8rem">金額：</span><strong style="color:var(--accent)">${a.currency === 'USD' ? 'USD ' : 'NT$ '}${Number(a.amount).toLocaleString()}</strong></div>` : '';
+      const dateStr = new Date(a.created_at).toLocaleDateString('zh-TW');
+      const steps = a.steps || [];
+      const flowHtml = steps.map((s, i) => {
+        const cls = s.status === 'approved' ? 'done' : (s.step_order === a.current_step ? 'active' : '');
+        const dot = s.status === 'approved' ? '&#x2713;' : s.step_order;
+        const youLabel = s.approver_id === (state.user?.id) && s.status === 'pending' ? '（您）' : '';
+        return `<div class="flow-step ${cls}"><div class="flow-dot">${dot}</div><div class="flow-label">${s.approver_name}<br><span style="font-size:.63rem">${s.role_label}${youLabel}</span></div></div>`;
+      }).join('');
+      return `<div class="card" id="approval-card-${a.id}">
+        <div class="card-header"><div class="card-title">${a.title}</div>${priorityBadge}</div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px">
+          <div><span style="color:var(--text-secondary);font-size:.8rem">申請人：</span><strong>${a.applicant_name}</strong></div>
+          <div><span style="color:var(--text-secondary);font-size:.8rem">部門：</span><strong>${a.applicant_dept}</strong></div>
+          ${amountStr}
+          <div><span style="color:var(--text-secondary);font-size:.8rem">申請日期：</span><strong>${dateStr}</strong></div>
+        </div>
+        ${a.description ? `<div style="font-size:.82rem;color:var(--text-secondary);margin-bottom:12px">${a.description}</div>` : ''}
+        <div style="font-weight:600;font-size:.82rem;margin-bottom:8px">簽核流程</div>
+        <div class="flow-steps">${flowHtml}</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="approveItem(${a.id})">&#x2705; 核准</button>
+          <button class="btn btn-danger" onclick="rejectItem(${a.id})">&#x274C; 退回</button>
+          <input class="form-input" placeholder="加註意見（選填）" style="flex:1;min-width:150px;padding:8px 12px" id="approval-comment-${a.id}">
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('approvalPendingList').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">載入失敗，請重試</div>';
+  }
 }
-function approveAndCreateJira(btn){
-  const card=btn.closest('.card');
-  card.style.opacity='0.5';card.style.pointerEvents='none';
-  showToast('success','已核准！JIRA BANK-IT-046 已建立，Teams 已通知開發團隊');
-  setTimeout(()=>{card.style.display='none';updateApprovalCount(-1);},800);
+
+async function loadApprovalSent() {
+  try {
+    const res = await fetch('/api/approvals/sent');
+    if (!res.ok) throw new Error();
+    const items = await res.json();
+    const container = document.getElementById('approvalSentList');
+    if (items.length === 0) {
+      container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">尚無送出的簽核</div>';
+      return;
+    }
+    container.innerHTML = `<div class="card"><div class="card-header"><div class="card-title">我送出的簽核</div></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>類型</th><th>標題</th><th>送出日期</th><th>目前關卡</th><th>進度</th><th>狀態</th></tr></thead>
+        <tbody>${items.map(a => {
+          const steps = a.steps || [];
+          const currentApprover = steps.find(s => s.step_order === a.current_step);
+          const approvedCount = steps.filter(s => s.status === 'approved').length;
+          const statusBadge = a.status === 'approved' ? '<span class="badge badge-success">已核准</span>'
+            : a.status === 'rejected' ? '<span class="badge badge-danger">已退回</span>'
+            : '<span class="badge badge-warning">簽核中</span>';
+          const dateStr = new Date(a.created_at).toLocaleDateString('zh-TW', {month:'2-digit',day:'2-digit'});
+          return `<tr>
+            <td>${typeIcons[a.type] || ''} ${typeLabels[a.type] || a.type}</td>
+            <td>${a.title}</td>
+            <td>${dateStr}</td>
+            <td>${a.status === 'pending' && currentApprover ? currentApprover.approver_name : '—'}</td>
+            <td>${approvedCount}/${a.total_steps}</td>
+            <td>${statusBadge}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div></div>`;
+  } catch(e) {
+    document.getElementById('approvalSentList').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">載入失敗</div>';
+  }
 }
+
+async function loadApprovalHistory() {
+  try {
+    const typeVal = document.getElementById('approvalHistoryType')?.value || '';
+    const monthVal = document.getElementById('approvalHistoryMonth')?.value || '';
+    const params = new URLSearchParams();
+    if (typeVal) params.set('type', typeVal);
+    if (monthVal) params.set('month', monthVal);
+    const res = await fetch('/api/approvals/history?' + params.toString());
+    if (!res.ok) throw new Error();
+    const items = await res.json();
+    const tbody = document.getElementById('approvalHistoryBody');
+    if (items.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary)">此期間無簽核紀錄</td></tr>';
+      return;
+    }
+    tbody.innerHTML = items.map(a => {
+      const dateStr = a.acted_at ? new Date(a.acted_at).toLocaleDateString('zh-TW', {month:'2-digit',day:'2-digit'}) : '—';
+      const decisionBadge = a.my_decision === 'approved' ? '<span class="badge badge-success">核准</span>' : '<span class="badge badge-danger">退回</span>';
+      return `<tr>
+        <td>${typeIcons[a.type] || ''}</td>
+        <td>${a.title}</td>
+        <td>${a.applicant_name}</td>
+        <td>${dateStr}</td>
+        <td>${decisionBadge}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('approvalHistoryBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary)">載入失敗</td></tr>';
+  }
+}
+
+async function approveItem(id) {
+  const comment = document.getElementById('approval-comment-' + id)?.value || '';
+  const card = document.getElementById('approval-card-' + id);
+  if (card) { card.style.opacity = '0.5'; card.style.pointerEvents = 'none'; }
+  try {
+    const res = await fetch(`/api/approvals/${id}/approve`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comment })
+    });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
+    showToast('success', '已核准！已透過 Teams 通知下一位簽核人');
+    setTimeout(() => { if (card) card.style.display = 'none'; }, 600);
+    loadApprovalPending();
+  } catch(e) {
+    showToast('error', e.message || '簽核失敗');
+    if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; }
+  }
+}
+
+async function rejectItem(id) {
+  const comment = document.getElementById('approval-comment-' + id)?.value || '';
+  const card = document.getElementById('approval-card-' + id);
+  if (card) { card.style.opacity = '0.5'; card.style.pointerEvents = 'none'; }
+  try {
+    const res = await fetch(`/api/approvals/${id}/reject`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comment })
+    });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
+    showToast('error', '已退回，已透過 Teams 通知申請人');
+    setTimeout(() => { if (card) card.style.display = 'none'; }, 600);
+    loadApprovalPending();
+  } catch(e) {
+    showToast('error', e.message || '退回失敗');
+    if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; }
+  }
+}
+
 function updateApprovalCount(delta){
   const badge=document.querySelector('.nav-item[data-page="approvals"] .nav-badge');
   if(badge){let n=parseInt(badge.textContent)+delta;badge.textContent=Math.max(0,n);if(n<=0)badge.style.display='none';}
+}
+
+async function loadDashboardApprovalCount() {
+  try {
+    const res = await fetch('/api/approvals/stats');
+    if (!res.ok) return;
+    const stats = await res.json();
+    const el = document.getElementById('dashboardApprovalCount');
+    if (el) el.textContent = stats.pending;
+    const navBadge = document.querySelector('.nav-item[data-page="approvals"] .nav-badge');
+    if (navBadge) { navBadge.textContent = stats.pending; navBadge.style.display = stats.pending > 0 ? '' : 'none'; }
+    const mobileBadge = document.querySelector('.mobile-nav-item[data-page="approvals"] .mobile-nav-badge');
+    if (mobileBadge) { mobileBadge.textContent = stats.pending; mobileBadge.style.display = stats.pending > 0 ? '' : 'none'; }
+  } catch(e) {}
 }
 
 // ===== IT REQUEST =====
@@ -2790,30 +2731,122 @@ if(document.readyState==='complete')_patchMobileNav();
 else window.addEventListener('load',_patchMobileNav);
 
 // ===== MEETING ROOM =====
-function quickBook(room,time){
-  const floor=room.startsWith('3')?'3':'2';
-  document.getElementById('bookFloor').value=floor;
-  updateBookRoomOptions();
+// ===== MEETING ROOMS =====
+let roomViewDate=new Date().toISOString().slice(0,10);
+let allRooms=[], allBookings=[];
+
+async function loadRoomBookings(){
+  try{
+    const [roomRes,bookRes]=await Promise.all([fetch('/api/rooms'),fetch(`/api/rooms/bookings?date=${roomViewDate}`)]);
+    if(roomRes.ok) allRooms=await roomRes.json();
+    if(bookRes.ok) allBookings=await bookRes.json();
+    // Update date display
+    const d=new Date(roomViewDate+'T00:00:00');
+    const days=['日','一','二','三','四','五','六'];
+    document.getElementById('meetingDate').textContent=`${d.getFullYear()} 年 ${d.getMonth()+1} 月 ${d.getDate()} 日 (${days[d.getDay()]})`;
+    document.getElementById('bookDate').value=roomViewDate;
+    // Populate room select
+    const sel=document.getElementById('bookRoom');
+    sel.innerHTML=allRooms.map(r=>`<option value="${r.id}">${r.id} (${r.capacity}人)</option>`).join('');
+    renderRoomGrid();
+  }catch(e){console.error('Room load error:',e);}
+}
+
+function changeRoomDate(delta){
+  const d=new Date(roomViewDate+'T00:00:00');
+  d.setDate(d.getDate()+delta);
+  roomViewDate=d.toISOString().slice(0,10);
+  loadRoomBookings();
+}
+
+function renderRoomGrid(){
+  const floorFilter=document.getElementById('roomFloorFilter').value;
+  const slots=['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'];
+  const bookingMap={};
+  for(const b of allBookings){
+    if(!bookingMap[b.room_id]) bookingMap[b.room_id]=[];
+    bookingMap[b.room_id].push(b);
+  }
+
+  const floors=[3,2];
+  const floorColors={3:'var(--line-green)',2:'var(--line-blue)'};
+  let html='';
+  let totalRooms=0, bookedRooms=0, freeAll=0, totalSlots=0, bookedSlots=0;
+
+  for(const floor of floors){
+    if(floorFilter!=='all'&&parseInt(floorFilter)!==floor) continue;
+    const floorRooms=allRooms.filter(r=>r.floor===floor);
+    if(!floorRooms.length) continue;
+    html+=`<div style="margin-top:${floor===3?'0':'24px'}"><div style="font-weight:700;font-size:1rem;margin-bottom:12px;color:${floorColors[floor]}">&#x1F3E2; ${floor} 樓會議室</div>`;
+    html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">';
+    for(const room of floorRooms){
+      totalRooms++;
+      const bookings=(bookingMap[room.id]||[]).sort((a,b)=>a.start_time.localeCompare(b.start_time));
+      const equip=room.equipment?` | ${room.equipment}`:'';
+      html+=`<div class="card" style="margin-bottom:0"><div style="font-weight:700;margin-bottom:12px">${room.id} <span style="font-size:.75rem;color:var(--text-secondary)">(${room.capacity}人${equip})</span></div>`;
+
+      let hasBooking=false;
+      // Generate time slots
+      for(let i=0;i<slots.length-1;i++){
+        const slotStart=slots[i], slotEnd=slots[i+1];
+        if(slotStart==='12:00') continue; // skip lunch
+        totalSlots++;
+        const conflict=bookings.find(b=>b.start_time.slice(0,5)<=slotStart&&b.end_time.slice(0,5)>slotStart);
+        if(conflict){
+          hasBooking=true;bookedSlots++;
+          html+=`<div class="room-slot"><div class="room-time">${conflict.start_time.slice(0,5)}-${conflict.end_time.slice(0,5)}</div><div class="room-status booked">${conflict.subject}${conflict.booked_by_name?' — '+conflict.booked_by_name:''}</div></div>`;
+          // Skip slots covered by this booking
+          while(i+1<slots.length-1&&slots[i+1]<conflict.end_time.slice(0,5)) i++;
+        }else{
+          html+=`<div class="room-slot"><div class="room-time">${slotStart}-${slotEnd}</div><div class="room-status free" onclick="quickBook('${room.id}','${slotStart}','${slotEnd}')">&#x2705; 可預約</div></div>`;
+        }
+      }
+      if(hasBooking) bookedRooms++; else freeAll++;
+      html+='</div>';
+    }
+    html+='</div></div>';
+  }
+  document.getElementById('roomGrid').innerHTML=html;
+  const usageRate=totalSlots>0?Math.round(bookedSlots/totalSlots*100):0;
+  document.getElementById('roomStats').innerHTML=`
+    <div style="text-align:center;padding:16px;background:var(--bg);border-radius:10px"><div style="font-size:2rem;font-weight:800;color:var(--line-green)">${totalRooms}</div><div style="font-size:.8rem;color:var(--text-secondary)">總會議室數</div></div>
+    <div style="text-align:center;padding:16px;background:var(--bg);border-radius:10px"><div style="font-size:2rem;font-weight:800;color:var(--accent)">${bookedRooms}</div><div style="font-size:.8rem;color:var(--text-secondary)">今日有預約</div></div>
+    <div style="text-align:center;padding:16px;background:var(--bg);border-radius:10px"><div style="font-size:2rem;font-weight:800;color:var(--success)">${freeAll}</div><div style="font-size:.8rem;color:var(--text-secondary)">全天空閒</div></div>
+    <div style="text-align:center;padding:16px;background:var(--bg);border-radius:10px"><div style="font-size:2rem;font-weight:800;color:var(--line-blue)">${usageRate}%</div><div style="font-size:.8rem;color:var(--text-secondary)">今日使用率</div></div>`;
+}
+
+function quickBook(room,startTime,endTime){
   document.getElementById('bookRoom').value=room;
-  document.getElementById('bookTime').value=time;
+  document.getElementById('bookDate').value=roomViewDate;
+  document.getElementById('bookStart').value=startTime;
+  document.getElementById('bookEnd').value=endTime;
   document.getElementById('bookSubject').focus();
-  showToast('info',`已選擇 ${room} ${time}，請輸入會議主題後點擊預約`);
+  showToast('info',`已選擇 ${room} ${startTime}-${endTime}，請輸入會議主題後點擊預約`);
 }
-function updateBookRoomOptions(){
-  const f=document.getElementById('bookFloor').value;
-  const sel=document.getElementById('bookRoom');
-  sel.innerHTML='';
-  if(f==='3'){['3-1','3-2','3-3','3-4'].forEach(r=>{sel.innerHTML+=`<option>${r}</option>`})}
-  else{for(let i=2;i<=14;i++){sel.innerHTML+=`<option>2-${i}</option>`}}
+
+async function bookMeetingRoom(){
+  const roomId=document.getElementById('bookRoom').value;
+  const date=document.getElementById('bookDate').value;
+  const startTime=document.getElementById('bookStart').value;
+  const endTime=document.getElementById('bookEnd').value;
+  const subject=document.getElementById('bookSubject').value;
+  if(!subject.trim()){showToast('error','請輸入會議主題');return;}
+  if(!date){showToast('error','請選擇日期');return;}
+  try{
+    const res=await fetch('/api/rooms/book',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({roomId,date,startTime,endTime,subject})
+    });
+    const data=await res.json();
+    if(res.ok&&data.success){
+      showToast('success',`${roomId} 已預約成功！（${startTime}-${endTime}）`);
+      document.getElementById('bookSubject').value='';
+      loadRoomBookings();
+    }else{
+      showToast('error',data.error||'預約失敗');
+    }
+  }catch(e){showToast('error','預約失敗');}
 }
-function filterRoomFloor(){
-  const v=document.getElementById('roomFloorFilter').value;
-  document.querySelectorAll('.room-floor-section').forEach(s=>{
-    s.style.display=(v==='all'||s.dataset.floor===v)?'':'none';
-  });
-}
-function bookMeetingRoom(){showToast('success','會議室已預約成功！已發送 Teams 日曆邀請給與會人員');}
-function changeDate(d){showToast('info','已切換日期（Demo 模式顯示相同資料）');}
 
 // ===== SALARY =====
 function changeSalaryPeriod(){showToast('info','已切換薪資期間（Demo 模式顯示相同資料）');}
@@ -2937,26 +2970,73 @@ function filterTraining(){
 }
 
 // ===== ANNOUNCEMENTS =====
-function filterAnnouncements(){
-  const q=(document.getElementById('annSearchInput').value||'').toLowerCase();
-  const cat=document.getElementById('annCatFilter').value;
-  document.querySelectorAll('#annList .ann-item').forEach(item=>{
-    const matchCat=!cat||item.dataset.cat===cat;
-    const matchSearch=!q||item.textContent.toLowerCase().includes(q);
-    item.style.display=(matchCat&&matchSearch)?'':'none';
-  });
+let announcementsData=[];
+const annCatColors={緊急:{border:'var(--danger)',bg:'#fff5f5',badge:'badge-danger'},全行:{border:'var(--info)',bg:'#f0f7ff',badge:'badge-info'},人事:{border:'var(--line-green)',bg:'var(--line-green-light)',badge:'badge-success'},教育訓練:{border:'var(--purple)',bg:'#faf5ff',badge:'badge-purple'},行政:{border:'#cbd5e1',bg:'#fff',badge:'badge-gray'},IT:{border:'var(--line-blue)',bg:'#eff6ff',badge:'badge-info'},法遵:{border:'var(--warning)',bg:'#fffbeb',badge:'badge-warning'}};
+
+async function loadAnnouncements(){
+  try{
+    const res=await fetch('/api/announcements');
+    if(res.ok){announcementsData=await res.json();renderAnnouncements();}
+  }catch(e){console.error('Load ann error:',e);}
 }
 
-function publishAnnouncement(){
-  const title=document.getElementById('annTitle').value||'新公告';
-  const type=document.getElementById('annType').value;
+function renderAnnouncements(){
+  const q=(document.getElementById('annSearchInput')?.value||'').toLowerCase();
+  const cat=document.getElementById('annCatFilter')?.value||'';
+  const filtered=announcementsData.filter(a=>{
+    return(!cat||a.category===cat)&&(!q||a.title.toLowerCase().includes(q)||(a.content||'').toLowerCase().includes(q));
+  });
+  const el=document.getElementById('annList');
+  if(!filtered.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-secondary)">沒有找到公告</div>';return;}
+  el.innerHTML=filtered.map(a=>{
+    const c=annCatColors[a.category]||annCatColors['行政'];
+    const readPct=a.total_users>0?Math.round(a.read_count/a.total_users*100):0;
+    const date=new Date(a.created_at).toLocaleString('zh-TW',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const pinIcon=a.pinned?'<span style="margin-left:auto;font-size:.7rem;color:var(--text-secondary)">&#x1F4CC; 置頂</span>':'';
+    const readBtn=a.is_read?'<button class="btn btn-ghost btn-sm">&#x2705; 已讀</button>':`<button class="btn btn-ghost btn-sm" onclick="markAnnRead(${a.id})">&#x2705; 標記已讀</button>`;
+    return `<div class="ann-item" data-cat="${a.category}" style="border-left:4px solid ${c.border};background:${c.bg};padding:16px;border-radius:0 10px 10px 0;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap"><span class="badge ${c.badge}">${a.category}</span><strong>${a.title}</strong>${pinIcon}</div>
+      <div style="font-size:.8rem;color:var(--text-secondary)">${a.author_dept||''} | ${a.author_name||''} | ${date} | 閱讀 ${a.read_count}/${a.total_users} 人 (${readPct}%)</div>
+      ${a.content?`<p style="margin-top:8px;font-size:.88rem">${a.content}</p>`:''}
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">${readBtn}<button class="btn btn-ghost btn-sm" onclick="showToast('info','已轉發至 Teams')">&#x1F4E8; 轉發</button></div>
+    </div>`;
+  }).join('');
+}
+
+function filterAnnouncements(){renderAnnouncements();}
+
+async function markAnnRead(id){
+  try{
+    await fetch(`/api/announcements/${id}/read`,{method:'POST'});
+    showToast('info','已標記已讀');
+    loadAnnouncements();
+  }catch(e){}
+}
+
+async function publishAnnouncement(){
+  const title=document.getElementById('annTitle').value;
+  const content=document.getElementById('annContent').value;
+  const category=document.getElementById('annType').value;
   const schedule=document.getElementById('annSchedule').value;
-  if(schedule){
-    showToast('success',`公告「${title}」已排程於 ${schedule} 發布，屆時將自動推播至 Teams`);
-  }else{
-    showToast('success',`公告「${title}」已發布！已推播至 Portal 公告欄 & Teams 頻道`);
-  }
-  switchToTab('ann-board');
+  const pinned=document.getElementById('annPinned')?.checked||false;
+  const requireRead=document.getElementById('annReadConfirm')?.checked||false;
+  if(!title.trim()){showToast('error','請輸入公告標題');return;}
+  try{
+    const res=await fetch('/api/announcements',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({category,title,content,pinned,requireRead,scheduledAt:schedule||null})
+    });
+    const data=await res.json();
+    if(res.ok&&data.success){
+      showToast('success',schedule?`公告「${title}」已排程發布`:`公告「${title}」已發布！`);
+      document.getElementById('annTitle').value='';
+      document.getElementById('annContent').value='';
+      switchToTab('ann-board');
+      loadAnnouncements();
+    }else{
+      showToast('error',data.error||'發布失敗');
+    }
+  }catch(e){showToast('error','發布失敗');}
 }
 
 function previewAnnouncement(){
@@ -3696,40 +3776,36 @@ function sendAIMessage(){
 function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
 
 // ===== EMPLOYEES =====
-const employees=[
-  {name:'陳建宏',dept:'資訊部',title:'副理',ext:'5501',email:'ch.chen@linebank.com.tw',color:'#06C755',tags:['專案管理','系統架構','Channel BKS','資安治理']},
-  {name:'林佩珊',dept:'總務部',title:'專員',ext:'3201',email:'ps.lin@linebank.com.tw',color:'#8b5cf6',tags:['採購管理','廠商付款','合約管理','資產盤點']},
-  {name:'王志明',dept:'資訊部',title:'工程師',ext:'5510',email:'cm.wang@linebank.com.tw',color:'#3b82f6',tags:['後端開發','台幣核心系統','簽帳卡系統','API 整合']},
-  {name:'張雅琪',dept:'資訊部',title:'工程師',ext:'5508',email:'yc.chang@linebank.com.tw',color:'#ef4444',tags:['前端開發','Channel APP','Channel Web','UI/UX']},
-  {name:'李建安',dept:'資訊部',title:'資深工程師',ext:'5503',email:'ca.li@linebank.com.tw',color:'#f59e0b',tags:['DevOps','雲端架構','外幣核心 FXS','SRE']},
-  {name:'張文宏',dept:'總務部',title:'科長',ext:'3200',email:'wh.chang@linebank.com.tw',color:'#06C755',tags:['行政管理','場地設施','印鑑管理','安全管理']},
-  {name:'李副總',dept:'總經理室',title:'副總經理',ext:'1001',email:'vp.li@linebank.com.tw',color:'#1b2a4a',tags:['經營策略','預算審核','最終核准權限']},
-  {name:'陳宏志',dept:'資訊部',title:'工程師',ext:'5512',email:'hc.chen@linebank.com.tw',color:'#3b82f6',tags:['後端開發','貸款系統 e-Loan','保代系統','資料庫管理']},
-  {name:'黃美玲',dept:'人力資源部',title:'科長',ext:'2100',email:'ml.huang@linebank.com.tw',color:'#ec4899',tags:['人事管理','薪酬福利','教育訓練','績效考核']},
-  {name:'劉大衛',dept:'風管部',title:'副理',ext:'4200',email:'dw.liu@linebank.com.tw',color:'#f59e0b',tags:['風險管理','法令遵循','洗錢防制','資安稽核']},
-  {name:'吳佳蓉',dept:'業務部',title:'經理',ext:'6100',email:'jr.wu@linebank.com.tw',color:'#8b5cf6',tags:['業務開發','客戶關係','Channel APP','行銷企劃']},
-  {name:'周建國',dept:'業務部',title:'專員',ext:'6108',email:'jg.zhou@linebank.com.tw',color:'#3b82f6',tags:['客戶服務','Channel Web','數據分析','活動執行']},
-];
+let employees=[];
+const deptColors={'資訊部':'#3b82f6','總務部':'#06C755','風管部':'#f59e0b','人力資源部':'#ec4899','業務部':'#8b5cf6','總經理室':'#1b2a4a','法遵部':'#6b7280','財務部':'#ef4444','客服部':'#06b6d4','營運部':'#f97316','稽核室':'#84cc16','行銷部':'#a855f7'};
+async function loadDirectory(){
+  try{
+    const res=await fetch('/api/directory');
+    if(res.ok){
+      employees=(await res.json()).map(e=>({...e,color:deptColors[e.dept]||'#06C755'}));
+      renderEmployees(employees);
+    }
+  }catch(e){
+    // fallback to empty
+    renderEmployees([]);
+  }
+}
 function renderEmployees(list){
-  document.getElementById('empGrid').innerHTML=list.map(e=>`
+  document.getElementById('empGrid').innerHTML=list.length?list.map(e=>`
     <div class="emp-card" style="flex-wrap:wrap">
-      <div class="emp-avatar" style="background:${e.color}">${e.name[0]}</div>
+      <div class="emp-avatar" style="background:${e.color||'#06C755'}">${e.name[0]}</div>
       <div class="emp-info" style="min-width:0">
         <div class="emp-name">${e.name}</div>
         <div class="emp-dept">${e.dept} / ${e.title}</div>
-        <div class="emp-contact">&#x1F4DE; ${e.ext} &nbsp;|&nbsp; &#x2709; ${e.email}</div>
+        <div class="emp-contact">&#x1F4DE; ${e.ext||'—'} &nbsp;|&nbsp; &#x2709; ${e.email||'—'}</div>
       </div>
       <button class="btn btn-outline btn-sm btn-icon" title="Teams 訊息" onclick="showToast('info','已開啟 Teams 對話：${e.name}')" style="flex-shrink:0">&#x1F4AC;</button>
-      <div style="width:100%;display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
-        ${(e.tags||[]).map(t=>`<span class="emp-tag" onclick="document.getElementById('empSearch').value='${t}';filterEmployees()">${t}</span>`).join('')}
-      </div>
-    </div>`).join('');
+    </div>`).join(''):'<div style="text-align:center;padding:40px;color:var(--text-secondary)">載入中...</div>';
 }
 function filterEmployees(){
   const s=document.getElementById('empSearch').value.toLowerCase(),d=document.getElementById('deptFilter').value;
   renderEmployees(employees.filter(e=>{
-    const tagMatch=e.tags&&e.tags.some(t=>t.toLowerCase().includes(s));
-    return(!s||e.name.includes(s)||e.dept.includes(s)||e.ext.includes(s)||e.email.toLowerCase().includes(s)||e.title.includes(s)||tagMatch)&&(!d||e.dept===d);
+    return(!s||e.name.includes(s)||e.dept.includes(s)||(e.ext||'').includes(s)||(e.email||'').toLowerCase().includes(s)||e.title.includes(s))&&(!d||e.dept===d);
   }));
 }
 
@@ -3776,7 +3852,7 @@ if(uz){
 }
 
 // ===== INIT =====
-renderEmployees(employees);
+renderEmployees([]);
 renderMonthlyChart();
 updateGreeting();
 

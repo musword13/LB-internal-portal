@@ -519,6 +519,341 @@ app.post('/api/leave/submit', requireAuth, async (req, res) => {
 });
 
 // =============================================
+// DIRECTORY API
+// =============================================
+app.get('/api/directory', requireAuth, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT id, name, dept, title, email, ext FROM users ORDER BY dept, name'
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: '載入通訊錄失敗' });
+  }
+});
+
+// =============================================
+// ANNOUNCEMENTS API
+// =============================================
+app.get('/api/announcements', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { rows } = await pool.query(`
+      SELECT a.*, u.name as author_name, u.dept as author_dept,
+        (SELECT COUNT(*) FROM announcement_reads ar WHERE ar.announcement_id = a.id) as read_count,
+        (SELECT COUNT(*) FROM users) as total_users,
+        EXISTS(SELECT 1 FROM announcement_reads ar WHERE ar.announcement_id = a.id AND ar.user_id = $1) as is_read
+      FROM announcements a
+      LEFT JOIN users u ON u.id = a.author_id
+      WHERE a.status = 'published'
+      ORDER BY a.pinned DESC, a.created_at DESC
+    `, [userId]);
+    res.json(rows);
+  } catch (err) {
+    console.error('Announcements error:', err);
+    res.status(500).json({ error: '載入公告失敗' });
+  }
+});
+
+app.post('/api/announcements', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { category, title, content, target, pinned, requireRead, scheduledAt } = req.body;
+    const status = scheduledAt ? 'scheduled' : 'published';
+    const { rows } = await pool.query(`
+      INSERT INTO announcements (category, title, content, author_id, target, pinned, require_read, status, scheduled_at)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *
+    `, [category, title, content, userId, target || 'all', pinned || false, requireRead || false, status, scheduledAt || null]);
+    res.json({ success: true, announcement: rows[0] });
+  } catch (err) {
+    console.error('Create announcement error:', err);
+    res.status(500).json({ error: '發布公告失敗' });
+  }
+});
+
+app.post('/api/announcements/:id/read', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    await pool.query(
+      'INSERT INTO announcement_reads (announcement_id, user_id) VALUES ($1,$2) ON CONFLICT DO NOTHING',
+      [req.params.id, userId]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: '標記失敗' });
+  }
+});
+
+// =============================================
+// MEETING ROOMS API
+// =============================================
+app.get('/api/rooms', requireAuth, async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM meeting_rooms ORDER BY floor DESC, id');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: '載入會議室失敗' });
+  }
+});
+
+app.get('/api/rooms/bookings', requireAuth, async (req, res) => {
+  try {
+    const date = req.query.date || new Date().toISOString().slice(0, 10);
+    const { rows } = await pool.query(`
+      SELECT rb.*, u.name as booked_by_name
+      FROM room_bookings rb
+      LEFT JOIN users u ON u.id = rb.booked_by
+      WHERE rb.booking_date = $1
+      ORDER BY rb.room_id, rb.start_time
+    `, [date]);
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: '載入預約失敗' });
+  }
+});
+
+app.post('/api/rooms/book', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { roomId, date, startTime, endTime, subject } = req.body;
+
+    // Check for conflicts
+    const { rows: conflicts } = await pool.query(`
+      SELECT * FROM room_bookings
+      WHERE room_id = $1 AND booking_date = $2
+        AND start_time < $4 AND end_time > $3
+    `, [roomId, date, startTime, endTime]);
+
+    if (conflicts.length > 0) {
+      return res.status(409).json({ error: '該時段已被預約', conflict: conflicts[0] });
+    }
+
+    const { rows } = await pool.query(`
+      INSERT INTO room_bookings (room_id, booking_date, start_time, end_time, subject, booked_by)
+      VALUES ($1,$2,$3,$4,$5,$6) RETURNING *
+    `, [roomId, date, startTime, endTime, subject, userId]);
+
+    res.json({ success: true, booking: rows[0] });
+  } catch (err) {
+    console.error('Room booking error:', err);
+    res.status(500).json({ error: '預約失敗: ' + err.message });
+  }
+});
+
+app.delete('/api/rooms/bookings/:id', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { rowCount } = await pool.query(
+      'DELETE FROM room_bookings WHERE id = $1 AND booked_by = $2',
+      [req.params.id, userId]
+    );
+    if (rowCount === 0) return res.status(404).json({ error: '預約不存在或無權取消' });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: '取消失敗' });
+  }
+});
+
+// =============================================
+// APPROVALS API
+// =============================================
+
+// 待我簽核
+app.get('/api/approvals/pending', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { rows } = await pool.query(`
+      SELECT a.*, u.name as applicant_name, u.dept as applicant_dept,
+        json_agg(json_build_object(
+          'step_order', s.step_order, 'approver_id', s.approver_id,
+          'approver_name', su.name, 'role_label', s.role_label,
+          'status', s.status, 'comment', s.comment, 'acted_at', s.acted_at
+        ) ORDER BY s.step_order) as steps
+      FROM approvals a
+      JOIN users u ON u.id = a.applicant_id
+      JOIN approval_steps s ON s.approval_id = a.id
+      JOIN users su ON su.id = s.approver_id
+      WHERE a.status = 'pending'
+        AND EXISTS (
+          SELECT 1 FROM approval_steps cs
+          WHERE cs.approval_id = a.id AND cs.approver_id = $1
+            AND cs.step_order = a.current_step AND cs.status = 'pending'
+        )
+      GROUP BY a.id, u.name, u.dept
+      ORDER BY CASE a.priority WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 ELSE 2 END, a.created_at DESC
+    `, [userId]);
+    res.json(rows);
+  } catch (err) {
+    console.error('Approvals pending error:', err);
+    res.status(500).json({ error: '載入待簽核失敗' });
+  }
+});
+
+// 我送出的
+app.get('/api/approvals/sent', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { rows } = await pool.query(`
+      SELECT a.*, u.name as applicant_name,
+        json_agg(json_build_object(
+          'step_order', s.step_order, 'approver_id', s.approver_id,
+          'approver_name', su.name, 'role_label', s.role_label,
+          'status', s.status, 'acted_at', s.acted_at
+        ) ORDER BY s.step_order) as steps
+      FROM approvals a
+      JOIN users u ON u.id = a.applicant_id
+      JOIN approval_steps s ON s.approval_id = a.id
+      JOIN users su ON su.id = s.approver_id
+      WHERE a.applicant_id = $1
+      GROUP BY a.id, u.name
+      ORDER BY a.created_at DESC
+    `, [userId]);
+    res.json(rows);
+  } catch (err) {
+    console.error('Approvals sent error:', err);
+    res.status(500).json({ error: '載入送出簽核失敗' });
+  }
+});
+
+// 已完成 (我簽核過的)
+app.get('/api/approvals/history', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const typeFilter = req.query.type || '';
+    const monthFilter = req.query.month || '';
+    let extraWhere = '';
+    const params = [userId];
+    if (typeFilter) {
+      params.push(typeFilter);
+      extraWhere += ` AND a.type = $${params.length}`;
+    }
+    if (monthFilter) {
+      params.push(monthFilter + '-01');
+      params.push(monthFilter + '-31');
+      extraWhere += ` AND my_step.acted_at >= $${params.length - 1}::date AND my_step.acted_at <= $${params.length}::date`;
+    }
+    const { rows } = await pool.query(`
+      SELECT a.id, a.type, a.title, a.status, a.amount, a.currency,
+        u.name as applicant_name, my_step.status as my_decision, my_step.acted_at,
+        my_step.comment as my_comment
+      FROM approvals a
+      JOIN users u ON u.id = a.applicant_id
+      JOIN approval_steps my_step ON my_step.approval_id = a.id AND my_step.approver_id = $1
+      WHERE my_step.status IN ('approved','rejected')
+        AND a.applicant_id != $1
+        ${extraWhere}
+      ORDER BY my_step.acted_at DESC
+      LIMIT 50
+    `, params);
+    res.json(rows);
+  } catch (err) {
+    console.error('Approvals history error:', err);
+    res.status(500).json({ error: '載入簽核歷史失敗' });
+  }
+});
+
+// 簽核統計
+app.get('/api/approvals/stats', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { rows: pending } = await pool.query(`
+      SELECT COUNT(*) FROM approvals a
+      JOIN approval_steps s ON s.approval_id = a.id
+      WHERE a.status = 'pending' AND s.approver_id = $1
+        AND s.step_order = a.current_step AND s.status = 'pending'
+    `, [userId]);
+    const { rows: sent } = await pool.query(
+      `SELECT COUNT(*) FILTER (WHERE status = 'pending') as in_progress,
+              COUNT(*) FILTER (WHERE status = 'approved') as approved,
+              COUNT(*) FILTER (WHERE status = 'rejected') as rejected
+       FROM approvals WHERE applicant_id = $1`, [userId]);
+    const { rows: history } = await pool.query(`
+      SELECT COUNT(*) FROM approval_steps
+      WHERE approver_id = $1 AND status IN ('approved','rejected')
+    `, [userId]);
+    res.json({
+      pending: parseInt(pending[0].count),
+      sentInProgress: parseInt(sent[0].in_progress),
+      sentApproved: parseInt(sent[0].approved),
+      sentRejected: parseInt(sent[0].rejected),
+      historyCount: parseInt(history[0].count)
+    });
+  } catch (err) {
+    res.status(500).json({ error: '統計載入失敗' });
+  }
+});
+
+// 核准
+app.post('/api/approvals/:id/approve', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const approvalId = req.params.id;
+    const { comment } = req.body || {};
+
+    // Verify this user is the current step approver
+    const { rows: approval } = await pool.query('SELECT * FROM approvals WHERE id = $1', [approvalId]);
+    if (approval.length === 0) return res.status(404).json({ error: '簽核單不存在' });
+    const appr = approval[0];
+    if (appr.status !== 'pending') return res.status(400).json({ error: '此簽核單已結案' });
+
+    const { rows: step } = await pool.query(
+      'SELECT * FROM approval_steps WHERE approval_id = $1 AND step_order = $2 AND approver_id = $3 AND status = \'pending\'',
+      [approvalId, appr.current_step, userId]
+    );
+    if (step.length === 0) return res.status(403).json({ error: '您不是目前的簽核人' });
+
+    // Mark step as approved
+    await pool.query(
+      'UPDATE approval_steps SET status = \'approved\', comment = $3, acted_at = NOW() WHERE approval_id = $1 AND step_order = $2',
+      [approvalId, appr.current_step, comment || null]
+    );
+
+    // Check if this was the last step
+    if (appr.current_step >= appr.total_steps) {
+      await pool.query('UPDATE approvals SET status = \'approved\', updated_at = NOW() WHERE id = $1', [approvalId]);
+    } else {
+      await pool.query('UPDATE approvals SET current_step = current_step + 1, updated_at = NOW() WHERE id = $1', [approvalId]);
+    }
+
+    res.json({ success: true, message: '已核准' });
+  } catch (err) {
+    console.error('Approve error:', err);
+    res.status(500).json({ error: '簽核失敗' });
+  }
+});
+
+// 退回
+app.post('/api/approvals/:id/reject', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const approvalId = req.params.id;
+    const { comment } = req.body || {};
+
+    const { rows: approval } = await pool.query('SELECT * FROM approvals WHERE id = $1', [approvalId]);
+    if (approval.length === 0) return res.status(404).json({ error: '簽核單不存在' });
+    const appr = approval[0];
+    if (appr.status !== 'pending') return res.status(400).json({ error: '此簽核單已結案' });
+
+    const { rows: step } = await pool.query(
+      'SELECT * FROM approval_steps WHERE approval_id = $1 AND step_order = $2 AND approver_id = $3 AND status = \'pending\'',
+      [approvalId, appr.current_step, userId]
+    );
+    if (step.length === 0) return res.status(403).json({ error: '您不是目前的簽核人' });
+
+    await pool.query(
+      'UPDATE approval_steps SET status = \'rejected\', comment = $3, acted_at = NOW() WHERE approval_id = $1 AND step_order = $2',
+      [approvalId, appr.current_step, comment || null]
+    );
+    await pool.query('UPDATE approvals SET status = \'rejected\', updated_at = NOW() WHERE id = $1', [approvalId]);
+
+    res.json({ success: true, message: '已退回' });
+  } catch (err) {
+    console.error('Reject error:', err);
+    res.status(500).json({ error: '退回失敗' });
+  }
+});
+
+// =============================================
 // SPA FALLBACK
 // =============================================
 app.get('*', (req, res) => {

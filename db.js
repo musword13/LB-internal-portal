@@ -114,6 +114,84 @@ async function initDB() {
         created_at TIMESTAMP DEFAULT NOW()
       );
 
+      -- 公告
+      CREATE TABLE IF NOT EXISTS announcements (
+        id SERIAL PRIMARY KEY,
+        category VARCHAR(20) NOT NULL,
+        title VARCHAR(200) NOT NULL,
+        content TEXT,
+        author_id VARCHAR(20) REFERENCES users(id),
+        target VARCHAR(50) DEFAULT 'all',
+        pinned BOOLEAN DEFAULT false,
+        require_read BOOLEAN DEFAULT false,
+        status VARCHAR(20) DEFAULT 'published',
+        scheduled_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      -- 公告閱讀紀錄
+      CREATE TABLE IF NOT EXISTS announcement_reads (
+        id SERIAL PRIMARY KEY,
+        announcement_id INT REFERENCES announcements(id),
+        user_id VARCHAR(20) REFERENCES users(id),
+        read_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(announcement_id, user_id)
+      );
+
+      -- 會議室
+      CREATE TABLE IF NOT EXISTS meeting_rooms (
+        id VARCHAR(10) PRIMARY KEY,
+        name VARCHAR(50),
+        floor INT,
+        capacity INT,
+        equipment VARCHAR(200)
+      );
+
+      -- 會議室預約
+      CREATE TABLE IF NOT EXISTS room_bookings (
+        id SERIAL PRIMARY KEY,
+        room_id VARCHAR(10) REFERENCES meeting_rooms(id),
+        booking_date DATE NOT NULL,
+        start_time TIME NOT NULL,
+        end_time TIME NOT NULL,
+        subject VARCHAR(200) NOT NULL,
+        booked_by VARCHAR(20) REFERENCES users(id),
+        attendees TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      -- 簽核主表
+      CREATE TABLE IF NOT EXISTS approvals (
+        id SERIAL PRIMARY KEY,
+        type VARCHAR(20) NOT NULL,          -- leave, payment, it-request, contract, expense
+        ref_id VARCHAR(50),                 -- 關聯原始單號
+        title VARCHAR(200) NOT NULL,
+        description TEXT,
+        amount DECIMAL(15,2),
+        currency VARCHAR(10) DEFAULT 'TWD',
+        applicant_id VARCHAR(20) REFERENCES users(id),
+        current_step INT DEFAULT 1,
+        total_steps INT DEFAULT 2,
+        status VARCHAR(20) DEFAULT 'pending',  -- pending, approved, rejected
+        priority VARCHAR(10) DEFAULT 'normal', -- normal, high, urgent
+        metadata JSONB,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+
+      -- 簽核步驟
+      CREATE TABLE IF NOT EXISTS approval_steps (
+        id SERIAL PRIMARY KEY,
+        approval_id INT REFERENCES approvals(id) ON DELETE CASCADE,
+        step_order INT NOT NULL,
+        approver_id VARCHAR(20) REFERENCES users(id),
+        role_label VARCHAR(50),
+        status VARCHAR(20) DEFAULT 'pending',  -- pending, approved, rejected, skipped
+        comment TEXT,
+        acted_at TIMESTAMP,
+        UNIQUE(approval_id, step_order)
+      );
+
       -- Session table for connect-pg-simple
       CREATE TABLE IF NOT EXISTS "session" (
         "sid" varchar NOT NULL COLLATE "default",
@@ -266,6 +344,222 @@ async function seedData(client) {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10, NOW() - interval '1 day' * (random()*30)::int) ON CONFLICT DO NOTHING`,
       lr
     );
+  }
+
+  // Seed announcements
+  const announcements = [
+    ['緊急', '系統維護公告 — 核心系統 3/29 (六) 02:00-06:00 維護', '維護期間核心銀行系統、網路銀行暫停服務。請各單位提前做好準備。IT Helpdesk 分機 9999。', 'BK00013', 'all', true, false, 'published'],
+    ['全行', '2026 年第一季營運會議紀要已公布', 'Q1 營運會議紀要已上傳文件庫，請各部門主管於本週五前完成檢閱。', 'BK00013', 'all', false, false, 'published'],
+    ['人事', '2026 年員工旅遊活動報名開始', '今年員工旅遊 5/16-5/18，花蓮三日遊。請於 4/10 前完成報名。', 'BK00009', 'all', false, false, 'published'],
+    ['教育訓練', '資訊安全意識培訓 — 4/2 (三) 14:00 必修', '依金管會規定，全行同仁需完成年度資安意識培訓。線上課程連結將於 4/1 開放。', 'BK00005', 'all', false, true, 'published'],
+    ['行政', 'B1 停車場 4/1 起調整車位編號', '因大樓管委會重新規劃，B1 停車場將於 4/1 起調整車位編號，請同仁注意。', 'BK00004', 'all', false, false, 'published'],
+    ['行政', '4 月份慶生會：4/11 (五) 15:00 交誼廳', '4 月壽星請於 4/8 前回覆是否出席，福委會已準備精美蛋糕。', 'BK00009', 'all', false, false, 'published'],
+  ];
+  for (let i = 0; i < announcements.length; i++) {
+    const a = announcements[i];
+    await client.query(
+      `INSERT INTO announcements (category, title, content, author_id, target, pinned, require_read, status, created_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8, NOW() - interval '${i}' day - interval '${i * 3}' hour) ON CONFLICT DO NOTHING`,
+      a
+    );
+  }
+
+  // Seed meeting rooms
+  const rooms = [
+    ['3-1', '301會議室', 3, 20, '投影機、視訊設備'],
+    ['3-2', '302會議室', 3, 12, '投影機'],
+    ['3-3', '303會議室', 3, 8, '白板、視訊設備'],
+    ['3-4', '304會議室', 3, 6, '白板'],
+    ['2-2', '202會議室', 2, 6, ''],
+    ['2-3', '203會議室', 2, 6, ''],
+    ['2-4', '204會議室', 2, 8, ''],
+    ['2-5', '205會議室', 2, 8, ''],
+    ['2-6', '206會議室', 2, 10, '投影機'],
+    ['2-7', '207會議室', 2, 10, '投影機'],
+    ['2-8', '208會議室', 2, 6, ''],
+    ['2-9', '209會議室', 2, 6, ''],
+    ['2-10', '210會議室', 2, 12, '視訊設備'],
+    ['2-11', '211會議室', 2, 8, ''],
+    ['2-12', '212會議室', 2, 6, ''],
+    ['2-13', '213會議室', 2, 15, '投影機、視訊設備'],
+    ['2-14', '214會議室', 2, 20, '投影機、視訊設備、白板'],
+  ];
+  for (const r of rooms) {
+    await client.query(
+      'INSERT INTO meeting_rooms (id, name, floor, capacity, equipment) VALUES ($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING',
+      r
+    );
+  }
+
+  // Seed room bookings for today and nearby dates
+  const today = new Date().toISOString().slice(0, 10);
+  const bookings = [
+    ['3-1', today, '09:00', '11:00', 'Q1 營運會議', 'BK00013'],
+    ['3-1', today, '13:00', '14:00', '部門周會', 'BK00013'],
+    ['3-1', today, '15:00', '17:00', '專案檢討', 'BK00001'],
+    ['3-2', today, '10:00', '11:00', '廠商拜訪 — 鼎新電腦', 'BK00004'],
+    ['3-2', today, '13:00', '15:00', '資安演練', 'BK00005'],
+    ['3-3', today, '09:00', '10:00', '1-on-1', 'BK00013'],
+    ['3-3', today, '13:00', '14:00', '面試', 'BK00009'],
+    ['3-4', today, '13:00', '15:00', 'Sprint Review', 'BK00001'],
+    ['2-2', today, '09:00', '10:00', '晨會 — 法遵部', 'BK00006'],
+    ['2-3', today, '13:00', '14:00', '1-on-1', 'BK00002'],
+    ['2-4', today, '09:00', '11:00', '產品需求會議', 'BK00008'],
+    ['2-4', today, '13:00', '15:00', 'UX Review — 設計部', 'BK00007'],
+    ['2-5', today, '10:00', '12:00', '教育訓練', 'BK00009'],
+    ['2-6', today, '09:00', '10:00', 'Standup — 開發團隊A', 'BK00001'],
+    ['2-6', today, '13:00', '14:00', '廠商 Demo — AWS', 'BK00004'],
+    ['2-7', today, '09:00', '12:00', '系統架構討論 — Infra', 'BK00001'],
+    ['2-7', today, '15:00', '17:00', 'Code Review — 後端', 'BK00001'],
+    ['2-10', today, '09:00', '11:00', '跨部門會議 — 營運部', 'BK00011'],
+    ['2-11', today, '13:00', '14:00', '週報 — 風管部', 'BK00005'],
+    ['2-13', today, '10:00', '12:00', '董事會預備會議', 'BK00013'],
+    ['2-13', today, '13:00', '15:00', '客戶簡報 — 業務部', 'BK00007'],
+    ['2-14', today, '09:00', '12:00', '全行月會', 'BK00013'],
+    ['2-14', today, '14:00', '16:00', '資安教育訓練 — 全行', 'BK00005'],
+  ];
+  for (const b of bookings) {
+    await client.query(
+      'INSERT INTO room_bookings (room_id, booking_date, start_time, end_time, subject, booked_by) VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING',
+      b
+    );
+  }
+
+  // Seed approvals (簽核中心)
+  const approvalData = [
+    // 1. 廠商付款 — 鼎新電腦
+    { type: 'payment', ref_id: 'PAY-0325-003', title: '廠商付款 — 技術顧問費 (鼎新電腦)', desc: '2026 Q1 技術顧問服務費用', amount: 450000, currency: 'TWD', applicant: 'BK00002', steps: 4, current: 3, priority: 'normal',
+      chain: [
+        { approver: 'BK00002', role: '申請人', status: 'approved' },
+        { approver: 'BK00004', role: '部門主管', status: 'approved' },
+        { approver: 'BK00013', role: '副理', status: 'pending' },
+        { approver: 'BK00011', role: '最終核准', status: 'pending' },
+      ]},
+    // 2. IT需求 — 信用卡系統升級 (急件)
+    { type: 'it-request', ref_id: 'REQ-042', title: 'IT 開發需求 — 信用卡系統升級', desc: '配合金管會新規，信用卡核卡流程需支援線上身分驗證(eKYC)，預估工時 320hr', amount: null, currency: 'TWD', applicant: 'BK00001', steps: 3, current: 2, priority: 'urgent',
+      chain: [
+        { approver: 'BK00001', role: '申請人', status: 'approved' },
+        { approver: 'BK00013', role: '資訊部副理', status: 'pending' },
+        { approver: 'BK00011', role: '營運部副理', status: 'pending' },
+      ]},
+    // 3. 請假 — 張雅琪
+    { type: 'leave', ref_id: 'LEAVE-0328', title: '請假申請 — 張雅琪 特休 3/28-3/30', desc: '特別休假 3 天，代理人：李建安，剩餘特休 5 天', amount: null, currency: 'TWD', applicant: 'BK00003', steps: 2, current: 2, priority: 'normal',
+      chain: [
+        { approver: 'BK00003', role: '申請人', status: 'approved' },
+        { approver: 'BK00013', role: '主管', status: 'pending' },
+      ]},
+    // 4. 合約續約 — IBM
+    { type: 'contract', ref_id: 'CON-IBM-2026', title: '合約續約審核 — IBM 主機維護合約', desc: '年度合約 NT$3,200,000，漲幅 +3.2%，到期日 2026-04-15', amount: 3200000, currency: 'TWD', applicant: 'BK00004', steps: 3, current: 2, priority: 'normal',
+      chain: [
+        { approver: 'BK00004', role: '申請人', status: 'approved' },
+        { approver: 'BK00013', role: '副理', status: 'pending' },
+        { approver: 'BK00011', role: '最終核准', status: 'pending' },
+      ]},
+    // 5. 廠商付款 — AWS
+    { type: 'payment', ref_id: 'PAY-0325-002', title: '廠商付款 — 雲端服務月費 (AWS)', desc: 'AWS 3月份雲端服務費用，合約 C-2026-0085', amount: 12500, currency: 'USD', applicant: 'BK00001', steps: 3, current: 2, priority: 'normal',
+      chain: [
+        { approver: 'BK00001', role: '申請人', status: 'approved' },
+        { approver: 'BK00013', role: '副理', status: 'pending' },
+        { approver: 'BK00011', role: '最終核准', status: 'pending' },
+      ]},
+    // 6-11: 我送出的 + 已完成 (by BK00013)
+    { type: 'payment', ref_id: 'PAY-0320-001', title: 'Microsoft M365 授權年費', desc: '全行 M365 E5 授權年費', amount: 1800000, currency: 'TWD', applicant: 'BK00013', steps: 4, current: 4, priority: 'normal',
+      chain: [
+        { approver: 'BK00013', role: '申請人', status: 'approved' },
+        { approver: 'BK00004', role: '總務部副理', status: 'approved' },
+        { approver: 'BK00002', role: '財務部經理', status: 'approved' },
+        { approver: 'BK00011', role: '最終核准', status: 'pending' },
+      ]},
+    { type: 'it-request', ref_id: 'REQ-038', title: '內網 SSO 整合 Azure AD', desc: '整合 Azure AD 單一登入', amount: null, currency: 'TWD', applicant: 'BK00013', steps: 4, current: 4, priority: 'normal',
+      chain: [
+        { approver: 'BK00013', role: '申請人', status: 'approved' },
+        { approver: 'BK00001', role: '工程師', status: 'approved' },
+        { approver: 'BK00005', role: '風管部', status: 'approved' },
+        { approver: 'BK00011', role: '最終核准', status: 'approved' },
+      ]},
+    { type: 'payment', ref_id: 'PAY-0315-001', title: 'Fortinet 防火牆維護', desc: '年度防火牆維護合約', amount: 680000, currency: 'TWD', applicant: 'BK00013', steps: 3, current: 3, priority: 'normal',
+      chain: [
+        { approver: 'BK00013', role: '申請人', status: 'approved' },
+        { approver: 'BK00002', role: '財務部經理', status: 'approved' },
+        { approver: 'BK00011', role: '最終核准', status: 'approved' },
+      ]},
+    { type: 'leave', ref_id: 'LEAVE-0310', title: '特休 3/10', desc: '特休一天', amount: null, currency: 'TWD', applicant: 'BK00013', steps: 2, current: 2, priority: 'normal',
+      chain: [
+        { approver: 'BK00013', role: '申請人', status: 'approved' },
+        { approver: 'BK00009', role: '人資部經理', status: 'approved' },
+      ]},
+    // 已完成 (別人送出，BK00013 已簽過)
+    { type: 'payment', ref_id: 'PAY-0323-001', title: '趨勢科技 資安軟體授權', desc: '年度資安軟體授權費', amount: 520000, currency: 'TWD', applicant: 'BK00001', steps: 3, current: 3, priority: 'normal',
+      chain: [
+        { approver: 'BK00001', role: '申請人', status: 'approved' },
+        { approver: 'BK00013', role: '副理', status: 'approved' },
+        { approver: 'BK00011', role: '最終核准', status: 'approved' },
+      ]},
+    { type: 'payment', ref_id: 'PAY-0321-001', title: '中華電信 專線租賃 3月', desc: '月租專線費用', amount: 85000, currency: 'TWD', applicant: 'BK00003', steps: 3, current: 3, priority: 'normal',
+      chain: [
+        { approver: 'BK00003', role: '申請人', status: 'approved' },
+        { approver: 'BK00013', role: '副理', status: 'approved' },
+        { approver: 'BK00011', role: '最終核准', status: 'approved' },
+      ]},
+    { type: 'it-request', ref_id: 'REQ-040', title: 'OTP 驗證機制強化', desc: '加強 OTP 驗證安全性', amount: null, currency: 'TWD', applicant: 'BK00004', steps: 3, current: 3, priority: 'normal',
+      chain: [
+        { approver: 'BK00004', role: '申請人', status: 'approved' },
+        { approver: 'BK00013', role: '副理', status: 'approved' },
+        { approver: 'BK00011', role: '最終核准', status: 'approved' },
+      ]},
+    { type: 'leave', ref_id: 'LEAVE-0314', title: '李建安 特休 3/14', desc: '特休一天', amount: null, currency: 'TWD', applicant: 'BK00004', steps: 2, current: 2, priority: 'normal',
+      chain: [
+        { approver: 'BK00004', role: '申請人', status: 'approved' },
+        { approver: 'BK00013', role: '主管', status: 'approved' },
+      ]},
+    { type: 'payment', ref_id: 'PAY-0310-001', title: '鼎新電腦 ERP 客製開發', desc: 'ERP 客製模組開發費', amount: 920000, currency: 'TWD', applicant: 'BK00002', steps: 3, current: 3, priority: 'normal',
+      chain: [
+        { approver: 'BK00002', role: '申請人', status: 'approved' },
+        { approver: 'BK00013', role: '副理', status: 'approved' },
+        { approver: 'BK00011', role: '最終核准', status: 'approved' },
+      ]},
+    { type: 'it-request', ref_id: 'REQ-037', title: '報表匯出效能優化', desc: '大量報表匯出效能改善', amount: null, currency: 'TWD', applicant: 'BK00001', steps: 3, current: 3, priority: 'normal',
+      chain: [
+        { approver: 'BK00001', role: '申請人', status: 'approved' },
+        { approver: 'BK00013', role: '副理', status: 'approved' },
+        { approver: 'BK00011', role: '最終核准', status: 'approved' },
+      ]},
+    { type: 'payment', ref_id: 'PAY-0228-001', title: 'AWS 雲端服務 2月', desc: 'AWS 2月份雲端服務費用', amount: 11800, currency: 'USD', applicant: 'BK00001', steps: 3, current: 3, priority: 'normal',
+      chain: [
+        { approver: 'BK00001', role: '申請人', status: 'approved' },
+        { approver: 'BK00013', role: '副理', status: 'approved' },
+        { approver: 'BK00011', role: '最終核准', status: 'approved' },
+      ]},
+    { type: 'contract', ref_id: 'CON-TREND-2026', title: '趨勢科技 合約續約', desc: '資安軟體合約續約', amount: 520000, currency: 'TWD', applicant: 'BK00005', steps: 3, current: 3, priority: 'normal',
+      chain: [
+        { approver: 'BK00005', role: '申請人', status: 'approved' },
+        { approver: 'BK00013', role: '副理', status: 'approved' },
+        { approver: 'BK00011', role: '最終核准', status: 'approved' },
+      ]},
+  ];
+
+  for (let i = 0; i < approvalData.length; i++) {
+    const a = approvalData[i];
+    const allApproved = a.chain.every(s => s.status === 'approved');
+    const status = allApproved ? 'approved' : 'pending';
+    const daysAgo = (approvalData.length - i) * 2;
+    const { rows: apRows } = await client.query(
+      `INSERT INTO approvals (type, ref_id, title, description, amount, currency, applicant_id, current_step, total_steps, status, priority, created_at, updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11, NOW() - interval '${daysAgo} days', NOW() - interval '${Math.max(0, daysAgo-1)} days')
+       RETURNING id`,
+      [a.type, a.ref_id, a.title, a.desc, a.amount, a.currency, a.applicant, a.current, a.steps, status, a.priority]
+    );
+    const approvalId = apRows[0].id;
+    for (let j = 0; j < a.chain.length; j++) {
+      const s = a.chain[j];
+      const actedAt = s.status === 'approved' ? `NOW() - interval '${daysAgo - j} days'` : 'NULL';
+      await client.query(
+        `INSERT INTO approval_steps (approval_id, step_order, approver_id, role_label, status, acted_at)
+         VALUES ($1, $2, $3, $4, $5, ${actedAt})
+         ON CONFLICT DO NOTHING`,
+        [approvalId, j + 1, s.approver, s.role, s.status]
+      );
+    }
   }
 
   console.log('✅ Seed data inserted');
