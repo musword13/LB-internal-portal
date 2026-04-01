@@ -13,6 +13,7 @@ async function initDB() {
       -- 使用者
       CREATE TABLE IF NOT EXISTS users (
         id VARCHAR(20) PRIMARY KEY,
+        employee_id VARCHAR(20) UNIQUE,
         name VARCHAR(50) NOT NULL,
         password_hash VARCHAR(100) NOT NULL,
         dept VARCHAR(50),
@@ -20,6 +21,7 @@ async function initDB() {
         email VARCHAR(100),
         ext VARCHAR(10),
         role VARCHAR(20) DEFAULT 'user',
+        teams_id VARCHAR(100),
         created_at TIMESTAMP DEFAULT NOW()
       );
 
@@ -114,6 +116,21 @@ async function initDB() {
         created_at TIMESTAMP DEFAULT NOW()
       );
 
+      -- 簽核紀錄 (用於追蹤請假、採購等簽核流程)
+      CREATE TABLE IF NOT EXISTS approvals (
+        id SERIAL PRIMARY KEY,
+        request_type VARCHAR(30) NOT NULL,
+        request_id INTEGER NOT NULL,
+        approver_id VARCHAR(20) NOT NULL REFERENCES users(id),
+        approver_name VARCHAR(50),
+        approval_level VARCHAR(50),
+        status VARCHAR(20) DEFAULT 'pending',
+        comment TEXT,
+        teams_message_id VARCHAR(100),
+        approved_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
       -- Session table for connect-pg-simple
       CREATE TABLE IF NOT EXISTS "session" (
         "sid" varchar NOT NULL COLLATE "default",
@@ -145,26 +162,26 @@ async function seedData(client) {
   const bcrypt = require('bcryptjs');
   const hash = await bcrypt.hash('1234', 10);
 
-  // Seed users
+  // Seed users (id, employee_id, name, password_hash, dept, title, email, ext, role)
   const users = [
-    ['BK00013', '陳建宏', hash, '資訊部', '副理', 'ch.chen@linebank.com.tw', '5501', 'admin'],
-    ['BK00001', '王志明', hash, '資訊部', '工程師', 'cm.wang@linebank.com.tw', '5510', 'user'],
-    ['BK00002', '林佩珊', hash, '財務部', '經理', 'ps.lin@linebank.com.tw', '5201', 'user'],
-    ['BK00003', '張雅琪', hash, '人資部', '專員', 'yc.chang@linebank.com.tw', '5301', 'user'],
-    ['BK00004', '李建安', hash, '總務部', '副理', 'ja.lee@linebank.com.tw', '5101', 'user'],
-    ['BK00005', '劉大衛', hash, '風管部', '資深專員', 'dw.liu@linebank.com.tw', '5601', 'user'],
-    ['BK00006', '黃雅慧', hash, '法遵部', '經理', 'yh.huang@linebank.com.tw', '5701', 'user'],
-    ['BK00007', '趙雅芳', hash, '行銷部', '專員', 'yf.zhao@linebank.com.tw', '5401', 'user'],
-    ['BK00008', '周承翰', hash, '行銷部', '副理', 'ch.zhou@linebank.com.tw', '5402', 'user'],
-    ['BK00009', '蔡宜庭', hash, '人資部', '經理', 'yt.tsai@linebank.com.tw', '5302', 'user'],
-    ['BK00010', '劉家豪', hash, '客服部', '專員', 'jh.liu@linebank.com.tw', '5801', 'user'],
-    ['BK00011', '陳柏翰', hash, '營運部', '副理', 'bh.chen@linebank.com.tw', '5901', 'user'],
-    ['BK00012', '吳明哲', hash, '稽核室', '經理', 'mj.wu@linebank.com.tw', '5051', 'user'],
+    ['BK00013', 'BK00013', '陳建宏', hash, '資訊部', '副理', 'ch.chen@linebank.com.tw', '5501', 'admin'],
+    ['BK00001', 'BK00001', '王志明', hash, '資訊部', '工程師', 'cm.wang@linebank.com.tw', '5510', 'user'],
+    ['BK00002', 'BK00002', '林佩珊', hash, '財務部', '經理', 'ps.lin@linebank.com.tw', '5201', 'user'],
+    ['BK00003', 'BK00003', '張雅琪', hash, '人資部', '專員', 'yc.chang@linebank.com.tw', '5301', 'user'],
+    ['BK00004', 'BK00004', '李建安', hash, '總務部', '副理', 'ja.lee@linebank.com.tw', '5101', 'user'],
+    ['BK00005', 'BK00005', '劉大衛', hash, '風管部', '資深專員', 'dw.liu@linebank.com.tw', '5601', 'user'],
+    ['BK00006', 'BK00006', '黃雅慧', hash, '法遵部', '經理', 'yh.huang@linebank.com.tw', '5701', 'user'],
+    ['BK00007', 'BK00007', '趙雅芳', hash, '行銷部', '專員', 'yf.zhao@linebank.com.tw', '5401', 'user'],
+    ['BK00008', 'BK00008', '周承翰', hash, '行銷部', '副理', 'ch.zhou@linebank.com.tw', '5402', 'user'],
+    ['BK00009', 'BK00009', '蔡宜庭', hash, '人資部', '經理', 'yt.tsai@linebank.com.tw', '5302', 'user'],
+    ['BK00010', 'BK00010', '劉家豪', hash, '客服部', '專員', 'jh.liu@linebank.com.tw', '5801', 'user'],
+    ['BK00011', 'BK00011', '陳柏翰', hash, '營運部', '副理', 'bh.chen@linebank.com.tw', '5901', 'user'],
+    ['BK00012', 'BK00012', '吳明哲', hash, '稽核室', '經理', 'mj.wu@linebank.com.tw', '5051', 'user'],
   ];
 
   for (const u of users) {
     await client.query(
-      'INSERT INTO users (id, name, password_hash, dept, title, email, ext, role) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT DO NOTHING',
+      'INSERT INTO users (id, employee_id, name, password_hash, dept, title, email, ext, role) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT DO NOTHING',
       u
     );
   }

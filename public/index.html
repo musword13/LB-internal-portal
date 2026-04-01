@@ -737,6 +737,7 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
       <div class="nav-section">員工相關</div>
       <div class="nav-item" data-page="leave"><span class="nav-icon">&#x1F334;</span>請假管理</div>
       <div class="nav-item" data-page="salary"><span class="nav-icon">&#x1F4B5;</span>薪資查詢</div>
+      <div class="nav-item" data-page="approvals"><span class="nav-icon">✅</span>簽核中心</div>
       <div class="nav-section">企業服務</div>
       <div class="nav-item" data-page="announcements"><span class="nav-icon">&#x1F4E2;</span>公告欄</div>
       <div class="nav-item" data-page="directory"><span class="nav-icon">&#x1F465;</span>員工通訊錄</div>
@@ -1649,6 +1650,34 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
               <button class="btn btn-outline" onclick="showToast('info','薪資異常申訴已開啟')">&#x26A0; 薪資異常申訴</button>
             </div>
             <div style="margin-top:16px;padding:14px;background:#eff6ff;border-radius:8px;font-size:.85rem;color:#1e40af">&#x1F4A1; 提醒：2025 年度各類所得扣繳暨免扣繳憑單已於 2026/01/31 發放，如需補發請點擊「Email 扣繳憑單」。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== APPROVALS (Microsoft Teams Integration) ===== -->
+      <div class="page" id="page-approvals">
+        <div class="tabs">
+          <div class="tab active" data-tab="approvals-pending">待簽核</div>
+          <div class="tab" data-tab="approvals-history">簽核紀錄</div>
+        </div>
+        <div class="tab-content active" id="tab-approvals-pending">
+          <div class="card">
+            <div class="card-header"><div class="card-title">待簽核申請</div><div id="approvalsCountBadge" style="background:var(--error);color:white;padding:4px 10px;border-radius:99px;font-size:.75rem;font-weight:700">0</div></div>
+            <div id="approvalsListPending" style="display:grid;gap:12px">
+              <div style="text-align:center;padding:40px;color:var(--text-secondary)">
+                <div style="font-size:2rem;margin-bottom:8px">✅</div>
+                <div>暫無待簽核申請</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-content" id="tab-approvals-history">
+          <div class="card">
+            <div class="card-header"><div class="card-title">簽核紀錄</div></div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>申請類型</th><th>申請人</th><th>部門</th><th>簽核狀態</th><th>簽核日期</th><th>操作</th></tr></thead>
+              <tbody id="approvalsHistoryBody"><tr><td colspan="6" style="text-align:center;padding:20px">載入中...</td></tr></tbody>
+            </table></div>
           </div>
         </div>
       </div>
@@ -3381,6 +3410,19 @@ async function submitLeaveRequest(){
     const data=await res.json();
     if(res.ok&&data.success){
       showToast('success',`請假單已送出（${days}天），等待主管核准。`);
+
+      // Send Teams notification to approvers
+      const leaveTypeLabel={'annual':'特別休假','personal':'事假','sick':'病假','marriage':'婚假','funeral':'喪假','official':'公假','comp':'補休'}[leaveType];
+      const start=new Date(startDate).toLocaleDateString('zh-TW');
+      const end=new Date(endDate).toLocaleDateString('zh-TW');
+      notifyTeamsApproval('LeaveRequest',data.leave.id,['manager','hr'],{
+        type:leaveTypeLabel,
+        dateRange:`${start} 至 ${end}`,
+        days:days,
+        period:period==='full'?'全天':period==='morning'?'上午':'下午',
+        reason:reason
+      });
+
       document.getElementById('leaveReason').value='';
       document.getElementById('leaveStart').value='';
       document.getElementById('leaveEnd').value='';
@@ -3697,25 +3739,28 @@ function escapeHtml(t){const d=document.createElement('div');d.textContent=t;ret
 
 // ===== EMPLOYEES =====
 const employees=[
-  {name:'陳建宏',dept:'資訊部',title:'副理',ext:'5501',email:'ch.chen@linebank.com.tw',color:'#06C755',tags:['專案管理','系統架構','Channel BKS','資安治理']},
-  {name:'林佩珊',dept:'總務部',title:'專員',ext:'3201',email:'ps.lin@linebank.com.tw',color:'#8b5cf6',tags:['採購管理','廠商付款','合約管理','資產盤點']},
-  {name:'王志明',dept:'資訊部',title:'工程師',ext:'5510',email:'cm.wang@linebank.com.tw',color:'#3b82f6',tags:['後端開發','台幣核心系統','簽帳卡系統','API 整合']},
-  {name:'張雅琪',dept:'資訊部',title:'工程師',ext:'5508',email:'yc.chang@linebank.com.tw',color:'#ef4444',tags:['前端開發','Channel APP','Channel Web','UI/UX']},
-  {name:'李建安',dept:'資訊部',title:'資深工程師',ext:'5503',email:'ca.li@linebank.com.tw',color:'#f59e0b',tags:['DevOps','雲端架構','外幣核心 FXS','SRE']},
-  {name:'張文宏',dept:'總務部',title:'科長',ext:'3200',email:'wh.chang@linebank.com.tw',color:'#06C755',tags:['行政管理','場地設施','印鑑管理','安全管理']},
-  {name:'李副總',dept:'總經理室',title:'副總經理',ext:'1001',email:'vp.li@linebank.com.tw',color:'#1b2a4a',tags:['經營策略','預算審核','最終核准權限']},
-  {name:'陳宏志',dept:'資訊部',title:'工程師',ext:'5512',email:'hc.chen@linebank.com.tw',color:'#3b82f6',tags:['後端開發','貸款系統 e-Loan','保代系統','資料庫管理']},
-  {name:'黃美玲',dept:'人力資源部',title:'科長',ext:'2100',email:'ml.huang@linebank.com.tw',color:'#ec4899',tags:['人事管理','薪酬福利','教育訓練','績效考核']},
-  {name:'劉大衛',dept:'風管部',title:'副理',ext:'4200',email:'dw.liu@linebank.com.tw',color:'#f59e0b',tags:['風險管理','法令遵循','洗錢防制','資安稽核']},
-  {name:'吳佳蓉',dept:'業務部',title:'經理',ext:'6100',email:'jr.wu@linebank.com.tw',color:'#8b5cf6',tags:['業務開發','客戶關係','Channel APP','行銷企劃']},
-  {name:'周建國',dept:'業務部',title:'專員',ext:'6108',email:'jg.zhou@linebank.com.tw',color:'#3b82f6',tags:['客戶服務','Channel Web','數據分析','活動執行']},
+  {empid:'BK00013',name:'陳建宏',dept:'資訊部',title:'副理',ext:'5501',email:'ch.chen@linebank.com.tw',color:'#06C755',tags:['專案管理','系統架構','Channel BKS','資安治理']},
+  {empid:'BK00002',name:'林佩珊',dept:'總務部',title:'專員',ext:'3201',email:'ps.lin@linebank.com.tw',color:'#8b5cf6',tags:['採購管理','廠商付款','合約管理','資產盤點']},
+  {empid:'BK00001',name:'王志明',dept:'資訊部',title:'工程師',ext:'5510',email:'cm.wang@linebank.com.tw',color:'#3b82f6',tags:['後端開發','台幣核心系統','簽帳卡系統','API 整合']},
+  {empid:'BK00003',name:'張雅琪',dept:'資訊部',title:'工程師',ext:'5508',email:'yc.chang@linebank.com.tw',color:'#ef4444',tags:['前端開發','Channel APP','Channel Web','UI/UX']},
+  {empid:'BK00004',name:'李建安',dept:'資訊部',title:'資深工程師',ext:'5503',email:'ca.li@linebank.com.tw',color:'#f59e0b',tags:['DevOps','雲端架構','外幣核心 FXS','SRE']},
+  {empid:'BK00008',name:'張文宏',dept:'總務部',title:'科長',ext:'3200',email:'wh.chang@linebank.com.tw',color:'#06C755',tags:['行政管理','場地設施','印鑑管理','安全管理']},
+  {empid:'BK00099',name:'李副總',dept:'總經理室',title:'副總經理',ext:'1001',email:'vp.li@linebank.com.tw',color:'#1b2a4a',tags:['經營策略','預算審核','最終核准權限']},
+  {empid:'BK00011',name:'陳宏志',dept:'資訊部',title:'工程師',ext:'5512',email:'hc.chen@linebank.com.tw',color:'#3b82f6',tags:['後端開發','貸款系統 e-Loan','保代系統','資料庫管理']},
+  {empid:'BK00009',name:'黃美玲',dept:'人力資源部',title:'科長',ext:'2100',email:'ml.huang@linebank.com.tw',color:'#ec4899',tags:['人事管理','薪酬福利','教育訓練','績效考核']},
+  {empid:'BK00005',name:'劉大衛',dept:'風管部',title:'副理',ext:'4200',email:'dw.liu@linebank.com.tw',color:'#f59e0b',tags:['風險管理','法令遵循','洗錢防制','資安稽核']},
+  {empid:'BK00012',name:'吳佳蓉',dept:'業務部',title:'經理',ext:'6100',email:'jr.wu@linebank.com.tw',color:'#8b5cf6',tags:['業務開發','客戶關係','Channel APP','行銷企劃']},
+  {empid:'BK00010',name:'周建國',dept:'業務部',title:'專員',ext:'6108',email:'jg.zhou@linebank.com.tw',color:'#3b82f6',tags:['客戶服務','Channel Web','數據分析','活動執行']},
 ];
 function renderEmployees(list){
   document.getElementById('empGrid').innerHTML=list.map(e=>`
     <div class="emp-card" style="flex-wrap:wrap">
       <div class="emp-avatar" style="background:${e.color}">${e.name[0]}</div>
       <div class="emp-info" style="min-width:0">
-        <div class="emp-name">${e.name}</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="emp-name">${e.name}</div>
+          <span style="font-size:.75rem;background:var(--line-blue-light);color:var(--line-blue);padding:2px 6px;border-radius:4px;font-weight:600">${e.empid}</span>
+        </div>
         <div class="emp-dept">${e.dept} / ${e.title}</div>
         <div class="emp-contact">&#x1F4DE; ${e.ext} &nbsp;|&nbsp; &#x2709; ${e.email}</div>
       </div>
@@ -3731,6 +3776,83 @@ function filterEmployees(){
     const tagMatch=e.tags&&e.tags.some(t=>t.toLowerCase().includes(s));
     return(!s||e.name.includes(s)||e.dept.includes(s)||e.ext.includes(s)||e.email.toLowerCase().includes(s)||e.title.includes(s)||tagMatch)&&(!d||e.dept===d);
   }));
+}
+
+// ===== APPROVALS (Teams Integration) =====
+async function loadApprovalsData(){
+  try{
+    const res=await fetch('/api/approvals/pending');
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error);
+
+    document.getElementById('approvalsCountBadge').textContent=data.length||'0';
+    if(data.length===0){
+      document.getElementById('approvalsListPending').innerHTML=`
+        <div style="text-align:center;padding:40px;color:var(--text-secondary)">
+          <div style="font-size:2rem;margin-bottom:8px">✅</div>
+          <div>暫無待簽核申請</div>
+        </div>`;
+      return;
+    }
+
+    const html=data.map(a=>`
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:start">
+          <div style="flex:1">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+              <span style="font-weight:700;font-size:1.05rem">${a.request_type} 簽核</span>
+              <span style="background:var(--line-orange);color:white;padding:2px 8px;border-radius:4px;font-size:.75rem">待簽核</span>
+            </div>
+            <div style="color:var(--text-secondary);font-size:.9rem">申請人：${a.requester_name || '待確認'} | 申請日期：${new Date(a.created_at).toLocaleDateString('zh-TW')}</div>
+            ${a.comment?`<div style="margin-top:8px;padding:10px;background:var(--bg-card);border-left:3px solid var(--line-blue);border-radius:4px;font-size:.85rem">${a.comment}</div>`:''}
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="submitApproval(${a.id},'approved')">✓ 批准</button>
+            <button class="btn btn-outline btn-sm" onclick="submitApproval(${a.id},'rejected')">✗ 拒絕</button>
+          </div>
+        </div>
+      </div>`).join('');
+    document.getElementById('approvalsListPending').innerHTML=html;
+  }catch(err){
+    console.error('Load approvals error:',err);
+    showToast('error','載入簽核清單失敗');
+  }
+}
+
+async function submitApproval(approvalId,status){
+  const comment=prompt(`請輸入簽核${status==='approved'?'批准':'拒絕'}意見 (非必填):`,'');
+  if(comment===null)return;
+
+  try{
+    const res=await fetch('/api/approvals/submit',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({approvalId,status,comment})
+    });
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error);
+
+    showToast('success',`簽核${status==='approved'?'批准':'拒絕'}成功，已通知申請人`);
+    loadApprovalsData();
+  }catch(err){
+    console.error('Submit approval error:',err);
+    showToast('error','簽核提交失敗：'+err.message);
+  }
+}
+
+async function notifyTeamsApproval(requestType,requestId,approverList,requestData){
+  try{
+    const res=await fetch('/api/approvals/notify-teams',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({requestType,requestId,approverList,requestData})
+    });
+    const data=await res.json();
+    if(!res.ok)console.warn('Teams notification warning:',data.error);
+    else showToast('success','已發送 Teams 簽核通知');
+  }catch(err){
+    console.warn('Teams notification error:',err);
+  }
 }
 
 // ===== MODAL =====
@@ -3785,6 +3907,7 @@ const origNavigate = navigateTo;
 navigateTo = function(page) {
   origNavigate(page);
   if (page === 'training') loadTrainingData();
+  if (page === 'approvals') loadApprovalsData();
 };
 </script>
 </body>

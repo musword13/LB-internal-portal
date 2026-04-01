@@ -519,6 +519,133 @@ app.post('/api/leave/submit', requireAuth, async (req, res) => {
 });
 
 // =============================================
+// APPROVALS API (Microsoft Teams Integration)
+// =============================================
+
+// Teams Webhook URL (設定在環境變數中)
+const TEAMS_WEBHOOK = process.env.TEAMS_WEBHOOK_URL;
+
+// Helper: 發送 Teams 通知
+async function sendTeamsNotification(approver, requestType, requestData) {
+  if (!TEAMS_WEBHOOK) {
+    console.log('ℹ️  Teams webhook not configured');
+    return null;
+  }
+
+  const message = {
+    '@type': 'MessageCard',
+    '@context': 'https://schema.org/extensions',
+    summary: `${requestType} 簽核申請`,
+    themeColor: '0078d4',
+    sections: [
+      {
+        activityTitle: `${requestType} 簽核申請`,
+        activitySubtitle: `申請人：${requestData.requesterName}`,
+        facts: [
+          { name: '申請類型', value: requestType },
+          { name: '部門', value: requestData.dept || 'N/A' },
+          { name: '申請日期', value: new Date(requestData.createdAt).toLocaleDateString('zh-TW') },
+          ...Object.entries(requestData.details || {}).map(([k, v]) => ({
+            name: k,
+            value: v
+          }))
+        ],
+        markdown: true
+      }
+    ],
+    potentialAction: [
+      {
+        '@type': 'OpenUri',
+        name: '查看申請',
+        targets: [{ os: 'default', uri: `${process.env.APP_URL}/approvals/${requestType}` }]
+      },
+      {
+        '@type': 'Action.OpenUri',
+        name: '批准',
+        targets: [{ os: 'default', uri: `${process.env.APP_URL}/approvals/${requestType}/approve` }]
+      },
+      {
+        '@type': 'Action.OpenUri',
+        name: '拒絕',
+        targets: [{ os: 'default', uri: `${process.env.APP_URL}/approvals/${requestType}/reject` }]
+      }
+    ]
+  };
+
+  try {
+    const res = await fetch(TEAMS_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(message)
+    });
+    return res.ok ? { success: true } : { success: false, error: await res.text() };
+  } catch (err) {
+    console.error('Teams notification error:', err);
+    return null;
+  }
+}
+
+// 取得簽核待辦清單
+app.get('/api/approvals/pending', requireAuth, async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT a.*, u.name as requester_name
+      FROM approvals a
+      LEFT JOIN users u ON u.id = a.approver_id
+      WHERE a.status = 'pending' AND a.approver_id = $1
+      ORDER BY a.created_at DESC
+    `, [req.session.user.id]);
+    res.json(rows);
+  } catch (err) {
+    console.error('Approvals error:', err);
+    res.status(500).json({ error: '載入簽核清單失敗' });
+  }
+});
+
+// 提交簽核
+app.post('/api/approvals/submit', requireAuth, async (req, res) => {
+  try {
+    const { approvalId, status, comment } = req.body;
+    const approverId = req.session.user.id;
+
+    const { rows } = await pool.query(`
+      UPDATE approvals
+      SET status = $2, comment = $3, approver_id = $4, approved_at = NOW()
+      WHERE id = $1
+      RETURNING *
+    `, [approvalId, status, comment, approverId]);
+
+    if (rows.length === 0) return res.status(404).json({ error: '簽核紀錄不存在' });
+
+    res.json({ success: true, approval: rows[0] });
+  } catch (err) {
+    console.error('Approval submit error:', err);
+    res.status(500).json({ error: '簽核提交失敗' });
+  }
+});
+
+// 發送簽核通知至 Teams
+app.post('/api/approvals/notify-teams', requireAuth, async (req, res) => {
+  try {
+    const { requestType, requestId, approverList, requestData } = req.body;
+
+    for (const approver of approverList) {
+      await sendTeamsNotification(approver, requestType, {
+        requesterName: req.session.user.name,
+        dept: req.session.user.dept,
+        createdAt: new Date(),
+        details: requestData
+      });
+    }
+
+    res.json({ success: true, message: `已發送 ${approverList.length} 個簽核通知至 Teams` });
+  } catch (err) {
+    console.error('Teams notification error:', err);
+    res.status(500).json({ error: '發送通知失敗' });
+  }
+});
+
+// =============================================
 // SPA FALLBACK
 // =============================================
 app.get('*', (req, res) => {
