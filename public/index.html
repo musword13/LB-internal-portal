@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LINE Bank Internal Portal</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <style>
 :root {
   --line-green: #06C755;
@@ -705,14 +706,20 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
     <div class="login-subtitle">Internal Portal — 員工內部整合平台</div>
     <div class="login-field">
       <label>員工編號 Employee ID</label>
-      <input type="text" id="loginUser" placeholder="e.g. BK00013" value="BK00013">
+      <input type="text" id="loginUser" placeholder="e.g. BK00013" value="">
     </div>
     <div class="login-field">
       <label>密碼 Password</label>
-      <input type="password" id="loginPass" placeholder="Enter password" value="••••••••">
+      <input type="password" id="loginPass" placeholder="Enter password" value="">
     </div>
     <button class="login-btn" onclick="doLogin()">登入 Sign In</button>
-    <div class="login-hint">Demo 模式 — 點擊登入即可體驗完整功能</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-top:16px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <span style="font-size:.78rem;color:var(--text-secondary)">或</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+    <button class="login-btn" onclick="doDemoLogin()" style="margin-top:12px;background:linear-gradient(135deg,#64748b 0%,#475569 100%);font-size:.9rem;padding:12px">&#x1F9EA; Demo 模式體驗</button>
+    <div class="login-hint">正式登入將記錄所有操作至稽核日誌<br>Demo 模式可體驗完整功能，操作紀錄將標記為 Demo</div>
   </div>
 </div>
 
@@ -743,11 +750,13 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
       <div class="nav-item" data-page="directory"><span class="nav-icon">&#x1F465;</span>員工通訊錄</div>
       <div class="nav-item" data-page="training"><span class="nav-icon">&#x1F393;</span>教育訓練<span class="nav-badge" style="background:var(--line-blue)">2</span></div>
       <div class="nav-item" data-page="meeting-rooms"><span class="nav-icon">&#x1F3E2;</span>會議室預約</div>
+      <div class="nav-item" data-page="meeting-records"><span class="nav-icon">&#x1F399;</span>會議紀錄</div>
       <div class="nav-item" data-page="expenses"><span class="nav-icon">&#x1F4B3;</span>費用報銷</div>
       <div class="nav-item" data-page="regulations"><span class="nav-icon">&#x1F4D6;</span>內規管理</div>
       <div class="nav-item" data-page="ai-tools"><span class="nav-icon">&#x1F9E0;</span>AI 工具箱</div>
       <div class="nav-section">系統</div>
       <div class="nav-item" data-page="settings"><span class="nav-icon">&#x2699;</span>系統設定</div>
+      <div class="nav-item" data-page="audit-log"><span class="nav-icon">&#x1F4DC;</span>稽核日誌</div>
     </div>
     <div class="sidebar-user">
       <div class="user-avatar">陳</div>
@@ -1829,6 +1838,56 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
         </div>
       </div>
 
+      <!-- ===== MEETING RECORDS ===== -->
+      <div class="page" id="page-meeting-records">
+        <div class="tabs">
+          <div class="tab active" data-tab="mr-list">會議紀錄列表</div>
+          <div class="tab" data-tab="mr-my">我的會議</div>
+          <div class="tab" data-tab="mr-search">搜尋紀錄</div>
+        </div>
+
+        <!-- 會議紀錄列表 -->
+        <div class="tab-content active" id="tab-mr-list">
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">近期會議紀錄</div><div class="card-subtitle">整合 Microsoft Teams 錄音及 AI 自動摘要</div></div>
+              <div style="display:flex;gap:8px">
+                <select class="form-select" style="width:120px" id="mrDeptFilter" onchange="filterMeetingRecords()"><option value="all">全部部門</option><option value="it">資訊部</option><option value="hr">人資部</option><option value="biz">業務部</option><option value="risk">風管部</option><option value="legal">法遵部</option><option value="ops">營運部</option><option value="all-company">全行</option></select>
+                <select class="form-select" style="width:120px" id="mrStatusFilter" onchange="filterMeetingRecords()"><option value="all">全部狀態</option><option value="has-recording">有錄音</option><option value="has-summary">有摘要</option><option value="pending">待摘要</option></select>
+              </div>
+            </div>
+            <div id="meetingRecordsList">
+              <!-- rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 我的會議 -->
+        <div class="tab-content" id="tab-mr-my">
+          <div class="card">
+            <div class="card-header"><div class="card-title">我參與的會議紀錄</div></div>
+            <div id="myMeetingRecordsList">
+              <!-- rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 搜尋紀錄 -->
+        <div class="tab-content" id="tab-mr-search">
+          <div class="card">
+            <div class="card-header"><div class="card-title">搜尋會議紀錄</div></div>
+            <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:flex-end">
+              <div class="form-group" style="margin:0;flex:1;min-width:200px"><label class="form-label">關鍵字</label><input class="form-input" id="mrSearchKeyword" placeholder="搜尋會議主題、摘要內容、決議事項..."></div>
+              <div class="form-group" style="margin:0"><label class="form-label">與會人員</label><input class="form-input" style="width:150px" id="mrSearchPerson" placeholder="姓名"></div>
+              <div class="form-group" style="margin:0"><label class="form-label">日期範圍</label><input class="form-input" type="date" style="width:150px" id="mrSearchDateFrom"></div>
+              <div class="form-group" style="margin:0"><label class="form-label">&nbsp;</label><input class="form-input" type="date" style="width:150px" id="mrSearchDateTo"></div>
+              <button class="btn btn-primary" onclick="searchMeetingRecords()">搜尋</button>
+            </div>
+            <div id="mrSearchResults" style="color:var(--text-secondary);text-align:center;padding:40px">輸入關鍵字或條件後點擊搜尋</div>
+          </div>
+        </div>
+      </div>
+
       <!-- ===== EXPENSES ===== -->
       <div class="page" id="page-expenses">
         <div class="tabs">
@@ -2326,6 +2385,40 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
         </div>
       </div>
 
+      <!-- ===== AUDIT LOG ===== -->
+      <div class="page" id="page-audit-log">
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">&#x1F4DC; 稽核日誌</div><div class="card-subtitle">記錄所有使用者操作歷程</div></div>
+            <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+              <div id="auditTargetWrap" style="display:none">
+                <select class="form-select" style="width:160px" id="auditTarget" onchange="loadAuditLogs()">
+                  <option value="self">我的紀錄</option>
+                  <option value="dept">部門全部紀錄</option>
+                </select>
+              </div>
+              <input class="form-input" type="date" style="width:140px" id="auditDateFrom" onchange="loadAuditLogs()">
+              <input class="form-input" type="date" style="width:140px" id="auditDateTo" onchange="loadAuditLogs()">
+              <button class="btn btn-outline btn-sm" onclick="exportAuditCSV()">&#x1F4E5; 匯出 CSV</button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px" id="auditStats">
+            <div style="text-align:center;padding:14px;background:var(--bg);border-radius:10px"><div style="font-size:1.8rem;font-weight:800;color:var(--line-green)" id="auditStatTotal">—</div><div style="font-size:.78rem;color:var(--text-secondary)">總操作次數</div></div>
+            <div style="text-align:center;padding:14px;background:var(--bg);border-radius:10px"><div style="font-size:1.8rem;font-weight:800;color:var(--line-blue)" id="auditStatToday">—</div><div style="font-size:.78rem;color:var(--text-secondary)">今日操作</div></div>
+            <div style="text-align:center;padding:14px;background:var(--bg);border-radius:10px"><div style="font-size:1.8rem;font-weight:800;color:var(--purple)" id="auditStatPages">—</div><div style="font-size:.78rem;color:var(--text-secondary)">訪問頁面數</div></div>
+            <div style="text-align:center;padding:14px;background:var(--bg);border-radius:10px"><div style="font-size:1.8rem;font-weight:800" id="auditStatMode">—</div><div style="font-size:.78rem;color:var(--text-secondary)">登入模式</div></div>
+          </div>
+          <div style="overflow-x:auto">
+            <table id="auditLogTable">
+              <thead><tr><th>時間</th><th>員工編號</th><th>姓名</th><th>部門</th><th>操作</th><th>頁面</th><th>詳情</th><th>模式</th></tr></thead>
+              <tbody id="auditLogBody">
+                <tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-secondary)">載入中...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- ===== SETTINGS ===== -->
       <div class="page" id="page-settings">
         <div class="grid-2">
@@ -2436,11 +2529,13 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
     <div class="nav-item" onclick="navigateTo('directory');toggleMobileMenu()"><span class="nav-icon">&#x1F465;</span>員工通訊錄</div>
     <div class="nav-item" onclick="navigateTo('training');toggleMobileMenu()"><span class="nav-icon">&#x1F393;</span>教育訓練</div>
     <div class="nav-item" onclick="navigateTo('meeting-rooms');toggleMobileMenu()"><span class="nav-icon">&#x1F3E2;</span>會議室預約</div>
+    <div class="nav-item" onclick="navigateTo('meeting-records');toggleMobileMenu()"><span class="nav-icon">&#x1F399;</span>會議紀錄</div>
     <div class="nav-item" onclick="navigateTo('expenses');toggleMobileMenu()"><span class="nav-icon">&#x1F4B3;</span>費用報銷</div>
     <div class="nav-item" onclick="navigateTo('regulations');toggleMobileMenu()"><span class="nav-icon">&#x1F4D6;</span>內規管理</div>
     <div class="nav-item" onclick="navigateTo('ai-tools');toggleMobileMenu()"><span class="nav-icon">&#x1F9E0;</span>AI 工具箱</div>
     <div style="padding:12px 22px 6px;font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.3);font-weight:700">系統</div>
     <div class="nav-item" onclick="navigateTo('settings');toggleMobileMenu()"><span class="nav-icon">&#x2699;</span>系統設定</div>
+    <div class="nav-item" onclick="navigateTo('audit-log');toggleMobileMenu()"><span class="nav-icon">&#x1F4DC;</span>稽核日誌</div>
   </div>
 </div>
 
@@ -2451,9 +2546,32 @@ tr:hover td{background:linear-gradient(90deg,rgba(6,199,85,0.03),rgba(46,139,255
 const state = { currentPage:'dashboard', user:{ name:'陳建宏', id:'BK00013', dept:'資訊部', role:'副理' }};
 
 // ===== LOGIN =====
+function enterApp(user, isDemo){
+  state.user = user;
+  state.isDemo = isDemo;
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('app').classList.add('visible');
+  const nameEl = document.querySelector('.user-name');
+  const roleEl = document.querySelector('.user-role');
+  const avatarEl = document.querySelector('.user-avatar');
+  if (nameEl) nameEl.textContent = user.name;
+  if (roleEl) roleEl.textContent = `${user.dept} / ${user.title}`;
+  if (avatarEl) avatarEl.textContent = user.name.charAt(0);
+  document.getElementById('greetingText').innerHTML = `早安，<span>${user.name}</span>`;
+  if (isDemo) {
+    showToast('info', `Demo 模式 — 歡迎回來，${user.name}！操作將標記為 Demo`);
+  } else {
+    showToast('success', `歡迎回來，${user.name}！(正式模式，操作將記入稽核日誌)`);
+  }
+}
+
 async function doLogin(){
   const userId = document.getElementById('loginUser').value.trim();
   const password = document.getElementById('loginPass').value;
+  if (!userId || !password) {
+    showToast('warning', '請輸入員工編號與密碼');
+    return;
+  }
   try {
     const res = await fetch('/api/login', {
       method: 'POST',
@@ -2462,30 +2580,36 @@ async function doLogin(){
     });
     const data = await res.json();
     if (res.ok && data.success) {
-      state.user = data.user;
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('app').classList.add('visible');
-      // Update UI with real user info
-      const nameEl = document.querySelector('.user-name');
-      const roleEl = document.querySelector('.user-role');
-      const avatarEl = document.querySelector('.user-avatar');
-      if (nameEl) nameEl.textContent = data.user.name;
-      if (roleEl) roleEl.textContent = `${data.user.dept} / ${data.user.title}`;
-      if (avatarEl) avatarEl.textContent = data.user.name.charAt(0);
-      document.getElementById('greetingText').innerHTML = `早安，<span>${data.user.name}</span>`;
-      showToast('info', `歡迎回來，${data.user.name}！`);
+      enterApp(data.user, false);
     } else {
-      // Fallback to demo mode
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('app').classList.add('visible');
-      showToast('info', `Demo 模式 — 歡迎回來，${state.user.name}！`);
+      showToast('error', data.error || '登入失敗，請確認帳號密碼');
     }
   } catch (e) {
-    // Offline / no API: fallback demo mode
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('app').classList.add('visible');
-    showToast('info', `Demo 模式 — 歡迎回來，${state.user.name}！`);
+    showToast('error', '無法連線至伺服器');
   }
+}
+
+async function doDemoLogin(){
+  try {
+    const res = await fetch('/api/demo-login', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      enterApp(data.user, true);
+    } else {
+      // Offline fallback
+      enterApp(state.user, true);
+    }
+  } catch (e) {
+    enterApp(state.user, true);
+  }
+}
+
+// Audit log helper — call on key user actions
+function logAudit(action, page, detail){
+  fetch('/api/audit-log', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action, page, detail })
+  }).catch(()=>{});
 }
 // Auto-check session on load
 async function checkSession() {
@@ -2510,11 +2634,11 @@ const pageTitles = {
   'dashboard':['儀表板','首頁'],'contracts':['合約管理','首頁 / 合約管理'],'payments':['付款申請','首頁 / 付款申請'],
   'approvals':['簽核中心','首頁 / 簽核中心'],'it-requests':['IT 需求申請','首頁 / IT 需求申請'],
   'announcements':['公告欄','首頁 / 企業公告欄'],'directory':['員工通訊錄','首頁 / 員工通訊錄'],
-  'leave':['請假管理','首頁 / 請假管理'],'salary':['薪資查詢','首頁 / 薪資查詢'],'meeting-rooms':['會議室預約','首頁 / 會議室預約'],
+  'leave':['請假管理','首頁 / 請假管理'],'salary':['薪資查詢','首頁 / 薪資查詢'],'meeting-rooms':['會議室預約','首頁 / 會議室預約'],'meeting-records':['會議紀錄','首頁 / 會議紀錄'],
   'expenses':['費用報銷','首頁 / 費用報銷'],'regulations':['內規管理','首頁 / 內規管理辦法'],
   'smart-request':['智慧工單','首頁 / 智慧工單'],
   'training':['教育訓練','首頁 / 教育訓練'],
-  'ai-tools':['AI 工具箱','首頁 / AI 工具箱'],'settings':['系統設定','首頁 / 系統設定']
+  'ai-tools':['AI 工具箱','首頁 / AI 工具箱'],'settings':['系統設定','首頁 / 系統設定'],'audit-log':['稽核日誌','首頁 / 稽核日誌']
 };
 function navigateTo(page){
   state.currentPage=page;
@@ -2526,7 +2650,10 @@ function navigateTo(page){
   document.getElementById('pageTitle').textContent=t[0];
   document.getElementById('pageBreadcrumb').textContent=t[1];
   window.scrollTo(0,0);
+  logAudit('瀏覽頁面', page, pageTitles[page]?.[0] || page);
   if(page==='leave') loadLeaveData();
+  if(page==='meeting-records') renderMeetingRecords();
+  if(page==='audit-log') loadAuditLogs();
 }
 document.querySelectorAll('.nav-item[data-page]').forEach(i=>{i.addEventListener('click',()=>navigateTo(i.dataset.page))});
 
@@ -2841,7 +2968,12 @@ function filterRoomFloor(){
     s.style.display=(v==='all'||s.dataset.floor===v)?'':'none';
   });
 }
-function bookMeetingRoom(){showToast('success','會議室已預約成功！已發送 Teams 日曆邀請給與會人員');}
+function bookMeetingRoom(){
+  const room=document.getElementById('bookRoom').value;
+  const subject=document.getElementById('bookSubject').value||'(未填主題)';
+  logAudit('預約會議室','meeting-rooms',`會議室 ${room}，主題：${subject}`);
+  showToast('success','會議室已預約成功！已發送 Teams 日曆邀請給與會人員');
+}
 function changeDate(d){showToast('info','已切換日期（Demo 模式顯示相同資料）');}
 
 // ===== SALARY =====
@@ -3410,6 +3542,7 @@ async function submitLeaveRequest(){
     const data=await res.json();
     if(res.ok&&data.success){
       showToast('success',`請假單已送出（${days}天），等待主管核准。`);
+      logAudit('提交請假申請','leave',`${leaveTypeLabel} ${days}天 (${startDate} ~ ${endDate})`);
 
       // Send Teams notification to approvers
       const leaveTypeLabel={'annual':'特別休假','personal':'事假','sick':'病假','marriage':'婚假','funeral':'喪假','official':'公假','comp':'補休'}[leaveType];
@@ -3433,6 +3566,338 @@ async function submitLeaveRequest(){
   }catch(e){
     showToast('error','送出失敗：'+e.message);
   }
+}
+
+// ===== AUDIT LOG =====
+async function loadAuditLogs(){
+  const target = document.getElementById('auditTarget')?.value || 'self';
+  const startDate = document.getElementById('auditDateFrom')?.value || '';
+  const endDate = document.getElementById('auditDateTo')?.value || '';
+  try {
+    const params = new URLSearchParams({ target, limit: 200 });
+    if (startDate) params.set('startDate', startDate);
+    if (endDate) params.set('endDate', endDate);
+
+    const [logsRes, membersRes] = await Promise.all([
+      fetch('/api/audit-logs?' + params),
+      fetch('/api/audit-logs/dept-members')
+    ]);
+    const logsData = await logsRes.json();
+    const membersData = await membersRes.json();
+
+    // Show target selector for managers
+    const wrap = document.getElementById('auditTargetWrap');
+    if (logsData.isManager && membersData.members?.length > 0) {
+      wrap.style.display = '';
+      const sel = document.getElementById('auditTarget');
+      const currentVal = sel.value;
+      // Rebuild options if members not yet added
+      if (sel.options.length <= 2) {
+        membersData.members.forEach(m => {
+          if (m.id !== state.user.id) {
+            const opt = document.createElement('option');
+            opt.value = m.id;
+            opt.textContent = `${m.name} (${m.title})`;
+            sel.appendChild(opt);
+          }
+        });
+      }
+      sel.value = currentVal;
+    } else {
+      wrap.style.display = 'none';
+    }
+
+    const logs = logsData.logs || [];
+    // Stats
+    const today = new Date().toISOString().slice(0,10);
+    const todayCount = logs.filter(l => l.created_at && l.created_at.slice(0,10) === today).length;
+    const pages = new Set(logs.map(l => l.page).filter(Boolean));
+    const demoCount = logs.filter(l => l.is_demo).length;
+    const prodCount = logs.length - demoCount;
+    document.getElementById('auditStatTotal').textContent = logs.length;
+    document.getElementById('auditStatToday').textContent = todayCount;
+    document.getElementById('auditStatPages').textContent = pages.size;
+    const modeEl = document.getElementById('auditStatMode');
+    if (prodCount > 0 && demoCount > 0) { modeEl.textContent = '混合'; modeEl.style.color = 'var(--warning)'; }
+    else if (demoCount > 0) { modeEl.textContent = 'Demo'; modeEl.style.color = 'var(--text-secondary)'; }
+    else { modeEl.textContent = '正式'; modeEl.style.color = 'var(--success)'; }
+
+    // Table
+    const tbody = document.getElementById('auditLogBody');
+    if (logs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-secondary)">暫無稽核紀錄</td></tr>';
+      return;
+    }
+    tbody.innerHTML = logs.map(l => {
+      const t = new Date(l.created_at);
+      const timeStr = t.toLocaleString('zh-TW', { timeZone:'Asia/Taipei', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+      const modeBadge = l.is_demo
+        ? '<span class="badge" style="background:#f1f5f9;color:var(--text-secondary)">Demo</span>'
+        : '<span class="badge badge-success">正式</span>';
+      const actionColor = {'登入':'var(--line-blue)','瀏覽頁面':'var(--text-secondary)','提交請假申請':'var(--warning)','預約會議室':'var(--info)','簽核':'var(--success)'}[l.action] || 'var(--text)';
+      return `<tr>
+        <td style="white-space:nowrap;font-size:.82rem">${timeStr}</td>
+        <td><strong>${l.user_id}</strong></td>
+        <td>${l.user_name}</td>
+        <td>${l.dept}</td>
+        <td><span style="color:${actionColor};font-weight:600">${l.action}</span></td>
+        <td style="font-size:.82rem">${l.page || '—'}</td>
+        <td style="font-size:.82rem;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(l.detail||'').replace(/"/g,'&quot;')}">${l.detail || '—'}</td>
+        <td>${modeBadge}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('auditLogBody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--danger)">載入失敗：' + e.message + '</td></tr>';
+  }
+}
+
+function exportAuditCSV(){
+  const target = document.getElementById('auditTarget')?.value || 'self';
+  const startDate = document.getElementById('auditDateFrom')?.value || '';
+  const endDate = document.getElementById('auditDateTo')?.value || '';
+  const params = new URLSearchParams({ target });
+  if (startDate) params.set('startDate', startDate);
+  if (endDate) params.set('endDate', endDate);
+  window.open('/api/audit-logs/export?' + params, '_blank');
+  logAudit('匯出稽核日誌','audit-log',`目標：${target}`);
+}
+
+// ===== MEETING RECORDS =====
+const meetingRecordsData = [
+  {id:1, date:'2026/03/31', time:'09:00-10:00', title:'Q1 營運會議', room:'3-1', dept:'all-company', organizer:'李副總',
+   participants:['李副總','陳建宏','王志明','林佩珊','張雅琪','黃麗華','周敏慧','劉書豪','蘇芳瑜'],
+   hasRecording:true, teamsRecordingUrl:'#', recordingDuration:'58:32',
+   hasSummary:true, summaryStatus:'done',
+   summary:'Q1 營運回顧：整體營收達標 102%，信用卡業務成長 15%。數位帳戶新增 12,000 戶。Q2 重點將聚焦在信用卡系統升級及行動銀行 3.0 上線。',
+   decisions:['信用卡系統升級 4 月底前完成 UAT','行動銀行 3.0 五月中上線','Q2 行銷預算增加 20%'],
+   actions:[{item:'準備 UAT 測試計畫',owner:'王志明',due:'04/05'},{item:'行動銀行 3.0 上線計畫書',owner:'陳建宏',due:'04/10'},{item:'Q2 行銷企劃書',owner:'蘇芳瑜',due:'04/08'}]},
+  {id:2, date:'2026/03/31', time:'13:00-14:00', title:'部門周會', room:'3-1', dept:'it', organizer:'陳建宏',
+   participants:['陳建宏','王志明','劉書豪','陳宏志'],
+   hasRecording:true, teamsRecordingUrl:'#', recordingDuration:'52:15',
+   hasSummary:true, summaryStatus:'done',
+   summary:'信用卡系統升級進度報告：完成度 65%，後端 API 重構完成，前端進行中。AWS 成本上月超支 23%，需要優化。新進工程師 on-boarding 順利。',
+   decisions:['增派 2 名前端工程師支援信用卡系統','AWS Reserved Instance 採購申請本週送出','新人 mentor 制度正式啟動'],
+   actions:[{item:'前端人力調度',owner:'陳建宏',due:'04/01'},{item:'AWS RI 採購單',owner:'陳宏志',due:'04/03'},{item:'Mentor 配對名單',owner:'劉書豪',due:'04/02'}]},
+  {id:3, date:'2026/03/28', time:'10:00-11:00', title:'廠商拜訪 — 鼎新電腦', room:'3-2', dept:'it', organizer:'林佩珊',
+   participants:['林佩珊','陳建宏','鼎新電腦業務代表'],
+   hasRecording:false, teamsRecordingUrl:null, recordingDuration:null,
+   hasSummary:true, summaryStatus:'done',
+   summary:'鼎新電腦提出 ERP 升級方案，報價 NT$450,000。包含系統移轉、教育訓練及一年維護。建議與現有 SAP 方案比較後再決定。',
+   decisions:['請鼎新補充與 SAP 的功能比較表','評估報告 4/10 前完成'],
+   actions:[{item:'索取功能比較表',owner:'林佩珊',due:'04/03'},{item:'ERP 評估報告',owner:'陳建宏',due:'04/10'}]},
+  {id:4, date:'2026/03/28', time:'13:00-15:00', title:'資安演練', room:'3-2', dept:'risk', organizer:'周敏慧',
+   participants:['周敏慧','陳建宏','王志明','全體資訊部'],
+   hasRecording:true, teamsRecordingUrl:'#', recordingDuration:'1:48:20',
+   hasSummary:true, summaryStatus:'done',
+   summary:'季度資安演練完成，模擬釣魚郵件測試全行點擊率 8.5%（目標 <5%）。DDoS 防禦演練成功，平均回應時間 12 分鐘。發現 3 個中風險漏洞待修補。',
+   decisions:['全行需再次進行資安意識培訓','3 個漏洞需在 2 週內修補','釣魚演練改為每月一次'],
+   actions:[{item:'資安培訓安排',owner:'周敏慧',due:'04/02'},{item:'漏洞修補計畫',owner:'王志明',due:'04/11'},{item:'月度釣魚演練排程',owner:'周敏慧',due:'04/05'}]},
+  {id:5, date:'2026/03/27', time:'09:00-10:00', title:'1-on-1 — 陳建宏 & 王志明', room:'3-3', dept:'it', organizer:'陳建宏',
+   participants:['陳建宏','王志明'],
+   hasRecording:false, teamsRecordingUrl:null, recordingDuration:null,
+   hasSummary:false, summaryStatus:'none',
+   summary:null, decisions:null, actions:null},
+  {id:6, date:'2026/03/27', time:'13:00-14:00', title:'Sprint Review — Scrum Team', room:'3-4', dept:'it', organizer:'王志明',
+   participants:['王志明','陳建宏','劉書豪','陳宏志','前端團隊'],
+   hasRecording:true, teamsRecordingUrl:'#', recordingDuration:'55:40',
+   hasSummary:true, summaryStatus:'done',
+   summary:'Sprint 12 完成 18/20 個 story points。信用卡申請流程 API 重構完成，效能提升 40%。兩個 carry-over items：推播通知模組、報表匯出功能。',
+   decisions:['Carry-over items 列為 Sprint 13 最高優先','推播通知需與行動銀行團隊對齊規格'],
+   actions:[{item:'Sprint 13 規劃',owner:'王志明',due:'03/28'},{item:'推播規格會議',owner:'劉書豪',due:'03/31'}]},
+  {id:7, date:'2026/03/26', time:'13:00-14:00', title:'部門周會', room:'3-1', dept:'it', organizer:'陳建宏',
+   participants:['陳建宏','王志明','劉書豪','陳宏志'],
+   hasRecording:true, teamsRecordingUrl:'#', recordingDuration:'49:55',
+   hasSummary:true, summaryStatus:'done',
+   summary:'本次會議討論三個主題：(1) 信用卡系統升級進度報告，完成度 60%；(2) Q2 預算分配，雲端成本需控制在 USD 15,000/月；(3) 新進同仁教育訓練安排。',
+   decisions:['信用卡系統增派 2 名後端工程師','AWS 成本優化報告 4/5 前提交','全員 4/2 前完成資安培訓報名'],
+   actions:[{item:'信用卡系統 Sprint 13 規劃',owner:'王志明',due:'03/29'},{item:'AWS 成本優化報告',owner:'陳宏志',due:'04/05'},{item:'資安培訓報名',owner:'全體',due:'04/02'}]},
+  {id:8, date:'2026/03/26', time:'09:00-10:00', title:'跨部門會議 — 營運部', room:'2-10', dept:'ops', organizer:'黃麗華',
+   participants:['黃麗華','陳建宏','林佩珊','蘇芳瑜'],
+   hasRecording:true, teamsRecordingUrl:'#', recordingDuration:'58:10',
+   hasSummary:false, summaryStatus:'pending',
+   summary:null, decisions:null, actions:null},
+  {id:9, date:'2026/03/25', time:'14:00-16:00', title:'董事會預備會議', room:'2-13', dept:'all-company', organizer:'李副總',
+   participants:['李副總','黃麗華','周敏慧','林佩珊'],
+   hasRecording:true, teamsRecordingUrl:'#', recordingDuration:'1:52:30',
+   hasSummary:true, summaryStatus:'done',
+   summary:'董事會議程確認：Q1 財報審議、風險管理報告、資安治理強化方案、數位轉型進度更新。各部門簡報投影片需於 3/28 前繳交。',
+   decisions:['簡報格式統一使用新版範本','財報附件需含同業比較數據','資安報告增加量化指標'],
+   actions:[{item:'簡報投影片彙整',owner:'黃麗華',due:'03/28'},{item:'同業比較數據整理',owner:'林佩珊',due:'03/27'},{item:'資安量化指標報告',owner:'周敏慧',due:'03/28'}]}
+];
+
+function renderMeetingRecords(){
+  renderMeetingList('meetingRecordsList', meetingRecordsData);
+  const myMeetings = meetingRecordsData.filter(m => m.participants.some(p => p.includes('陳建宏')));
+  renderMeetingList('myMeetingRecordsList', myMeetings);
+}
+
+function renderMeetingList(containerId, data){
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  if(data.length === 0){
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">沒有符合條件的會議紀錄</div>';
+    return;
+  }
+  let html = '<table><thead><tr><th>日期</th><th>會議主題</th><th>會議室</th><th>主持人</th><th>與會人員</th><th>Teams 錄音</th><th>AI 摘要</th><th>操作</th></tr></thead><tbody>';
+  data.forEach(m => {
+    const participantCount = m.participants.length;
+    const participantPreview = m.participants.slice(0,3).join('、') + (participantCount > 3 ? ` 等${participantCount}人` : '');
+    const recordingBadge = m.hasRecording
+      ? `<span class="badge badge-success" style="cursor:pointer" onclick="playTeamsRecording(${m.id})">&#x1F3A5; ${m.recordingDuration}</span>`
+      : '<span class="badge" style="background:#f1f5f9;color:var(--text-secondary)">無錄音</span>';
+    const summaryBadge = m.summaryStatus === 'done'
+      ? '<span class="badge badge-success">&#x2705; 已摘要</span>'
+      : m.summaryStatus === 'pending'
+        ? '<span class="badge badge-warning">&#x23F3; 處理中</span>'
+        : '<span class="badge" style="background:#f1f5f9;color:var(--text-secondary)">—</span>';
+    html += `<tr style="cursor:pointer" onclick="showMeetingDetail(${m.id})">
+      <td><strong>${m.date}</strong><br><span style="font-size:.75rem;color:var(--text-secondary)">${m.time}</span></td>
+      <td><strong>${m.title}</strong></td>
+      <td>${m.room}</td>
+      <td>${m.organizer}</td>
+      <td><span style="font-size:.84rem">${participantPreview}</span></td>
+      <td>${recordingBadge}</td>
+      <td>${summaryBadge}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();showMeetingDetail(${m.id})">&#x1F4CB; 詳情</button></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function filterMeetingRecords(){
+  const dept = document.getElementById('mrDeptFilter').value;
+  const status = document.getElementById('mrStatusFilter').value;
+  let filtered = meetingRecordsData.filter(m => {
+    if(dept !== 'all' && m.dept !== dept) return false;
+    if(status === 'has-recording' && !m.hasRecording) return false;
+    if(status === 'has-summary' && m.summaryStatus !== 'done') return false;
+    if(status === 'pending' && m.summaryStatus !== 'pending') return false;
+    return true;
+  });
+  renderMeetingList('meetingRecordsList', filtered);
+}
+
+function searchMeetingRecords(){
+  const keyword = document.getElementById('mrSearchKeyword').value.toLowerCase();
+  const person = document.getElementById('mrSearchPerson').value;
+  let results = meetingRecordsData.filter(m => {
+    if(keyword && !m.title.toLowerCase().includes(keyword) && !(m.summary||'').toLowerCase().includes(keyword)
+       && !(m.decisions||[]).join(' ').toLowerCase().includes(keyword)) return false;
+    if(person && !m.participants.some(p => p.includes(person))) return false;
+    return true;
+  });
+  if(results.length === 0){
+    document.getElementById('mrSearchResults').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">沒有找到符合條件的會議紀錄</div>';
+  } else {
+    renderMeetingList('mrSearchResults', results);
+  }
+}
+
+function playTeamsRecording(meetingId){
+  const m = meetingRecordsData.find(r => r.id === meetingId);
+  if(!m) return;
+  showModal('teamsRecording');
+  document.getElementById('modalTitle').innerHTML = '&#x1F3A5; Teams 會議錄音';
+  document.getElementById('modalBody').innerHTML = `
+    <div style="margin-bottom:16px;padding:14px;background:linear-gradient(135deg,#dbeafe,#ede9fe);border-radius:10px">
+      <div style="font-weight:700;margin-bottom:4px">${m.title}</div>
+      <div style="font-size:.84rem;color:var(--text-secondary)">${m.date} ${m.time} | ${m.room} | 主持人：${m.organizer}</div>
+    </div>
+    <div style="background:#0f0f0f;border-radius:12px;padding:24px;text-align:center;margin-bottom:16px">
+      <div style="font-size:3rem;margin-bottom:8px">&#x1F3A5;</div>
+      <div style="color:#fff;font-weight:700;margin-bottom:4px">Microsoft Teams 錄音</div>
+      <div style="color:#999;font-size:.84rem;margin-bottom:16px">時長：${m.recordingDuration}</div>
+      <div style="display:flex;gap:12px;justify-content:center">
+        <button class="btn btn-primary" onclick="showToast('info','正在開啟 Teams 播放器...')">&#x25B6; 播放錄音</button>
+        <button class="btn btn-outline" style="color:#fff;border-color:#555" onclick="showToast('info','正在下載錄音檔...')">&#x1F4E5; 下載</button>
+      </div>
+    </div>
+    <div style="font-weight:700;margin-bottom:8px">&#x1F465; 與會人員 (${m.participants.length} 人)</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">
+      ${m.participants.map(p => `<span style="padding:4px 12px;background:var(--bg);border-radius:20px;font-size:.84rem">${p}</span>`).join('')}
+    </div>
+    ${m.hasSummary ? '<div style="padding:10px 14px;background:#e8faf0;border-radius:8px;font-size:.84rem">&#x2705; 此會議已產生 AI 摘要，<a href="#" onclick="event.preventDefault();closeModal();showMeetingDetail('+m.id+')">點此查看</a></div>' : '<button class="btn btn-outline" onclick="generateMeetingSummary('+m.id+')">&#x1F916; 產生 AI 摘要</button>'}`;
+  document.getElementById('modalFooter').innerHTML = `<button class="btn btn-outline" onclick="closeModal()">關閉</button>`;
+}
+
+function showMeetingDetail(meetingId){
+  const m = meetingRecordsData.find(r => r.id === meetingId);
+  if(!m) return;
+  showModal('meetingDetail');
+  document.getElementById('modalTitle').innerHTML = '&#x1F4CB; ' + m.title;
+  let bodyHtml = `
+    <div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px;padding:14px;background:linear-gradient(135deg,#dbeafe,#e8faf0);border-radius:10px">
+        <div style="font-size:.78rem;color:var(--text-secondary);margin-bottom:4px">會議資訊</div>
+        <div style="font-weight:700">${m.date} ${m.time}</div>
+        <div style="font-size:.84rem;color:var(--text-secondary)">會議室：${m.room} | 主持人：${m.organizer}</div>
+      </div>
+      <div style="padding:14px;background:var(--bg);border-radius:10px">
+        <div style="font-size:.78rem;color:var(--text-secondary);margin-bottom:4px">Teams 錄音</div>
+        ${m.hasRecording ? `<span class="badge badge-success" style="cursor:pointer" onclick="playTeamsRecording(${m.id})">&#x1F3A5; ${m.recordingDuration}</span>` : '<span style="color:var(--text-secondary);font-size:.84rem">無錄音</span>'}
+      </div>
+    </div>
+    <div style="font-weight:700;margin-bottom:8px">&#x1F465; 與會人員 (${m.participants.length} 人)</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px">
+      ${m.participants.map(p => `<span style="padding:4px 12px;background:var(--bg);border-radius:20px;font-size:.84rem;cursor:pointer" onclick="searchPersonMeetings('${p}')">${p}</span>`).join('')}
+    </div>`;
+
+  if(m.hasSummary && m.summary){
+    bodyHtml += `
+    <div style="font-weight:700;margin-bottom:8px">&#x1F4CB; AI 會議摘要</div>
+    <div style="font-size:.88rem;line-height:1.8;margin-bottom:16px;padding:12px;background:#f8fafc;border-radius:8px;border-left:3px solid var(--line-green)">
+      ${m.summary}
+    </div>
+    <div style="font-weight:700;margin-bottom:8px">&#x2705; 決議事項</div>
+    <div style="font-size:.86rem;margin-bottom:16px">
+      ${m.decisions.map((d,i) => `<div style="padding:8px 12px;background:#e8faf0;border-radius:6px;margin-bottom:6px">${i+1}. ${d}</div>`).join('')}
+    </div>
+    <div style="font-weight:700;margin-bottom:8px">&#x1F4C5; 行動項目</div>
+    <table><thead><tr><th>項目</th><th>負責人</th><th>截止日</th><th>狀態</th></tr></thead><tbody>
+      ${m.actions.map(a => `<tr><td>${a.item}</td><td>${a.owner}</td><td>${a.due}</td><td><span class="badge badge-info">追蹤中</span></td></tr>`).join('')}
+    </tbody></table>`;
+  } else if(m.summaryStatus === 'pending'){
+    bodyHtml += `<div style="text-align:center;padding:30px;background:#fef3c7;border-radius:10px"><div style="font-size:2rem;margin-bottom:8px">&#x23F3;</div><div style="font-weight:700">AI 摘要處理中</div><div style="font-size:.84rem;color:var(--text-secondary);margin-top:4px">Teams 錄音正在轉錄及分析，預計 10-15 分鐘完成</div></div>`;
+  } else {
+    bodyHtml += `<div style="text-align:center;padding:30px;background:var(--bg);border-radius:10px"><div style="font-size:2rem;margin-bottom:8px">&#x1F916;</div><div style="font-weight:700">尚未產生 AI 摘要</div><div style="font-size:.84rem;color:var(--text-secondary);margin-top:4px">${m.hasRecording ? '可從 Teams 錄音自動產生摘要' : '此會議無錄音，可手動上傳文字紀錄'}</div><button class="btn btn-primary" style="margin-top:12px" onclick="generateMeetingSummary(${m.id})">&#x1F916; 產生 AI 摘要</button></div>`;
+  }
+
+  document.getElementById('modalBody').innerHTML = bodyHtml;
+  document.getElementById('modalFooter').innerHTML = `<button class="btn btn-outline" onclick="closeModal()">關閉</button>${m.hasSummary ? '<button class="btn btn-outline">&#x1F4E5; 匯出 PDF</button><button class="btn btn-primary" onclick="showToast(\'success\',\'已發送會議紀要至 Teams 頻道\');closeModal()">&#x1F4E8; 發送至 Teams</button>' : ''}`;
+}
+
+function generateMeetingSummary(meetingId){
+  showToast('info','&#x1F916; AI 正在分析 Teams 錄音並產生摘要...');
+  const m = meetingRecordsData.find(r => r.id === meetingId);
+  if(m){
+    setTimeout(() => {
+      m.hasSummary = true;
+      m.summaryStatus = 'done';
+      m.summary = m.summary || '（AI 自動摘要）本次會議討論了多項議題，包含專案進度更新、資源分配及後續行動規劃。詳細內容已由 AI 自動整理。';
+      m.decisions = m.decisions || ['待確認事項已記錄','後續追蹤項目已建立'];
+      m.actions = m.actions || [{item:'會議後續追蹤',owner:m.organizer,due:'下週'}];
+      showToast('success','AI 摘要已產生完成！');
+      closeModal();
+      showMeetingDetail(meetingId);
+      renderMeetingRecords();
+    }, 2500);
+  }
+}
+
+function searchPersonMeetings(personName){
+  closeModal();
+  navigateTo('meeting-records');
+  setTimeout(() => {
+    const tabs = document.querySelectorAll('#page-meeting-records .tab');
+    const tabContents = document.querySelectorAll('#page-meeting-records .tab-content');
+    tabs.forEach(t => t.classList.remove('active'));
+    tabContents.forEach(tc => tc.classList.remove('active'));
+    tabs[2].classList.add('active');
+    document.getElementById('tab-mr-search').classList.add('active');
+    document.getElementById('mrSearchPerson').value = personName;
+    searchMeetingRecords();
+  }, 100);
 }
 
 // ===== AI TOOL DEMOS =====

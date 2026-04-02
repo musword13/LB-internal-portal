@@ -55,8 +55,14 @@ app.post('/api/login', async (req, res) => {
 
     req.session.user = {
       id: user.id, name: user.name, dept: user.dept,
-      title: user.title, email: user.email, role: user.role
+      title: user.title, email: user.email, role: user.role,
+      isDemo: false
     };
+    // Audit log: login
+    await pool.query(
+      'INSERT INTO audit_logs (user_id, user_name, dept, action, page, detail, ip_address, is_demo) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)',
+      [user.id, user.name, user.dept, '登入', 'login', '正式登入', req.ip, false]
+    );
     res.json({ success: true, user: req.session.user });
   } catch (err) {
     console.error('Login error:', err);
@@ -642,6 +648,148 @@ app.post('/api/approvals/notify-teams', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('Teams notification error:', err);
     res.status(500).json({ error: '發送通知失敗' });
+  }
+});
+
+// =============================================
+// DEMO LOGIN
+// =============================================
+app.post('/api/demo-login', async (req, res) => {
+  try {
+    // Default demo user: BK00013
+    const { rows } = await pool.query('SELECT * FROM users WHERE id = $1', ['BK00013']);
+    if (rows.length === 0) return res.status(500).json({ error: 'Demo 使用者不存在' });
+    const user = rows[0];
+    req.session.user = {
+      id: user.id, name: user.name, dept: user.dept,
+      title: user.title, email: user.email, role: user.role,
+      isDemo: true
+    };
+    await pool.query(
+      'INSERT INTO audit_logs (user_id, user_name, dept, action, page, detail, ip_address, is_demo) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)',
+      [user.id, user.name, user.dept, '登入', 'login', 'Demo 模式登入', req.ip, true]
+    );
+    res.json({ success: true, user: req.session.user });
+  } catch (err) {
+    console.error('Demo login error:', err);
+    res.status(500).json({ error: 'Demo 登入失敗' });
+  }
+});
+
+// =============================================
+// AUDIT LOG API
+// =============================================
+
+// 記錄操作
+app.post('/api/audit-log', requireAuth, async (req, res) => {
+  try {
+    const { action, page, detail } = req.body;
+    const user = req.session.user;
+    await pool.query(
+      'INSERT INTO audit_logs (user_id, user_name, dept, action, page, detail, ip_address, is_demo) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)',
+      [user.id, user.name, user.dept, action, page, detail, req.ip, user.isDemo || false]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Audit log error:', err);
+    res.status(500).json({ error: '記錄失敗' });
+  }
+});
+
+// 查詢稽核紀錄
+app.get('/api/audit-logs', requireAuth, async (req, res) => {
+  try {
+    const user = req.session.user;
+    const { target, startDate, endDate, limit: queryLimit } = req.query;
+    const lim = Math.min(parseInt(queryLimit) || 200, 1000);
+    let query, params;
+
+    // 部門主管 (role=admin 或 title 含 經理/副理/主管/總) 可以查看部門紀錄
+    const isManager = user.role === 'admin' || /經理|副理|主管|總|協理/.test(user.title);
+
+    if (isManager && target === 'dept') {
+      query = `SELECT * FROM audit_logs WHERE dept = $1`;
+      params = [user.dept];
+    } else if (isManager && target && target !== 'self') {
+      // 查看特定員工
+      query = `SELECT * FROM audit_logs WHERE user_id = $1 AND dept = $2`;
+      params = [target, user.dept];
+    } else {
+      // 查看自己
+      query = `SELECT * FROM audit_logs WHERE user_id = $1`;
+      params = [user.id];
+    }
+
+    if (startDate) {
+      params.push(startDate);
+      query += ` AND created_at >= $${params.length}`;
+    }
+    if (endDate) {
+      params.push(endDate + ' 23:59:59');
+      query += ` AND created_at <= $${params.length}`;
+    }
+
+    query += ` ORDER BY created_at DESC LIMIT ${lim}`;
+    const { rows } = await pool.query(query, params);
+    res.json({ logs: rows, isManager });
+  } catch (err) {
+    console.error('Audit logs error:', err);
+    res.status(500).json({ error: '載入稽核紀錄失敗' });
+  }
+});
+
+// 取得部門成員列表 (主管用)
+app.get('/api/audit-logs/dept-members', requireAuth, async (req, res) => {
+  try {
+    const user = req.session.user;
+    const isManager = user.role === 'admin' || /經理|副理|主管|總|協理/.test(user.title);
+    if (!isManager) return res.json({ members: [] });
+    const { rows } = await pool.query(
+      'SELECT id, name, title FROM users WHERE dept = $1 ORDER BY name', [user.dept]
+    );
+    res.json({ members: rows });
+  } catch (err) {
+    res.status(500).json({ error: '載入失敗' });
+  }
+});
+
+// 匯出 CSV
+app.get('/api/audit-logs/export', requireAuth, async (req, res) => {
+  try {
+    const user = req.session.user;
+    const { target, startDate, endDate } = req.query;
+    const isManager = user.role === 'admin' || /經理|副理|主管|總|協理/.test(user.title);
+
+    let query, params;
+    if (isManager && target === 'dept') {
+      query = 'SELECT * FROM audit_logs WHERE dept = $1';
+      params = [user.dept];
+    } else if (isManager && target && target !== 'self') {
+      query = 'SELECT * FROM audit_logs WHERE user_id = $1 AND dept = $2';
+      params = [target, user.dept];
+    } else {
+      query = 'SELECT * FROM audit_logs WHERE user_id = $1';
+      params = [user.id];
+    }
+    if (startDate) { params.push(startDate); query += ` AND created_at >= $${params.length}`; }
+    if (endDate) { params.push(endDate + ' 23:59:59'); query += ` AND created_at <= $${params.length}`; }
+    query += ' ORDER BY created_at DESC LIMIT 5000';
+
+    const { rows } = await pool.query(query, params);
+
+    const BOM = '\uFEFF';
+    let csv = BOM + '時間,員工編號,姓名,部門,操作,頁面,詳情,模式\n';
+    rows.forEach(r => {
+      const time = new Date(r.created_at).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
+      csv += `"${time}","${r.user_id}","${r.user_name}","${r.dept}","${r.action}","${r.page || ''}","${(r.detail || '').replace(/"/g, '""')}","${r.is_demo ? 'Demo' : '正式'}"\n`;
+    });
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename=audit_log_${new Date().toISOString().slice(0,10)}.csv`);
+    res.send(csv);
+  } catch (err) {
+    console.error('Export error:', err);
+    res.status(500).json({ error: '匯出失敗' });
   }
 });
 
